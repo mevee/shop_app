@@ -1,0 +1,63 @@
+import 'package:dio/dio.dart';
+import 'package:get/get.dart' as getx;
+import 'package:get/get_core/src/get_main.dart';
+import 'package:shop_app/data/app_state_manager.dart';
+import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/utils/routes.dart';
+import 'package:shop_app/widgets/dialog_helper.dart';
+// import '../core/utils/logger.dart';
+ 
+class NetworkAPIServicesString {
+  static const noInternetMessgae = 'No Internet Connection';
+  static const communicationError = 'Error During Communication';
+  static const invalidRequest = 'Invalid request';
+  static const unautorisedRequest = 'Unauthorised request';
+  static const unauthouriseInput = 'Unauthorised Input';
+}
+
+class NetworkInterceptor extends InterceptorsWrapper {
+  static bool isPopUpVisible = false;
+  final UserManager _userManager = getx.Get.find();
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    super.onRequest(options, handler);
+    if (options.headers.containsKey('x-access-token')) {
+      options.headers.remove('x-access-token');
+    }
+    if (options.headers.containsKey('x-role-type')) {
+      options.headers.remove('x-role-type');
+    }
+    options.contentType = 'application/json';
+    options.headers.addAll({
+      'x-access-token': _userManager.getUserToken,
+      'x-userId': _userManager.getUserId,
+    });
+  }
+
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // logf(tag: "NETWORK_INTERCEPTOR", message: err.toString());
+    if (isTokenExpired(err)) {
+      if (!isPopUpVisible) {
+        isPopUpVisible = true;
+        DialogHelper.showLogoutPopup(() async {
+          await logoutUser();
+          isPopUpVisible = false;
+        });
+      }
+    } else {
+      handler.reject(err);
+    }
+  }
+
+  bool isTokenExpired(DioException error) {
+    return error.response?.data['status'] == 401;
+  }
+
+  Future<void> logoutUser() async {
+    _userManager.logOut();
+    ApplicationState().userLoggedOut();
+    Get.offAllNamed(AppRoutes.login);
+  }
+}
