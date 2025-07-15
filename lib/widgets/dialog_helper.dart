@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shop_app/common/localization_extension.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/utils/app_images.dart';
 import 'package:shop_app/widgets/app_button.dart';
@@ -132,7 +131,7 @@ class DialogHelper {
                           border: Border.all(color: AppColors.grey, width: 1.0),
                         ),
                         child: Text(
-                          context.localized.cancel,
+                          "Cancel",
                           style: GoogleFonts.inter(
                             color: AppColors.grey,
                             fontWeight: FontWeight.w600,
@@ -163,7 +162,7 @@ class DialogHelper {
                             ),
                             horizontalSpacing(8.0),
                             Text(
-                              secondButtonText ?? context.localized.save,
+                              secondButtonText ?? "Save",
                               style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600),
@@ -206,7 +205,7 @@ class DialogHelper {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              context.localized.onboardingCompleted,
+              "Onboarding Completed",
               textAlign: TextAlign.start,
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w500,
@@ -228,7 +227,7 @@ class DialogHelper {
                       color: AppColors.blackText,
                     ),
                     child: Text(
-                      context.localized.start,
+                      "Start",
                       style: GoogleFonts.inter(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -268,7 +267,7 @@ class DialogHelper {
                 ),
                 horizontalSpacing(10),
                 Text(
-                  context.localized.addComment,
+                  "Add Comment",
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 20,
@@ -317,7 +316,7 @@ class DialogHelper {
                             if (isLoading.value) const RotatingImageView(),
                             if (isLoading.value) horizontalSpacing(8),
                             Text(
-                              context.localized.submitFeedback,
+                              "Submit Feed Back",
                               style: GoogleFonts.inter(
                                 color: remarks.value.isEmpty
                                     ? AppColors.grey

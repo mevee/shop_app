@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/modules/calendar/calendar_screen.dart';
 import 'package:shop_app/modules/home/home_dashboard.dart';
-import 'package:shop_app/modules/schedule/schedule_screen.dart';
-import 'package:shop_app/modules/shop_master/shop_master_screen.dart';
+import 'package:shop_app/screens/calendar/calendar_screen.dart';
+import 'package:shop_app/screens/schedule/schedule_screen.dart';
+import 'package:shop_app/screens/shop_master/shop_master_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

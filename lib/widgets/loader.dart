@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shop_app/utils/image_constants.dart';
+import 'package:shop_app/utils/app_images.dart';
 
 class RotatingImageView extends StatefulWidget {
   const RotatingImageView({super.key});
@@ -40,7 +40,7 @@ class _RotatingImageViewState extends State<RotatingImageView>
           );
         },
         child: SvgPicture.asset(
-          AppImages.premier,
+          AssetImages.strThreeDotsHorizontal,
           width: 20, // Adjust the size as needed
         ),
       ),

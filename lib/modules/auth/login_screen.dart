@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/image_constants.dart';
 import 'package:shop_app/widgets/app_logo.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
-import '../../utils/routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() {
     // if (_formKey.currentState!.validate()) {
       print('Login: ${_emailController.text}');
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(Routes.home);
     // }
   }
 
@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             prefixIcon: Icon(Icons.lock, color: Colors.white),
                           ),
                           forgotPasswordBtn(() {
-                            Get.toNamed(AppRoutes.forgotPassword);
+                            Get.toNamed(Routes.passwordReset);
                           }),
                           const SizedBox(height: 8),
                           CommonWidgets.button(

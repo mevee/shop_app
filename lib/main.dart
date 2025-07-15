@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shop_app/l10n/app_localizations.dart';
-import 'utils/routes.dart';
+import 'package:shop_app/app_bindings/initial_binding.dart';
+import 'package:shop_app/navigation/app_pages.dart';
 import 'utils/constants.dart';
 
 void main() {
@@ -26,14 +26,15 @@ class MyApp extends StatelessWidget {
           Theme.of(context).primaryTextTheme,
         ),
       ),
-      initialRoute: AppRoutes.splash,
-      getPages: AppRoutes.routes,
-       localizationsDelegates: const [
-            AppLocalizations.delegate
-            // GlobalMaterialLocalizations.delegate,
-            // GlobalWidgetsLocalizations.delegate,
-            // GlobalCupertinoLocalizations.delegate,
-          ],
+      initialRoute: Routes.splash,
+      getPages: AppPages.routes,
+      initialBinding: InitialBinding(),
+      //  localizationsDelegates: const [
+      //       AppLocalizations.delegate
+      //       // GlobalMaterialLocalizations.delegate,
+      //       // GlobalWidgetsLocalizations.delegate,
+      //       // GlobalCupertinoLocalizations.delegate,
+      //     ],
       debugShowCheckedModeBanner: false,
     );
   }

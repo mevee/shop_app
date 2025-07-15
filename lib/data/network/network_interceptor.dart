@@ -3,7 +3,7 @@ import 'package:get/get.dart' as getx;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/user_manager.dart';
-import 'package:shop_app/utils/routes.dart';
+import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/dialog_helper.dart';
 // import '../core/utils/logger.dart';
  
@@ -58,6 +58,6 @@ class NetworkInterceptor extends InterceptorsWrapper {
   Future<void> logoutUser() async {
     _userManager.logOut();
     ApplicationState().userLoggedOut();
-    Get.offAllNamed(AppRoutes.login);
+    Get.offAllNamed(Routes.login);
   }
 }
