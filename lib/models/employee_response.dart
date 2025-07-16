@@ -87,6 +87,7 @@ class GetDistanceRequest {
 class LocationLatLon{
   double? lat=0;
   double? long=0;
+  LocationLatLon({this.lat, this.long});
 }
 
 class GetDistanceResponse {
