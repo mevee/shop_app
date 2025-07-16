@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/image_constants.dart';
 import 'package:shop_app/widgets/app_logo.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
+import 'package:shop_app/widgets/helper.dart';
+import 'package:shop_app/widgets/loader.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends GetView<AuthController> {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _login() {
-    // if (_formKey.currentState!.validate()) {
-      print('Login: ${_emailController.text}');
-      Get.offAllNamed(Routes.home);
-    // }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +48,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     //   ],
                     // ),
                     child: Form(
-                      key: _formKey,
+                      key: controller.formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CommonWidgets.text(
-                            controller: _emailController,
+                            controller: controller.loginEmailCtr,
                             labelText: 'Enter Email',
                             errorMessage: 'Please enter your email',
                             fontSize: 14.0,
@@ -78,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
                           CommonWidgets.text(
-                            controller: _passwordController,
+                            controller: controller.loginPasswordCtr,
                             labelText: 'Enter Password',
                             errorMessage: 'Please enter your password',
                             fontSize: 14.0,
@@ -86,16 +69,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             prefixIcon: Icon(Icons.lock, color: Colors.white),
                           ),
                           forgotPasswordBtn(() {
+                            controller.forgetPasswordView();
                             Get.toNamed(Routes.passwordReset);
                           }),
                           const SizedBox(height: 8),
-                          CommonWidgets.button(
-                            lable: 'LOGIN',
-                            onPressed: _login,
-                            color: Colors.white,
-                            textColor: Colors.deepPurpleAccent,
+                          Obx(
+                            () =>
+                            buttonWithLoader(
+                              disable: controller.isLoginButtonLoading.value ?true:false,
+                              isLoading: controller.isLoginButtonLoading.value,
+                              context: context,
+                              label: "LOGIN",
+                              onPressed: () {
+                                controller.requestLogin();
+                              },
+                            )
                           ),
-                           
                           const SizedBox(height: 20),
                         ],
                       ),

@@ -121,7 +121,7 @@ class LoginRequest {
   String? userName;
   String? password;
 
-  LoginRequest({userName, password});
+  LoginRequest({this.userName, this.password});
 
   LoginRequest.fromJson(Map<String, dynamic> json) {
     userName = json['userName'];
@@ -136,24 +136,67 @@ class LoginRequest {
   }
 }
 
-class VerifyEmailRequest {
+class ForgotPasswordRequest {
+  String? userName;
+  String? purpose;
+
+  ForgotPasswordRequest({this.userName, this.purpose});
+
+  ForgotPasswordRequest.fromJson(Map<String, dynamic> json) {
+    userName = json['userName'];
+    purpose = json['purpose'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['purpose'] = purpose;
+    return data;
+  }
+}
+
+class VerifyOtpAndNewPassowrdRequest {
   String? otp;
-  String? email;
+  String? newPassword;
+  String? uniqueId;
 
-  VerifyEmailRequest({otp, email});
+  VerifyOtpAndNewPassowrdRequest({this.otp, this.newPassword, this.uniqueId});
 
-  VerifyEmailRequest.fromJson(Map<String, dynamic> json) {
+  VerifyOtpAndNewPassowrdRequest.fromJson(Map<String, dynamic> json) {
     otp = json['otp'];
-    email = json['email'];
+    newPassword = json['newPassword'];
+    uniqueId = json['uniqueId'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['otp'] = otp;
-    data['email'] = email;
+    data['newPassword'] = newPassword;
+    data['uniqueId'] = uniqueId;
     return data;
   }
 }
+
+class ChangePasswordRequest {
+  String? userName;
+  String? newPassword;
+  String? oldPassword;
+  ChangePasswordRequest({this.userName, this.newPassword, this.oldPassword});
+  ChangePasswordRequest.fromJson(Map<String, dynamic> json) {
+    userName = json['userName'];
+    newPassword = json['newPassword'];
+    oldPassword = json['oldPassword'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['newPassword'] = newPassword;
+    data['oldPassword'] = oldPassword;
+    return data;
+  }
+}
+
 
 class SignupRequest {
   String? message;

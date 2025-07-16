@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
+import 'package:shop_app/modules/auth/bindings/auth_binding.dart';
 import 'package:shop_app/modules/auth/login_screen.dart';
+import 'package:shop_app/modules/auth/password_reset_screen.dart';
+import 'package:shop_app/modules/bottomNav/binding/botom_nav_binding.dart';
+import 'package:shop_app/modules/bottomNav/bottom_nav_screen.dart';
 import 'package:shop_app/modules/home/home_screen.dart';
-import 'package:shop_app/screens/auth/password_reset_screen.dart';
 
 import '../modules/splash/views/splash_view.dart';
 
@@ -10,7 +13,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const initial = Routes.splash;
+  static const initial = Routes.passwordReset;
 
   static final routes = [
     GetPage(
@@ -31,17 +34,17 @@ class AppPages {
     GetPage(
       name: _Paths.login,
       page: () => const LoginScreen(),
-      // binding: LoginBinding(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: _Paths.passwordReset,
       page: () => const PasswordResetScreen(),
-      // binding: SignupBinding(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: _Paths.bottomNavigation,
-      page: () => HomeScreen(),
-      // binding: BottomNavigationBinding(),
+      page: () => BottomNavScreen(),
+      binding: BottomNavBinding(),
     ),
     // GetPage(
     //   name: _Paths.profile,

@@ -7,6 +7,7 @@ class AppLogo extends StatelessWidget {
   final Color? iconColor;
   final Color? assetColor;
   final Color? titleColor;
+  final String? title;
   final String? subtitle;
   final Color? subtitleColor;
   final bool showBackground;
@@ -20,6 +21,7 @@ class AppLogo extends StatelessWidget {
     this.assetColor,
     this.titleColor,
     this.subtitle,
+    this.title,
     this.subtitleColor,
     this.showBackground = true,
     this.assetPath,
@@ -44,18 +46,21 @@ class AppLogo extends StatelessWidget {
             color: iconColor ?? Colors.white,
           ),
         const SizedBox(height: 16),
-        Text(
-          'Shop App',
-          style: GoogleFonts.poppins(
-            fontSize: titleSize,
-            fontWeight: FontWeight.bold,
-            color: titleColor ?? Colors.white,
+        if (title != null)
+          Text(
+            title!,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: titleSize,
+              fontWeight: FontWeight.bold,
+              color: titleColor ?? Colors.white,
+            ),
           ),
-        ),
         if (subtitle != null) ...[
           const SizedBox(height: 8),
           Text(
             subtitle!,
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: subtitleColor ?? Colors.white.withOpacity(0.8),
@@ -78,4 +83,4 @@ class AppLogo extends StatelessWidget {
 
     return logoContent;
   }
-} 
+}

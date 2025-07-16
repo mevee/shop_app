@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop_app/modules/calendar/calendar_screen.dart';
-import 'package:shop_app/modules/home/home_dashboard.dart';
+import 'package:shop_app/modules/home/home_screen.dart';
 import 'package:shop_app/modules/schedule/schedule_screen.dart';
 import 'package:shop_app/modules/shop_master/shop_master_screen.dart';
 
@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeDashboard(),
+    const HomeScreen(),
     const CalendarScreen(),
     const ScheduleScreen(),
     const ShopMasterScreen(),

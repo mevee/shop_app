@@ -61,6 +61,7 @@ abstract class AssetImages {
   // static const sendFilled = AssetImage('assets/images/send_filled.png');
   // static const downwardArrow = AssetImage('assets/images/arrow-right.png');
   // static const tick = AssetImage('assets/images/tick.png');
+  static const timeline = AssetImage('assets/images/timeline.png');
 
   // * PNG and JPG
 
