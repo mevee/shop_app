@@ -18,18 +18,18 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     // final ApplicationState appState = Get.find();
-    final UserManager userManager = Get.find();
-    completeSplashUser(userManager);
+    // final UserManager userManager = Get.find();
+    completeSplashUser();
     super.initState();
   }
 
-  void completeSplashUser(UserManager userManager) {
+  void completeSplashUser({UserManager? userManager}) {
     Future.delayed(const Duration(seconds: 2), (() {
-      if (userManager.getUserData()?.login != null) {
-        Get.offAllNamed(Routes.bottomNavigation);
-      } else {
+      // if (userManager.getUserData()?.login != null) {
+        // Get.offAllNamed(Routes.bottomNavigation);
+      // } else {
         Get.offAllNamed(Routes.login);
-      }
+      // }
     }));
   }
 

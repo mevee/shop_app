@@ -83,7 +83,7 @@ class CommonWidgets {
 
   Function()? onPressed}) {
     return SizedBox(
-      width: double.infinity,
+      width: double.maxFinite,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(

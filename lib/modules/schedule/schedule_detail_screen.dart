@@ -5,8 +5,8 @@ import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
 
-class ScheduleScreenState extends GetView<ScheduleController> {
-  const ScheduleScreenState({super.key});
+class ScheduleDetailView extends GetView<ScheduleController> {
+  const ScheduleDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {

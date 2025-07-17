@@ -29,12 +29,6 @@ class MyApp extends StatelessWidget {
       initialRoute: Routes.splash,
       getPages: AppPages.routes,
       initialBinding: InitialBinding(),
-      //  localizationsDelegates: const [
-      //       AppLocalizations.delegate
-      //       // GlobalMaterialLocalizations.delegate,
-      //       // GlobalWidgetsLocalizations.delegate,
-      //       // GlobalCupertinoLocalizations.delegate,
-      //     ],
       debugShowCheckedModeBanner: false,
     );
   }

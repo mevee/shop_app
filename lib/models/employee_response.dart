@@ -1,4 +1,23 @@
-import 'dart:ffi';
+class ClockInRequest {
+  String? userName;
+  String? loginLong; // "2025-07-06T10:00:00"
+  String? loginLat;
+  ClockInRequest({this.userName, this.loginLat, this.loginLong});
+
+  ClockInRequest.fromJson(Map<String, dynamic> json) {
+    userName = json['userName'];
+    loginLong = json['loginLong'];
+    loginLat = json['loginLat'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['loginLat'] = loginLat;
+    data['loginLong'] = loginLong;
+    return data;
+  }
+}
 
 class ClockRequest {
   int? id;
@@ -84,9 +103,9 @@ class GetDistanceRequest {
   }
 }
 
-class LocationLatLon{
-  double? lat=0;
-  double? long=0;
+class LocationLatLon {
+  double? lat = 0;
+  double? long = 0;
   LocationLatLon({this.lat, this.long});
 }
 
@@ -94,14 +113,16 @@ class GetDistanceResponse {
   String? responseCode;
   String? responseMessage;
   List<double>? results;
-  GetDistanceResponse({this.responseCode, this.responseMessage,this.results});
+  GetDistanceResponse({this.responseCode, this.responseMessage, this.results});
   GetDistanceResponse.fromJson(Map<String, dynamic> json) {
     responseCode = json['responseCode'];
     responseMessage = json['responseMessage'];
     if (json['results'] != null) {
       results = <double>[];
       json['results'].forEach((v) {
-        results!.add(v.toDouble());
+        if (v != null) {
+          results!.add(v.toDouble());
+        }
       });
     }
   }
@@ -113,6 +134,78 @@ class GetDistanceResponse {
     if (results != null) {
       data['results'] = results!.map((v) => v).toList();
     }
+    return data;
+  }
+}
+
+class AttandanceResponse {
+  String? responseMessage;
+  String? responseCode;
+  List<AttandanceModel>? results;
+  AttandanceResponse({this.responseMessage, this.responseCode, this.results});
+
+  AttandanceResponse.fromJson(Map<String, dynamic> json) {
+    responseMessage = json['responseMessage'];
+    responseCode = json['responseCode'];
+    if (json['results'] != null) {
+      results = <AttandanceModel>[];
+      json['results'].forEach((v) {
+        results!.add(AttandanceModel.fromJson(v));
+      });
+    }
+  }
+}
+
+class AttandanceModel {
+  int? id;
+  String? username;
+  String? loginTime;
+  String? loginLat;
+  String? loginLong;
+  String? logoutTime;
+  String? logoutLat;
+  String? logoutLong;
+  int? isActive;
+  String? createdBy;
+  bool get isLoggedIn => loginLat != null && loginLong == null;
+  bool get isLoggedOut => logoutLong != null && logoutTime != null;
+  AttandanceModel({
+    this.id,
+    this.username,
+    this.loginTime,
+    this.loginLat,
+    this.loginLong,
+    this.logoutTime,
+    this.logoutLat,
+    this.logoutLong,
+    this.isActive,
+    this.createdBy,
+  });
+  AttandanceModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    username = json['username'];
+    loginTime = json['loginTime'];
+    loginLat = json['loginLat'];
+    loginLong = json['loginLong'];
+    logoutTime = json['logoutTime'];
+    logoutLat = json['logoutLat'];
+    logoutLong = json['logoutLong'];
+    isActive = json['isActive'];
+    createdBy = json['createdBy'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['username'] = username;
+    data['loginTime'] = loginTime;
+    data['loginLat'] = loginLat;
+    data['loginLong'] = loginLong;
+    data['logoutTime'] = logoutTime;
+    data['logoutLat'] = logoutLat;
+    data['logoutLong'] = logoutLong;
+    data['isActive'] = isActive;
+    data['createdBy'] = createdBy;
     return data;
   }
 }

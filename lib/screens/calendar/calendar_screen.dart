@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/screens/calendar/create_shchedule_bottom.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -217,6 +220,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showAddSheduleBottomSheet(context);
+          },
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -284,7 +294,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Padding monthNavView() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal:  16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -301,6 +311,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onPressed: _goToNextMonth,
           ),
         ],
+      ),
+    );
+  }
+  
+  void showAddSheduleBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      AddScheduleBottomSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
     );
   }

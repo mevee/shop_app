@@ -5,6 +5,9 @@ import 'package:shop_app/modules/auth/password_reset_screen.dart';
 import 'package:shop_app/modules/bottomNav/binding/botom_nav_binding.dart';
 import 'package:shop_app/modules/bottomNav/bottom_nav_screen.dart';
 import 'package:shop_app/modules/home/home_screen.dart';
+import 'package:shop_app/modules/schedule/bindings/schedule_binding.dart';
+import 'package:shop_app/modules/schedule/schedule_detail_screen.dart';
+import 'package:shop_app/modules/schedule/schedule_list_screen.dart';
 
 import '../modules/splash/views/splash_view.dart';
 
@@ -21,11 +24,16 @@ class AppPages {
       page: () => const HomeScreen(),
       // binding: HomeBinding(),
     ),
-    // GetPage(
-    //   name: _Paths.history,
-    //   page: () => const HistoryView(),
-    //   binding: HistoryBinding(),
-    // ),
+    GetPage(
+      name: _Paths.scheduleList,
+      page: () => const ScheduleListView(),
+      binding: ScheduleBinding(),
+    ),
+    GetPage(
+      name: _Paths.scheduleDetail,
+      page: () => const ScheduleDetailView(),
+      binding: ScheduleBinding(),
+    ),
     GetPage(
       name: _Paths.splash,
       page: () => const SplashView(),

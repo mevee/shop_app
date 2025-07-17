@@ -17,5 +17,23 @@ abstract class EndPoints {
   //{{url}}/crm/auth/v1/get-employee-attendance?userName=admin@hamster.com
   static const employeeAttendanceGET = 'crm/auth/v1/get-employee-attendance?userName={userName}';
 
+  //Products
+  static const productListGET = 'crm/shop/v1/product-details';
+
+  //schedule
+  static const employeeSchuleQtyGET = 'crm/employee/v1/get-employee-schedule-quantity-details?scheduleId={scheduleId}';
+  static const employeeSchuleImagesGET = 'crm/employee/v1/get-employee-schedule-images-details?scheduleId={scheduleId}';
+  static const employeeSchuleDetailsGET = 'crm/employee/v1/get-employee-schedule-details?scheduleId={scheduleId}';
+  static const employeeSchuleByDateGET = 'crm/employee/v1/get-employee-schedule-day?date={date}';
+  static const employeeSchuleByMonthGET = 'crm/employee/v1/get-employee-schedule-monthly?date={date}';
   
+  static const addEmployeeSchedulePOST = 'crm/employee/v1/add-employee-schedule';
+  static const updateEmployeeSchedulePOST = 'crm/employee/v1/update-employee-schedule';
+  static const addEmployeeScheduleDetailPOST = 'crm/employee/v1/add-employee-schedule-details';
+     
+
+  //Shop master
+  static const shopListGET = 'crm/shop/v1/get-shop-list';
+
+
   }

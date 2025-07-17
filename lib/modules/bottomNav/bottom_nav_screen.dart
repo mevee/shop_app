@@ -13,37 +13,40 @@ class BottomNavScreen extends GetView<BotomNavController> {
     const HomeScreen(),
     const CalendarScreen(),
     const ScheduleScreen(),
-    const ShopMasterScreen(),
+    // const ShopMasterScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[controller.currentIndex.value],
-      bottomNavigationBar: Obx(
-        ()=> BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: controller.currentIndex.value,
-          onTap: (index) {
-            controller.currentIndex.value = index;
-          },
-          selectedItemColor: Colors.deepPurple,
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: 'Calendar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.schedule),
-              label: 'Schedule',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.admin_panel_settings),
-              label: 'Shop Master',
-            ),
-          ],
+    return Obx(
+      ()=> Scaffold(
+        body: _screens[controller.currentIndex.value],
+        bottomNavigationBar:
+          BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: controller.currentIndex.value,
+            onTap: (index) {
+              controller.currentIndex.value = index;
+              controller.currentIndex.refresh();
+            },
+            selectedItemColor: Colors.deepPurple,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today),
+                label: 'Calendar',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.schedule),
+                label: 'Schedule',
+              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.admin_panel_settings),
+              //   label: 'Shop Master',
+              // ),
+            ],
+          
         ),
       ),
     );

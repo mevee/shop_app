@@ -9,18 +9,18 @@ abstract class Routes {
   static const passwordReset = _Paths.passwordReset;
   static const bottomNavigation = _Paths.bottomNavigation;
   static const profile = _Paths.profile;
-  static const onboarding = _Paths.onboarding;
-  static const history = _Paths.history;
+  static const scheduleDetail = _Paths.scheduleDetail;
+  static const scheduleList = _Paths.scheduleList;
 }
 
 abstract class _Paths {
   _Paths._();
   static const home = '/home';
-  static const history = '/history';
+  static const scheduleList = '/schedule-list';
   static const splash = '/splash';
   static const login = '/login';
   static const passwordReset = '/password-reset';
   static const bottomNavigation = '/bottom-navigation';
   static const profile = '/profile';
-  static const onboarding = '/onboarding';
+  static const scheduleDetail = '/schedule-detail';
 }

@@ -5,7 +5,7 @@ import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/employee_response.dart';
 
 abstract class EmployeeServiceProtocol {
-  Future<GetDistanceResponse> clockIn(ClockRequest request);
+  Future<GetDistanceResponse> clockIn(ClockInRequest request);
   Future<GetDistanceResponse> clockOut(ClockRequest request);
   Future<GetDistanceResponse> employeeRouteUpdate(
     List<UserDateLatRequest> request,
@@ -13,13 +13,13 @@ abstract class EmployeeServiceProtocol {
   Future<GetDistanceResponse> getEmployeeTravelDistance(
     GetDistanceRequest request,
   );
-  Future<GetDistanceResponse> getEmployeeAttandance(GetDistanceRequest request);
+  Future<AttandanceResponse> getEmployeeAttandance(GetDistanceRequest request);
 }
 
 class EmployeeService extends BaseNetworkClient
     implements EmployeeServiceProtocol {
   @override
-  Future<GetDistanceResponse> clockIn(ClockRequest data) async {
+  Future<GetDistanceResponse> clockIn(ClockInRequest data) async {
     const endPoint = EndPoints.employeeClockInPOST;
     try {
       final response = await client.post(endPoint, data: data.toJson());
@@ -78,7 +78,7 @@ class EmployeeService extends BaseNetworkClient
   }
 
   @override
-  Future<GetDistanceResponse> getEmployeeAttandance(
+  Future<AttandanceResponse> getEmployeeAttandance(
     GetDistanceRequest request,
   ) async {
     var endPoint = EndPoints.employeeAttendanceGET;
@@ -86,7 +86,7 @@ class EmployeeService extends BaseNetworkClient
 
     try {
       final response = await client.get(endPoint);
-      return GetDistanceResponse.fromJson(response.data);
+      return AttandanceResponse.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
