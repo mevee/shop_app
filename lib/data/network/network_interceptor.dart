@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shop_app/data/app_state_manager.dart';
-import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/session_getstorage_impl.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/dialog_helper.dart';
 // import '../core/utils/logger.dart';
@@ -17,7 +18,7 @@ class NetworkAPIServicesString {
 
 class NetworkInterceptor extends InterceptorsWrapper {
   static bool isPopUpVisible = false;
-  final UserManager _userManager = getx.Get.find();
+  final SessionPref _userManager = getx.Get.find();
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     super.onRequest(options, handler);
@@ -28,11 +29,10 @@ class NetworkInterceptor extends InterceptorsWrapper {
     //   options.headers.remove('x-role-type');
     // }
     options.contentType = 'application/json';
-
-    if (_userManager.getUserToken!=null&& _userManager.getUserToken!.isNotEmpty) {
+    String? token = _userManager.getUserToken();
+    if (token != null && token.isNotEmpty) {
       options.headers.addAll({
-        'Authorization': _userManager.getUserToken,
-        //   'x-userId': _userManager.getUserId,
+        'Authorization': token,
       });
     }
   }

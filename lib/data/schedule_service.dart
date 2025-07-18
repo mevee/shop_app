@@ -11,10 +11,11 @@ import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/schedule_qty_response.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/shop_prodlisr_response.dart';
+import 'package:shop_app/models/update_schedule_request.dart';
 
 abstract class ScheduleServiceProtocol {
   Future<GetDistanceResponse> addSchedule(AddScheduleRequest request); //d
-  Future<GetDistanceResponse> updateSchedule(AddScheduleRequest request); //d
+  Future<GetDistanceResponse> updateSchedule(UpdateScheduleRequest request); //d
   Future<GetDistanceResponse> addScheduleDetail(
     ScheduleDetailRequest request,
   ); //d
@@ -29,6 +30,8 @@ abstract class ScheduleServiceProtocol {
   Future<ScheduleQtyResponse> getScheduleQuantity(String? scheduleId); //d
 
   Future<List<ShopMasterResponse>> getShopList(); //d
+  Future<ShopMasterListResponse> getShopByName(String query);
+
 }
 
 class ScheduleService extends BaseNetworkClient
@@ -57,7 +60,7 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<GetDistanceResponse> updateSchedule(AddScheduleRequest request) async {
+  Future<GetDistanceResponse> updateSchedule(UpdateScheduleRequest request) async {
     const endPoint = EndPoints.updateEmployeeSchedulePOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
@@ -261,6 +264,37 @@ class ScheduleService extends BaseNetworkClient
         });
       }
       return shopList;
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ShopMasterListResponse> getShopByName(String query) async {
+    var endPoint = EndPoints.shopListSearchGET;
+    endPoint = endPoint.replaceAll("{shopName}", query);
+
+    try {
+      final response = await client.get(endPoint);
+      // final List<ShopMasterResponse> shopList = [];
+      // if (response.data is List) {
+      //   response.data.forEach((element) {
+      //     shopList.add(ShopMasterResponse.fromJson(element));
+      //   });
+      // }
+      return ShopMasterListResponse.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {

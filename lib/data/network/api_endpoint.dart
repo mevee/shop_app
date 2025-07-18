@@ -31,9 +31,10 @@ abstract class EndPoints {
   static const updateEmployeeSchedulePOST = 'crm/employee/v1/update-employee-schedule';
   static const addEmployeeScheduleDetailPOST = 'crm/employee/v1/add-employee-schedule-details';
      
-
   //Shop master
+  // {{url}}/crm/shop/v1/get-shop-list-by-name?shopName=
   static const shopListGET = 'crm/shop/v1/get-shop-list';
+  static const shopListSearchGET = 'crm/shop/v1/get-shop-list-by-name?shopName={shopName}';
 
 
   }

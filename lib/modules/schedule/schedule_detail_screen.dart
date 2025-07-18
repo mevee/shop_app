@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/state_manager.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shop_app/models/shop_master_response.dart';
+import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/modules/schedule/add_product_bottom.dart';
+import 'package:shop_app/modules/schedule/controller/product_controller.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
+import 'package:shop_app/modules/schedule/select_product_bottom.dart';
+import 'package:shop_app/screens/calendar/shop_select_bottom.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
 
 class ScheduleDetailView extends GetView<ScheduleController> {
@@ -11,10 +15,6 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.refresh),
-      ),
       appBar: AppBar(
         title: const Text('Schedule'),
         centerTitle: true,
@@ -76,41 +76,29 @@ class ScheduleDetailView extends GetView<ScheduleController> {
               ),
               const SizedBox(height: 15),
 
-              // Shop Details Dropdown
-              Obx(
-                () => DropdownButtonFormField<ShopMasterResponse>(
-                  value: controller.selectedShop.value
-                      ,
-                  decoration: InputDecoration(
-                    labelText: 'Shop Details',
-                    hintText: 'Select a Shop',
-                    prefixIcon: const Icon(Icons.store),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: Colors.grey.shade400),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Colors.blue,
-                        width: 2.0,
-                      ),
+              InkWell(
+                onTap: () {
+                  _showSelectShopDialog(context, controller);
+                },
+                child: IgnorePointer(
+                  ignoring: true,
+                  child: CommonWidgets.text(
+                    controller: controller.shopController,
+                    readOnly: true,
+                    textColor: AppColors.black01,
+                    labelText: 'Select Shop',
+                    errorMessage: 'Shop is required',
+                    fontSize: 14.0,
+                    isPassword: false,
+                    prefixIcon: Icon(Icons.store, color: Colors.black),
+                    tailfixIcon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.black,
                     ),
                   ),
-                  items: controller.shopDetailsOptions.map((ShopMasterResponse shop) {
-                    return DropdownMenuItem<ShopMasterResponse>(
-                      value: shop,
-                      child: Text(shop.mobileNumber??"${shop.unitName} (${shop.shopType})"),
-                    );
-                  }).toList(),
-                  onChanged: (ShopMasterResponse? newValue) {
-                    controller.selectedShop.value = newValue;
-                  },
-                  isExpanded: true,
                 ),
               ),
               const SizedBox(height: 15),
-
               // Existing Quantity Textbox
               TextFormField(
                 controller: controller.existingQuantityController,
@@ -133,7 +121,30 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
               ),
               const SizedBox(height: 15),
-
+              InkWell(
+                onTap: () {
+                  _showSelectProductDialog(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "New Order Quantity (Grid)",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      // Icon(size: 24, Icons.add,color: Colors.blue,),
+                      Icon(size: 24, Icons.grid_on, color: Colors.blue),
+                    ],
+                  ),
+                ),
+              ),
+              listViewOfQtyView(),
               // New Order Quantity (represented as a text field, but in real app could be a GridView/DataTable)
               TextFormField(
                 controller: controller.newOrderQuantityController,
@@ -176,7 +187,6 @@ class ScheduleDetailView extends GetView<ScheduleController> {
               CommonWidgets.button(
                 lable: 'Capture Video',
                 color: Colors.blue.shade600,
-                onPressed:controller.submitForm,
                 icon: const Icon(Icons.video_call, color: Colors.white),
               ),
 
@@ -259,11 +269,67 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   }
 
   // Function to handle form submission
- 
+
   // Helper function to show a message (instead of alert)
   void _showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
+  }
+
+
+void _showSelectProductDialog(
+    BuildContext context,
+   ) {
+    ProductController controller = Get.find<ProductController>();
+     Get.bottomSheet(
+      AddProductBottomSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+    );
+  }
+
+  void _showSelectShopDialog(
+    BuildContext context,
+    ScheduleController controller,
+  ) {
+    Get.bottomSheet(
+      SelectShopBottomSheet(controller: controller),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+    );
+  }
+
+  Widget listViewOfQtyView() {
+    return Obx(
+      () => ListView.builder(
+        shrinkWrap: true,
+        itemCount: controller.shopQtyList.length,
+        itemBuilder: (ctx, index) {
+          final model = controller.shopQtyList[index];
+          return Container(
+            decoration: BoxDecoration(),
+            child: Row(
+              children: [
+                Text("${model.productId}"),
+                // Text("${model.existingQuantity}"),
+                Text("${model.newQuantity}"),
+                InkWell(
+                  onTap: (){
+                    controller.shopQtyList.remove(model);
+                  },
+                  child: Icon(Icons.close)),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

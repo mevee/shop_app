@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:shop_app/data/app_state_manager.dart';
-import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/models/login_response.dart';
 
 class BotomNavController extends GetxController {
-  final UserManager _userManager = Get.find();
+  final SessionPref _userManager = Get.find();
   // final LoginServiceProtocol _authService = Get.find();
   RxBool isLoginButtonLoading = false.obs;
   RxInt currentIndex = 0.obs;

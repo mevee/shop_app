@@ -7,8 +7,8 @@ import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/employee_service.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
-import 'package:shop_app/data/user_manager.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
@@ -16,7 +16,6 @@ import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
 class DashboardController extends BaseController {
-  final UserManager _userManager = Get.find();
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
 
@@ -33,7 +32,7 @@ class DashboardController extends BaseController {
 
   RxBool clockedIn = false.obs;
   RxString distance = "0km".obs;
- 
+
   RxList<AttandanceModel> attandanceList = <AttandanceModel>[].obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
 
@@ -53,8 +52,9 @@ class DashboardController extends BaseController {
     }
   }
 
-  void loadUserData() {
-    userData.value = _userManager.getUserData() ?? LoginResponse();
+  void loadUserData() async{
+    await userManager.initPreferences();
+    userData.value = userManager.getUserData() ?? LoginResponse();
   }
 
   void getInLocation() {
@@ -95,7 +95,7 @@ class DashboardController extends BaseController {
   Future<void> _cLockIN() async {
     isPunchInProgress.value = true;
     final ClockInRequest loginData = ClockInRequest(
-      userName: _userManager.getUserData()?.login?.userName,
+      userName: userManager.getUserData()?.login?.userName,
       loginLat: inLocation.lat.toString(),
       loginLong: inLocation.long.toString(),
     );
@@ -127,8 +127,8 @@ class DashboardController extends BaseController {
     isPunchOutProgress.value = true;
 
     final ClockRequest loginData = ClockRequest(
-      id: _userManager.getUserData()?.login?.id,
-      userName: _userManager.getUserData()?.login?.userName,
+      id: userManager.getUserData()?.login?.id,
+      userName: userManager.getUserData()?.login?.userName,
       loginTime: DateFormatter.getCurrentDateTimeString(),
       loginLat: inLocation.lat.toString(),
       loginLong: inLocation.long.toString(),
@@ -157,7 +157,7 @@ class DashboardController extends BaseController {
     isLoding.value = true;
     final request = [
       UserDateLatRequest(
-        userName: _userManager.getUserData()?.login?.userName,
+        userName: userManager.getUserData()?.login?.userName,
         loginTime: DateFormatter.getCurrentDateTimeString(),
         lat: inLocation.lat,
         lng: inLocation.long,
@@ -183,7 +183,7 @@ class DashboardController extends BaseController {
   Future<void> getEmployeeTravelDistance() async {
     isLoding.value = true;
     final request = GetDistanceRequest(
-      userName: _userManager.getUserData()?.login?.userName,
+      userName: userManager.getUserData()?.login?.userName,
       date: DateFormatter.currentDate,
     );
     try {
@@ -212,7 +212,7 @@ class DashboardController extends BaseController {
   Future<void> getEmployeeAttandance() async {
     isLoding.value = true;
     final request = GetDistanceRequest(
-      userName: _userManager.getUserData()?.login?.userName,
+      userName: userManager.getUserData()?.login?.userName,
       date: DateFormatter.currentDate,
     );
     try {
@@ -262,8 +262,7 @@ class DashboardController extends BaseController {
   }
 
   void logout() {
-    _userManager.logOut();
-    ApplicationState().userLoggedOut();
+    userManager.logOut();
     Get.offAllNamed(Routes.login);
   }
 }

@@ -2,10 +2,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shop_app/common/app_toast.dart';
-import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/data/preference.dart';
 
 class BaseController extends GetxController {
-  final UserManager _userManager = Get.find();
+  final SessionPref userManager = Get.find();
   Position? currentPosition;
 
   Future<void> refreshLocation() async {

@@ -12,12 +12,8 @@ class ScheduleListView extends GetView<ScheduleController> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
         appBar: AppBar(
-          title: Text('Schedule of Date ${controller.scheduleDate}'),
+          title: Text('Schedule of ${controller.scheduleDate}'),
           centerTitle: true,
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
@@ -25,11 +21,17 @@ class ScheduleListView extends GetView<ScheduleController> {
         body: RefreshIndicator(
           onRefresh: () =>
               controller.getTodaysScheduleList(controller.scheduleDate),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: scheduleListView(controller.scheduleList),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: controller.isDateWiseLoding.value?Center(
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ):
+                  scheduleListView(controller.scheduleList),
+             
           ),
         ),
       ),
@@ -57,31 +59,35 @@ class ScheduleListView extends GetView<ScheduleController> {
         shrinkWrap: true,
         itemBuilder: (context, index) {
           final log = list[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
-            padding: const EdgeInsets.symmetric(
-              vertical: 3.0,
-              horizontal: 10.0,
-            ),
-            decoration: BoxDecoration(
-              color: log.isVisitDone == 0 ? Colors.white : Colors.grey.shade50,
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black54,
+          return InkWell(
+            onTap: () {
+              
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 3.0,
+                horizontal: 10.0,
+              ),
+              decoration: BoxDecoration(
+                color: log.isVisitDone == 0 ? Colors.white : Colors.grey.shade50,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black54,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
-
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

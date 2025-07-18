@@ -79,7 +79,7 @@ class ScheduleScreenState extends GetView<ScheduleController> {
               // Shop Details Dropdown
               Obx(
                 () => DropdownButtonFormField<ShopMasterResponse>(
-                  value: controller.selectedShop.value
+                  value: controller.selectedShopStr.value =="Select Shop"?null:controller.selectedShop
                       ,
                   decoration: InputDecoration(
                     labelText: 'Shop Details',
@@ -104,8 +104,9 @@ class ScheduleScreenState extends GetView<ScheduleController> {
                     );
                   }).toList(),
                   onChanged: (ShopMasterResponse? newValue) {
-                    controller.selectedShop.value = newValue;
-                  },
+                    if(newValue == null) return;
+                    controller.selectShop(newValue);
+                   },
                   isExpanded: true,
                 ),
               ),

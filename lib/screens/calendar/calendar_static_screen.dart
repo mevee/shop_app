@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:shop_app/screens/calendar/create_shchedule_bottom.dart';
 
-class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+class CalendarScreenStatic extends StatefulWidget {
+  const CalendarScreenStatic({super.key});
 
   @override
-  State<CalendarScreen> createState() => _CalendarScreenState();
+  State<CalendarScreenStatic> createState() => _CalendarScreenStaticState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenStaticState extends State<CalendarScreenStatic> {
   DateTime _focusedMonth = DateTime.now();
   // Dummy data for demonstration purposes
   // In a real application, this data would come from an API or database
@@ -150,8 +149,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               fontSize: 9.0,
                               color: Colors.black,
                             ),
-                            overflow:
-                                TextOverflow.clip, // Truncate long text
+                            overflow: TextOverflow.clip, // Truncate long text
                             maxLines: 1,
                           ),
                         ),
@@ -215,7 +213,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendar'),
+        title: const Text('Calendar Static' ),
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
@@ -223,7 +221,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showAddSheduleBottomSheet(context);
-          },
+        },
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.add),
       ),
@@ -235,7 +233,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             SizedBox(height: 8.0),
             // Weekday headers
             weekDayNameView(weekdays),
-    
+
             // Calendar Grid
             Expanded(
               child: GridView.builder(
@@ -251,9 +249,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 itemCount: daysInGrid.length,
                 itemBuilder: (context, index) {
                   final date = daysInGrid[index];
-                  final bool isCurrentMonth =
-                      date.month == _focusedMonth.month;
-                                          // return Container(color: Colors.amber,);
+                  final bool isCurrentMonth = date.month == _focusedMonth.month;
+                  // return Container(color: Colors.amber,);
                   return _buildDayCell(date, isCurrentMonth: isCurrentMonth);
                 },
               ),
@@ -294,7 +291,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Padding monthNavView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal:  16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -314,7 +311,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
-  
+
   void showAddSheduleBottomSheet(BuildContext context) {
     Get.bottomSheet(
       AddScheduleBottomSheet(),

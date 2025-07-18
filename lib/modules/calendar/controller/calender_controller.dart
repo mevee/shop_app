@@ -4,17 +4,17 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
-import 'package:shop_app/data/user_manager.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 
 class CallenderController extends BaseController {
-  final UserManager _userManager = Get.find();
+  final SessionPref _userManager = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
   RxBool isLoding = false.obs;
-  DateTime focusedMonth = DateTime.now();
+  Rx<DateTime> focusedMonth = DateTime.now().obs;
   // Create a list of all days to display in the grid (including prev/next month's overflow)
   RxList<DateTime> daysInGrid = <DateTime>[].obs;
 
@@ -28,31 +28,9 @@ class CallenderController extends BaseController {
     'FRI',
     'SAT',
   ];
-  // In a real application, this data would come from an API or database
-  RxMap<DateTime, List<String>> dailyData = <DateTime, List<String>>{}.obs;
-    // Example data for June 2025 (matching the image roughly)
-  //   DateTime(2025, 6, 19): [
-  //     '85 A ...',
-  //     'War ...',
-  //     'Gha ...',
-  //     'Kha ...',
-  //   ], // Red day in image
-  //   DateTime(2025, 6, 20): ['16 Gt ...', '191 G ...', 'Arthl ...', 'Gt R ...'],
-  //   DateTime(2025, 6, 21): ['Gya ...', 'Gya ...', 'Jaip ...', 'Kho ...'],
-  //   DateTime(2025, 6, 22): ['Behr ...', 'Cros ...', 'Cros ...', 'Cros ...'],
-  //   DateTime(2025, 6, 23): ['Behr ...', 'Cros ...', 'Cros ...', 'Cros ...'],
-  //   DateTime(2025, 6, 24): [
-  //     '165 ...',
-  //     'Bho ...',
-  //     'Govi ...',
-  //     'Gul ...',
-  //   ], // Red day in image
-  //   DateTime(2025, 6, 25): ['Bhar ...', 'Ghu ...', 'Pan ...', 'Plot ...'],
-  //   DateTime(2025, 6, 26): ['85 A ...', 'War ...', 'Gha ...', 'Kha ...'],
-  //   DateTime(2025, 6, 27): ['Gya ...', 'Gya ...', 'Jaip ...', 'Kho ...'],
-  //   DateTime(2025, 6, 28): ['16 Gt ...', '191 G ...', 'Arthl ...', 'Gt R ...'],
-  //   DateTime(2025, 6, 29): ['Behr ...', 'Cros ...', 'Cros ...', 'Cros ...'],
-  // };
+
+  RxMap<DateTime, List<ScheduleDateTimeModel>> dailyData =
+      <DateTime, List<ScheduleDateTimeModel>>{}.obs;
 
   @override
   void onInit() {
@@ -65,15 +43,15 @@ class CallenderController extends BaseController {
   void prepareCellForDisplay() {
     // Get the first day of the focused month
     final DateTime firstDayOfMonth = DateTime(
-      focusedMonth.year,
-      focusedMonth.month,
+      focusedMonth.value.year,
+      focusedMonth.value.month,
       1,
     );
 
     // Get the last day of the focused month
     final DateTime lastDayOfMonth = DateTime(
-      focusedMonth.year,
-      focusedMonth.month + 1,
+      focusedMonth.value.year,
+      focusedMonth.value.month + 1,
       0,
     );
 
@@ -89,7 +67,9 @@ class CallenderController extends BaseController {
 
     // Add all days of the current month
     for (int i = 1; i <= lastDayOfMonth.day; i++) {
-      daysInGrid.add(DateTime(focusedMonth.year, focusedMonth.month, i));
+      daysInGrid.add(
+        DateTime(focusedMonth.value.year, focusedMonth.value.month, i),
+      );
     }
 
     // Add days from the next month to fill the last week
@@ -100,12 +80,27 @@ class CallenderController extends BaseController {
 
   // Helper function to navigate to the previous month
   void goToPreviousMonth() {
-    focusedMonth = DateTime(focusedMonth.year, focusedMonth.month - 1, 1);
+    focusedMonth.value = DateTime(
+      focusedMonth.value.year,
+      focusedMonth.value.month - 1,
+      1,
+    );
+    refreshUiElemnst();
+  }
+
+  void refreshUiElemnst() {
+    focusedMonth.refresh();
+    daysInGrid.refresh();
   }
 
   // Helper function to navigate to the next month
   void goToNextMonth() {
-    focusedMonth = DateTime(focusedMonth.year, focusedMonth.month + 1, 1);
+    focusedMonth.value = DateTime(
+      focusedMonth.value.year,
+      focusedMonth.value.month + 1,
+      1,
+    );
+    refreshUiElemnst();
   }
 
   Future<void> getTodaysScheduleList(String? date) async {
@@ -131,18 +126,38 @@ class CallenderController extends BaseController {
       isLoding.value = false;
     }
   }
-  
+
   void setUiData(List<ScheduleDateTimeModel> list) {
     dailyData.clear();
-    for (var item in list) {
-      final date = DateTime.parse(item.scheduleDateTime!);
+    for (var apiModel in list) {
+      final date = DateTime.parse(apiModel.day!);
       if (dailyData.containsKey(date)) {
-        // item.dailyData = dailyData[date]!;
-      } else {
-        // item.dailyData = [];
+        final keyList = dailyData[date];
+        if (keyList != null) {
+          keyList.add(apiModel);
+        }
+      }else{
+        dailyData[date] = [apiModel];
       }
     }
+    print("DATA:$dailyData");
+    refreshUiElemnst();
+  }
 
+  List<ScheduleDateTimeModel> checkIfSchedulAvailable(DateTime date) {
+    bool isAvailable = false;
+    if (dailyData.containsKey(date) &&
+        dailyData[date] != null &&
+        dailyData[date]!.isNotEmpty) {
+      isAvailable = true;
+    } else {
+      isAvailable = false;
+    }
+    if (isAvailable) {
+      return dailyData[date]!;
+    } else {
+      return <ScheduleDateTimeModel>[];
+    }
   }
 
   // void getOutLocation() {

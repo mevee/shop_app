@@ -8,25 +8,28 @@ class CommonWidgets {
     String? labelText,
     Color filledColor = Colors.white,
     Color errorColor = AppConstants.errorColor,
-
+    Color textColor = Colors.white,
     Widget? prefixIcon,
+    Widget? tailfixIcon,
     bool isPassword = false,
     bool isError = false,
-
+    bool readOnly = false,
     double fontSize = 12.0,
     double border = 12.0,
     String? errorMessage,
   }) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
       style: TextStyle(
-        color: isError ? errorColor : Colors.white,
+        color: isError ? errorColor : textColor,
         fontSize: fontSize,
       ),
       decoration: InputDecoration(
         labelText: labelText,
         fillColor: filledColor,
         prefixIcon: prefixIcon,
+        suffixIcon: tailfixIcon,
         hintStyle: TextStyle(color: Colors.white, fontSize: fontSize),
         floatingLabelStyle: TextStyle(color: Colors.white, fontSize: 14.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(border)),

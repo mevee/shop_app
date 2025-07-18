@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/image_constants.dart';
 import 'package:shop_app/widgets/app_logo.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
-import 'package:shop_app/widgets/helper.dart';
-import 'package:shop_app/widgets/loader.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class LoginScreen extends GetView<AuthController> {
@@ -74,16 +70,17 @@ class LoginScreen extends GetView<AuthController> {
                           }),
                           const SizedBox(height: 8),
                           Obx(
-                            () =>
-                            buttonWithLoader(
-                              disable: controller.isLoginButtonLoading.value ?true:false,
+                            () => buttonWithLoader(
+                              disable: controller.isLoginButtonLoading.value
+                                  ? true
+                                  : false,
                               isLoading: controller.isLoginButtonLoading.value,
                               context: context,
                               label: "LOGIN",
                               onPressed: () {
                                 controller.requestLogin();
                               },
-                            )
+                            ),
                           ),
                           const SizedBox(height: 20),
                         ],

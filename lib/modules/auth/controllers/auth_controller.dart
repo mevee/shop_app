@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:fpdart/fpdart.dart' as ConnectivityResult;
+import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/app_state_manager.dart';
@@ -13,7 +13,7 @@ import 'package:shop_app/data/common_response.dart';
 import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/network/api_caller.dart';
 import 'package:shop_app/data/network/network_interceptor.dart';
-import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -22,7 +22,7 @@ import 'package:shop_app/widgets/common_extension.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class AuthController extends GetxController {
-  final UserManager _userManager = Get.find();
+  final SessionPref _userManager = Get.find();
   final LoginServiceProtocol _authService = Get.find();
 
   final formKey = GlobalKey<FormState>();
@@ -246,7 +246,7 @@ class AuthController extends GetxController {
           message: response.responseCode ?? "Password updated successfully",
         );
         forgetPasswordView();
-        loginEmailCtr.text="";
+        loginEmailCtr.text = "";
         loginPasswordCtr.text = "";
         Get.offAllNamed(Routes.login);
       }
@@ -264,7 +264,6 @@ class AuthController extends GetxController {
       isUpdatePasswordLoading.value = false;
     }
   }
-
 
   Future<void> updatePassword() async {
     if (isUpdatePasswordLoading.value == true) {
@@ -284,16 +283,13 @@ class AuthController extends GetxController {
       return;
     }
     isUpdatePasswordLoading.value = true;
-    final ChangePasswordRequest loginData =
-        ChangePasswordRequest(
-          userName: _userManager.getUserData()?.login?.userName,
-          newPassword: newPasswordCtr.text,
-          oldPassword: oldPasswordCtr.text,
-        );
+    final ChangePasswordRequest loginData = ChangePasswordRequest(
+      userName: _userManager.getUserData()?.login?.userName,
+      newPassword: newPasswordCtr.text,
+      oldPassword: oldPasswordCtr.text,
+    );
     try {
-      CommonResponse response = await _authService.changePassword(
-        loginData,
-      );
+      CommonResponse response = await _authService.changePassword(loginData);
       if (response.responseCode?.toLowerCase() ==
           "Otp Verification failed".toLowerCase()) {
         AppToast.showToast(
@@ -310,7 +306,7 @@ class AuthController extends GetxController {
           message: response.responseCode ?? "Password updated successfully",
         );
         forgetPasswordView();
-        loginEmailCtr.text="";
+        loginEmailCtr.text = "";
         loginPasswordCtr.text = "";
         Get.offAllNamed(Routes.login);
       }
@@ -328,7 +324,6 @@ class AuthController extends GetxController {
       isUpdatePasswordLoading.value = false;
     }
   }
-
 
   void moveToNextScreen() {
     Get.offAllNamed(Routes.login);

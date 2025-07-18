@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
-import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
@@ -17,7 +16,6 @@ import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/shop_master_response.dart';
-import 'package:shop_app/models/update_schedule_request.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
 class ScheduleController extends BaseController {
@@ -41,13 +39,11 @@ class ScheduleController extends BaseController {
   RxBool isDateWiseLoding = false.obs;
   RxBool isSearchLoading = false.obs;
 
-  RxBool updateScheduleLoding = false.obs;
   RxBool addScheduleLoding = false.obs;
   RxBool isLoginButtonLoading = false.obs;
   Rx<LoginResponse> userData = LoginResponse().obs;
 
   RxList<ShopMasterResponse> shopDetailsOptions = <ShopMasterResponse>[].obs;
-  RxList<QuantityDetailsList> shopQtyList = <QuantityDetailsList>[].obs;
 
   final TextEditingController shopController = TextEditingController();
   ShopMasterResponse? selectedShop;
@@ -104,6 +100,7 @@ class ScheduleController extends BaseController {
       final response = await scheduleService.getScheduleDetails("$scheduleId");
       if (response.results != null && response.results!.isNotEmpty) {
         // scheduleList.value = response.results!.first;
+        
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -217,7 +214,28 @@ class ScheduleController extends BaseController {
     }
   }
 
-  void resetForm() {
+  void submitForm() {
+    // Basic validation
+    if (dateController.text.isEmpty ||
+        timeController.text.isEmpty ||
+        existingQuantityController.text.isEmpty ||
+        newOrderQuantityController.text.isEmpty ||
+        remarksController.text.isEmpty) {
+      AppToast.showToast(message: 'Please fill all fields.');
+      return;
+    }
+    // You can process the form data here
+    final formData = {
+      'date': dateController.text,
+      'time': timeController.text,
+      'shopDetails': selectedShop,
+      'existingQuantity': existingQuantityController.text,
+      'newOrderQuantity': newOrderQuantityController.text,
+      'remarks': remarksController.text,
+    };
+    print('Form Data: $formData');
+    AppToast.showToast(message: 'Form Submitted Successfully!');
+    //  Clear fields after submission
     dateController.clear();
     timeController.clear();
     existingQuantityController.clear();
@@ -226,61 +244,5 @@ class ScheduleController extends BaseController {
     selectedShop = null;
     selectedDate = null;
     selectedTime = null;
-  }
-
-  Future<void> submitForm() async {
-    if (dateController.text.isEmpty) {
-      AppToast.showToast(message: 'Please select a date.');
-      return;
-    }
-    if (timeController.text.isEmpty) {
-      AppToast.showToast(message: 'Please select a time.');
-      return;
-    }
-    if (selectedShop == null) {
-      AppToast.showToast(message: 'Please select a shop.');
-      return;
-    }
-    updateScheduleLoding.value = true;
-    final shop = selectedShop;
-    final meetingDetail  = MeetingDetails();
-    final imageList  =<MeetingImagesList>[];
-    final quantityList  =<QuantityDetailsList>[];
-    final request = UpdateScheduleRequest(
-      meetingDetails: meetingDetail,
-      meetingImagesList: imageList,
-      quantityDetailsList: quantityList
-    );
-    meetingDetail.scheduleId = scheduleId;
-    meetingDetail.shopId = shop?.id;
-    meetingDetail.shopName =  shop?.unitName;
-    meetingDetail.meetingStartDateTime ='${dateController.text}T${timeController.text}'; //todo
-    meetingDetail.meetingEndDateTime =DateFormatter.getCurrentDateTimeString();
-    meetingDetail.meetingRemarks = remarksController.text;  
-    meetingDetail.meetingPersonName = shop?.ownerName;
-    meetingDetail.meetingPersonContactNumber = shop?.mobileNumber;
-    // quantityList.addAll(shopQtyList);
-    try {
-      final response = await scheduleService.updateSchedule(request);
-      if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
-        AppToast.showToast(
-          message: response.responseMessage ?? 'Failed to add schedule.',
-        );
-      } else {
-        AppToast.showToast(message: 'Schedule update successfully!');
-        Get.back(result: true); // Close the dialog and return true
-      }
-    } on DioException catch (e) {
-      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
-      // AppToast.showToast(message: errorMessage);
-    } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
-    } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
-    } catch (e) {
-      // AppToast.showToast();
-    } finally {
-      updateScheduleLoding.value = false;
-    }
   }
 }

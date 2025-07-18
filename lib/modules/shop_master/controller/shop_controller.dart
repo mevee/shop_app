@@ -8,14 +8,14 @@ import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/employee_service.dart';
-import 'package:shop_app/data/user_manager.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
 class ShopController extends GetxController {
-  final UserManager _userManager = Get.find();
+  final SessionPref _userManager = Get.find();
   final EmployeeServiceProtocol _employeeService = Get.find();
 
   LocationLatLon inLocation = LocationLatLon();

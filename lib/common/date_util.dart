@@ -14,8 +14,6 @@ class DateFormatter {
     return DateTime.parse(dateString);
   }
 
-  
-
   /// Returns current date in 'yyyy-MM-dd' format
   static String get currentDate {
     final now = DateTime.now();
