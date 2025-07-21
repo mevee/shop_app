@@ -69,7 +69,6 @@ class DashboardController extends BaseController {
           long: currentPosition!.longitude,
         );
         await _cLockIN();
-         
       } else {
         AppToast.showToast(message: 'Failed to get in location');
       }
@@ -109,8 +108,8 @@ class DashboardController extends BaseController {
         AppToast.showToast(
           message: response.responseCode ?? "Punch In Sucessful",
         );
-        if(response.results!=null&&response.results!.isEmpty){
-         attandanceObj.value = response.results!.first;
+        if (response.results != null && response.results!.isEmpty) {
+          attandanceObj.value = response.results!.first;
         }
       }
     } on DioException catch (e) {
@@ -223,6 +222,8 @@ class DashboardController extends BaseController {
       final response = await _employeeService.getEmployeeAttandance(request);
       if (response.results != null && response.results!.isNotEmpty) {
         attandanceObj.value = response.results!.first;
+        isPunchInProgress.refresh();
+        isPunchOutProgress.refresh();
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
