@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
+import 'package:shop_app/utils/app_images.dart';
 
 class ScheduleListView extends GetView<ScheduleController> {
   const ScheduleListView({super.key});
@@ -81,16 +82,25 @@ class ScheduleListView extends GetView<ScheduleController> {
               ),
               child: Row(
                 children: [
-                  Text(
-                    "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black54,
+                  Expanded(
+                    child: Text(
+                      "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black54,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (log.isVisitDone == 1)
+                      Image(
+                        image: AssetImages.eye,
+                        height: 24,
+                        width: 24,
+                        color: Colors.green,
+                      ),
                 ],
               ),
             ),

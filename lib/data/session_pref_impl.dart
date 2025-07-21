@@ -18,13 +18,17 @@ class SharePrefSessiomImpl with SessionPref {
   LoginResponse? getUserData() {
     final userDataString = _prefs?.getString(UserManagerKeys.userData.value);
     try {
-      if (userDataString == "" || userDataString == null) {
+      if (userDataString == null ||
+          userDataString == "" ||
+          userDataString.isEmpty ||
+          userDataString == "null" ||
+          userDataString == "Null") {
         return null;
       } else {
         final Map<String, dynamic> userMap = jsonDecode(userDataString);
         return LoginResponse.fromJson(userMap);
       }
-    } on Exception catch (_) {
+    } catch (_) {
       return null;
     }
   }
@@ -61,6 +65,10 @@ class SharePrefSessiomImpl with SessionPref {
 
   @override
   void setUserData(LoginResponse? data) {
+    if (data == null) {
+      _prefs?.setString(UserManagerKeys.userData.value, "");
+      return;
+    }
     try {
       final String jsonString = jsonEncode(data);
       _prefs?.setString(UserManagerKeys.userData.value, jsonString);

@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/session_pref_impl.dart';
 
 class BaseController extends GetxController {
-  final SessionPref userManager = Get.find();
+  final SessionPref userManager = SharePrefSessiomImpl();
   Position? currentPosition;
 
   Future<void> refreshLocation() async {

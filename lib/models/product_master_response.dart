@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class ProductMasterListResponse {
   String? action;
   int? responseStatus;
@@ -69,6 +71,9 @@ class ProductMaster {
   String? category;
   String? sku;
   String? unitPrice;
+  final TextEditingController eQtyController = TextEditingController();
+  final TextEditingController nQtyController = TextEditingController();
+
   ProductMaster({
     this.id,
     this.productName,

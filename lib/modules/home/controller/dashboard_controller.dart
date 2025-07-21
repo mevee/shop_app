@@ -33,7 +33,7 @@ class DashboardController extends BaseController {
   RxBool clockedIn = false.obs;
   RxString distance = "0km".obs;
 
-  RxList<AttandanceModel> attandanceList = <AttandanceModel>[].obs;
+  Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
 
   @override
@@ -55,6 +55,7 @@ class DashboardController extends BaseController {
   void loadUserData() async {
     await userManager.initPreferences();
     userData.value = userManager.getUserData() ?? LoginResponse();
+    getEmployeeAttandance();
   }
 
   void getInLocation() {
@@ -68,8 +69,7 @@ class DashboardController extends BaseController {
           long: currentPosition!.longitude,
         );
         await _cLockIN();
-        // updateEmployeeRoute();
-        // getEmployeeTravelDistance();
+         
       } else {
         AppToast.showToast(message: 'Failed to get in location');
       }
@@ -85,6 +85,7 @@ class DashboardController extends BaseController {
           long: currentPosition!.longitude,
         );
         _clockOut();
+        getEmployeeAttandance();
       } else {
         AppToast.showToast(message: 'Failed to get in location');
       }
@@ -108,6 +109,9 @@ class DashboardController extends BaseController {
         AppToast.showToast(
           message: response.responseCode ?? "Punch In Sucessful",
         );
+        if(response.results!=null&&response.results!.isEmpty){
+         attandanceObj.value = response.results!.first;
+        }
       }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to Punch In";
@@ -218,9 +222,7 @@ class DashboardController extends BaseController {
     try {
       final response = await _employeeService.getEmployeeAttandance(request);
       if (response.results != null && response.results!.isNotEmpty) {
-        attandanceList.value = response.results!;
-      } else {
-        attandanceList.value = [];
+        attandanceObj.value = response.results!.first;
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -237,6 +239,7 @@ class DashboardController extends BaseController {
   }
 
   Future<void> getTodaysSchedules() async {
+    getEmployeeAttandance();
     isLoding.value = true;
     try {
       final response = await _scheduleService.getScheduleByDate(

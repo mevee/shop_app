@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/widgets/helper.dart';
-import 'package:shop_app/widgets/loader.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 class TapAnimationButton extends StatelessWidget {
   final RxBool buttonTapped = false.obs;
@@ -138,19 +136,19 @@ Widget buttonWithLoader({
 }) {
   return TapAnimationButton(
     disabled: disable,
-    onTap:disable? (){} : onPressed,
+    onTap: disable ? () {} : onPressed,
     child: Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: disable ?  color.withValues(alpha: 0.3):color,
+        color: disable ? color.withValues(alpha: 0.3) : color,
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isLoading)
-             SizedBox(
+            SizedBox(
               height: 20,
               width: 20,
               child: CircularProgressIndicator(
@@ -164,7 +162,45 @@ Widget buttonWithLoader({
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: disable ?  Colors.white : textColor,
+              color: disable ? Colors.white : textColor,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget buttonWithImage({
+  required bool disable,
+  required BuildContext context,
+  required String label,
+  required Widget leftIcon,
+  Color color = AppColors.lightGrey,
+  Color textColor = AppColors.textGrey,
+  Color progressColor = Colors.deepPurpleAccent,
+  required Function() onPressed,
+}) {
+  return TapAnimationButton(
+    disabled: disable,
+    onTap: disable ? () {} : onPressed,
+    child: Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: disable ? color.withValues(alpha: 0.3) : color,
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+           leftIcon,
+           Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: disable ? Colors.white : textColor,
             ),
           ),
         ],

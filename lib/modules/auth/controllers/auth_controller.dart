@@ -93,19 +93,21 @@ class AuthController extends GetxController {
     await callDataService<Either<Object, APIResponse<LoginResponse>>>(
       _authService.getLoginResponse(loginData),
       onSuccess: (value) {
-        value.fold(
-          (l) => {isLoginButtonLoading.value = false},
-          (r) async => {
-            // await Future.delayed(Duration(seconds: 5)),
-            isLoginButtonLoading.value = false,
-            _userManager.setIsUserLoggedIn(true),
-            _userManager.setUserData(r.response),
-            _userManager.setUserToken(r.response.token),
-            _userManager.setUserId(r.response.login?.id.toString()),
-            ApplicationState().userLoggedIn(),
-            Get.offAllNamed(Routes.bottomNavigation),
-          },
-        );
+        value.fold((l) => {isLoginButtonLoading.value = false}, (r) async {
+          // await Future.delayed(Duration(seconds: 5)),
+          if (r.response.login != null) {
+            _userManager.setIsUserLoggedIn(true);
+            _userManager.setUserData(r.response);
+            _userManager.setUserToken(r.response.token);
+            _userManager.setUserId(r.response.login?.id.toString());
+            ApplicationState().userLoggedIn();
+            Get.offAllNamed(Routes.bottomNavigation);
+          }else{
+            final message=r.response.message??"Failed Login try again."; 
+            AppToast.showToast(message: message);
+          }
+          isLoginButtonLoading.value = false;
+        });
       },
       onError: (exception, {statusCode}) {
         isLoginButtonLoading.value = false;

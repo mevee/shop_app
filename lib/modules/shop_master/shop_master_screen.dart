@@ -23,7 +23,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
         onPressed: () {
           Get.toNamed(Routes.createShop);
         },
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.red,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Padding(

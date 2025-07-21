@@ -95,7 +95,8 @@ class CalendarScreen extends GetView<CallenderController> {
                           vertical: 2.0,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors
+                          color: item.isVisitDone==1?Colors.green:
+                           Colors
                               .yellow
                               .shade100, // Light blue background for text items
                           borderRadius: BorderRadius.circular(4.0),
@@ -130,7 +131,7 @@ class CalendarScreen extends GetView<CallenderController> {
         onPressed: () {
           showAddSheduleBottomSheet(context);
         },
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.red,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: SafeArea(

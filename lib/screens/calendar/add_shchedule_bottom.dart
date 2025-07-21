@@ -170,7 +170,7 @@ class AddScheduleBottomSheet extends StatelessWidget {
     );
     if (picked != null && picked != controller.selectedTime) {
       controller.selectedTime = picked;
-      controller.timeController.text =picked.format(context);
+      controller.timeController.text = picked.format(context);
     }
   }
 

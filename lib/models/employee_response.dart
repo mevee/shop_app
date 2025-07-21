@@ -167,8 +167,8 @@ class AttandanceModel {
   String? logoutLong;
   int? isActive;
   String? createdBy;
-  bool get isLoggedIn => loginLat != null && loginLong == null;
-  bool get isLoggedOut => logoutLong != null && logoutTime != null;
+  bool get isLoggedIn => loginTime != null && id != null;
+  bool get isLoggedOut => logoutTime != null && id != null;
   AttandanceModel({
     this.id,
     this.username,

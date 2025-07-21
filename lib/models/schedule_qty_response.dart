@@ -69,7 +69,7 @@ class QtyResults {
   int? existingQuantity;
   int? newQuantity;
   int? totalQuantity;
-  int? totalPrice;
+  double? totalPrice;
   int? scheduleId;
   String? createdBy;
   String? updatedBy;

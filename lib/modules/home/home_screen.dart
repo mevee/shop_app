@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
@@ -24,78 +25,81 @@ class HomeScreen extends GetView<DashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome to Shop App',
-                  style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 20),
                 Obx(() => userInfoWidget(controller.userData.value.login)),
                 verticalSpace(16.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Row(
-                    children: [
-                      Image(image: AssetImages.timeline, width: 24, height: 24),
-                      horizontalSpace(8),
-                      Text(
-                        "Distance Travelled Today: ",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      Text(
-                        controller.distance.value,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(vertical: 12.0),
+                //   child: Row(
+                //     children: [
+                //       Image(image: AssetImages.timeline, width: 24, height: 24),
+                //       horizontalSpace(8),
+                //       Text(
+                //         "Distance Travelled Today: ",
+                //         style: GoogleFonts.poppins(
+                //           fontSize: 16,
+                //           fontWeight: FontWeight.normal,
+                //         ),
+                //       ),
+                //       Text(
+                //         controller.distance.value,
+                //         style: GoogleFonts.poppins(
+                //           fontSize: 16,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 Row(
                   children: [
                     Expanded(
                       child: Obx(
                         () => buttonWithLoader(
                           disable:
-                              (controller.clockedIn.value ||
+                              (controller.attandanceObj.value.isLoggedIn ||
                                   controller.isPunchInProgress.value)
                               ? true
                               : false,
                           isLoading: controller.isPunchInProgress.value,
                           context: context,
-                          color: Colors.deepPurple,
+                          color: Colors.green,
                           textColor: Colors.white,
                           progressColor: Colors.white,
                           label: "Clock IN",
                           onPressed: () {
-                            controller.getInLocation();
+                            if (controller.attandanceObj.value.loginTime ==
+                                null) {
+                              AppToast.showToast(
+                                message:
+                                    "User attandance was not loaded. Re loading to check attandance.",
+                              );
+                              controller.getEmployeeAttandance();
+                            } else {
+                              controller.getInLocation();
+                            }
                           },
                         ),
                       ),
                     ),
                     horizontalSpace(16),
                     Expanded(
-                      child: buttonWithLoader(
-                        disable:
-                            (!controller.clockedIn.value ||
-                                controller.isPunchOutProgress.value)
-                            ? true
-                            : false,
-                        isLoading: controller.isPunchOutProgress.value,
-                        context: context,
-                        color: Colors.red,
-                        textColor: Colors.white,
-                        progressColor: Colors.white,
-                        label: "Clock OUT",
-                        onPressed: () {
-                          controller.getOutLocation();
-                        },
+                      child: Obx(
+                        () => buttonWithLoader(
+                          disable:
+                              (controller.attandanceObj.value.isLoggedOut ||
+                                  controller.isPunchOutProgress.value)
+                              ? true
+                              : false,
+                          isLoading: controller.isPunchOutProgress.value,
+                          context: context,
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          progressColor: Colors.white,
+                          label: "Clock OUT",
+                          onPressed: () {
+                            controller.getOutLocation();
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -161,17 +165,27 @@ class HomeScreen extends GetView<DashboardController> {
                 ),
                 child: Row(
                   children: [
-                    Text(
-                      "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.black54,
+                    Expanded(
+                      child: Text(
+                        "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Colors.black54,
+                        ),
+
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                       ),
-        
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
                     ),
+
+                    if (log.isVisitDone == 1)
+                      Image(
+                        image: AssetImages.eye,
+                        height: 24,
+                        width: 24,
+                        color: Colors.green,
+                      ),
                   ],
                 ),
               ),
@@ -232,14 +246,96 @@ class HomeScreen extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.deepPurple[50],
+        color: Colors.red,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              Expanded(
+                flex: 1,
+                child: Text(
+                  "Hello, ",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Working Staus:",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        horizontalSpace(8),
+                        Obx(() => circleDot(controller.clockedIn.value)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Distance : ",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Obx(
+                          () => Text(
+                            controller.distance.value,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "M.Name : ",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Obx(
+                          () => Text(
+                            controller.userData.value.login?.managerName ?? "",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
               InkWell(
                 onTap: () {
                   Get.bottomSheet(
@@ -257,73 +353,54 @@ class HomeScreen extends GetView<DashboardController> {
                   width: 32,
                   height: 32,
                   padding: EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Icon(Icons.more_horiz, size: 24, color: Colors.black),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Hello, ",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black54,
-                ),
-              ),
-              Text(
-                data?.fullName ?? "",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                ),
-              ),
-              Spacer(),
-              Column(
-                children: [
-                  Text(
-                    "Working Staus",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              Obx(
-                () => Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Icon(
-                    Icons.circle,
-                    color: controller.clockedIn.value
-                        ? Colors.green
-                        : Colors.red,
-                    size: 16,
-                  ),
+                  child: Icon(Icons.more_vert, size: 24, color: Colors.white),
                 ),
               ),
             ],
           ),
           verticalSpace(8.0),
-
-          lableValue(label: "Email:", value: data?.emailId ?? ""),
+          Text(
+            data?.fullName ?? "",
+            textAlign: TextAlign.start,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
           verticalSpace(4.0),
-          lableValue(label: "Mobile:", value: data?.contactNo ?? ""),
+          Row(
+            children: [
+              Text(
+                "Employee ID: ",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
+              Obx(
+                () => Text(
+                  controller.userData.value.login?.id?.toString() ?? "",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          verticalSpace(4.0),
+          lableValue(label: Icons.phone_android, value: data?.contactNo ?? ""),
           verticalSpace(4.0),
           lableValue(
-            label: "Date:",
+            label: Icons.calendar_month,
             value: DateTime.now().toLocal().toString().split(' ')[0],
           ),
           verticalSpace(4.0),
           lableValue(
-            label: "Time:",
+            label: Icons.av_timer,
             value: DateTime.now()
                 .toLocal()
                 .toString()
@@ -331,30 +408,24 @@ class HomeScreen extends GetView<DashboardController> {
                 .substring(0, 5),
           ),
           verticalSpace(4.0),
-          lableValue(label: "Location:", value: data?.address ?? ""),
+          lableValue(label: Icons.location_on, value: data?.address ?? ""),
         ],
       ),
     );
   }
 
-  Row lableValue({required String label, String? value}) {
+  Row lableValue({required IconData label, String? value}) {
     return Row(
       children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-            color: Colors.black54,
-          ),
-        ),
+        Icon(label, size: 18, color: Colors.white),
+
         horizontalSpace(8.0),
         Text(
           value ?? '',
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.normal,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       ],
@@ -367,5 +438,22 @@ class HomeScreen extends GetView<DashboardController> {
 
   Widget verticalSpace(double i) {
     return SizedBox(height: i, width: 0);
+  }
+
+  Widget circleDot(bool isGreen) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300, width: 2),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      padding: const EdgeInsets.only(left: 2.0),
+      child: Icon(
+        Icons.circle,
+        color: isGreen ? Colors.green : Colors.redAccent,
+        size: 16,
+      ),
+    );
   }
 }

@@ -54,19 +54,30 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
             ),
             Spacer(),
             Obx(
-              ()=> buttonWithLoader(
+              () => buttonWithLoader(
                 label: "Submit",
                 color: Colors.deepPurpleAccent,
                 textColor: Colors.white,
                 onPressed: () {
-                  if(controller.product.value.id!=null){
-                  onItemselect?.call(controller.product.value);
-                  Get.back();
-                  }else{
+                  if (controller.product.value.eQtyController.text.isEmpty) {
+                    AppToast.showToast(message: "Exiting Qty rquired.");
+                  } else if (controller
+                      .product
+                      .value
+                      .eQtyController
+                      .text
+                      .isEmpty) {
+                    AppToast.showToast(message: "New Qty rquired.");
+                  } else if (controller.product.value.id == null) {
                     AppToast.showToast(message: "No product selected");
+                  } else {
+                    onItemselect?.call(controller.product.value);
+                    Get.back();
                   }
                 },
-                disable: controller.product.value.category != null ? false : true,
+                disable: controller.product.value.category != null
+                    ? false
+                    : true,
                 isLoading: false,
                 context: context,
               ),
@@ -105,8 +116,8 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
     }
   }
 
-  Widget showProductView(BuildContext context, [ProductMaster? data]) {
-    if (data?.category == null) {
+  Widget showProductView(BuildContext context, ProductMaster data) {
+    if (data.category == null) {
       return Expanded(
         child: Center(
           child: Column(
@@ -124,36 +135,76 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
         ),
       );
     } else {
-      return Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.deepPurple[50],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple[50],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
               children: [
-                InkWell(
-                  child: Icon(color: AppColors.black01, Icons.edit),
-                  onTap: () {
-                    _showSelectProductDialog(context);
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      child: Icon(color: AppColors.black01, Icons.edit),
+                      onTap: () {
+                        _showSelectProductDialog(context);
+                      },
+                    ),
+                  ],
                 ),
+                verticalSpacing(8.0),
+                lableValue(label: "Product:", value: data.productName ?? ""),
+                verticalSpacing(4.0),
+                lableValue(label: "SKU:", value: data.sku ?? ""),
+                verticalSpacing(4.0),
+                lableValue(label: "Category:", value: data.category ?? ""),
+                verticalSpacing(4.0),
+                lableValue(label: "unitPrice:", value: data.unitPrice ?? ""),
+                verticalSpacing(4.0),
               ],
             ),
-            verticalSpacing(8.0),
-            lableValue(label: "Product:", value: data?.productName ?? ""),
-            verticalSpacing(4.0),
-            lableValue(label: "SKU:", value: data?.sku ?? ""),
-            verticalSpacing(4.0),
-            lableValue(label: "Category:", value: data?.category ?? ""),
-            verticalSpacing(4.0),
-            lableValue(label: "unitPrice:", value: data?.unitPrice ?? ""),
-            verticalSpacing(4.0),
-          ],
-        ),
+          ),
+          const SizedBox(height: 15),
+          TextFormField(
+            controller: data.eQtyController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Existing Quantity',
+              hintText: 'Enter existing quantity',
+              prefixIcon: const Icon(Icons.inventory),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.grey.shade400),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+          TextFormField(
+            controller: data.nQtyController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'New Quantity',
+              hintText: 'Enter new quantity',
+              prefixIcon: const Icon(Icons.inventory),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.grey.shade400),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+              ),
+            ),
+          ),
+        ],
       );
     }
   }

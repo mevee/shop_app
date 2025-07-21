@@ -5,7 +5,7 @@ import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/employee_response.dart';
 
 abstract class EmployeeServiceProtocol {
-  Future<GetDistanceResponse> clockIn(ClockInRequest request);
+  Future<AttandanceResponse> clockIn(ClockInRequest request);
   Future<GetDistanceResponse> clockOut(ClockRequest request);
   Future<GetDistanceResponse> employeeRouteUpdate(
     List<UserDateLatRequest> request,
@@ -19,11 +19,11 @@ abstract class EmployeeServiceProtocol {
 class EmployeeService extends BaseNetworkClient
     implements EmployeeServiceProtocol {
   @override
-  Future<GetDistanceResponse> clockIn(ClockInRequest data) async {
+  Future<AttandanceResponse> clockIn(ClockInRequest data) async {
     const endPoint = EndPoints.employeeClockInPOST;
     try {
       final response = await client.post(endPoint, data: data.toJson());
-      return GetDistanceResponse.fromJson(response.data);
+      return AttandanceResponse.fromJson(response.data);
     } catch (error) {
       rethrow;
     }

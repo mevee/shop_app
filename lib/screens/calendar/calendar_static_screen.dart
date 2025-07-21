@@ -222,7 +222,7 @@ class _CalendarScreenStaticState extends State<CalendarScreenStatic> {
         onPressed: () {
           showAddSheduleBottomSheet(context);
         },
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.red,
         child: const Icon(Icons.add),
       ),
       body: Padding(

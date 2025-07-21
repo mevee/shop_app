@@ -17,10 +17,6 @@ class ShopMasterController extends BaseController {
   final SessionPref _userManager = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
   final TextEditingController searchCtr = TextEditingController();
-  final TextEditingController existingQuantityController =
-      TextEditingController();
-  final TextEditingController newOrderQuantityController =
-      TextEditingController();
   final TextEditingController remarksController = TextEditingController();
 
   final TextEditingController districtCtr = TextEditingController();

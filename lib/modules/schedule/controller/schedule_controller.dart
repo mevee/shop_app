@@ -19,8 +19,10 @@ import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_detail_response.dart';
 import 'package:shop_app/models/schedule_image_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
+import 'package:shop_app/models/schedule_qty_response.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 enum ScheduleType {
   FRESH,
@@ -40,10 +42,6 @@ class ScheduleController extends BaseController {
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
-  final TextEditingController existingQuantityController =
-      TextEditingController();
-  final TextEditingController newOrderQuantityController =
-      TextEditingController();
   final TextEditingController remarksController = TextEditingController();
 
   DateTime? selectedDate;
@@ -55,6 +53,7 @@ class ScheduleController extends BaseController {
   RxBool isDateWiseLoding = false.obs;
   RxBool isSearchLoading = false.obs;
   RxBool isImageLoading = false.obs;
+  RxBool isGetQtyLoading = false.obs;
   RxBool past = false.obs;
   RxBool today = false.obs;
   RxBool future = false.obs;
@@ -69,6 +68,20 @@ class ScheduleController extends BaseController {
 
   RxList<ShopMasterResponse> shopDetailsOptions = <ShopMasterResponse>[].obs;
   RxList<QuantityDetailsList> shopQtyList = <QuantityDetailsList>[].obs;
+  RxInt totalExtQty = 0.obs;
+  RxInt totalNewQty = 0.obs;
+  RxDouble totalPrice = (0.0).obs;
+  void calculateTotal() {
+    totalExtQty.value = 0;
+    totalNewQty.value = 0;
+    totalPrice.value = 0.0;
+
+    for (var e in shopQtyList) {
+      totalExtQty += totalExtQty.value + (e.existingQuantity ?? 0);
+      totalNewQty += totalNewQty.value + (e.newQuantity ?? 0);
+      totalPrice.value += totalPrice.value + (e.totalPrice ?? 0.0);
+    }
+  }
 
   final TextEditingController shopController = TextEditingController();
   ShopMasterResponse? selectedShop;
@@ -246,6 +259,49 @@ class ScheduleController extends BaseController {
     }
   }
 
+  Completer? loadQtyTask;
+  Future<void> getQtyList(String scheduleId) async {
+    if (loadQtyTask != null && !loadQtyTask!.isCompleted) {
+      loadQtyTask!.complete();
+      isGetQtyLoading.value = false;
+    }
+    loadQtyTask = Completer();
+    isGetQtyLoading.value = true;
+    try {
+      final future = scheduleService.getScheduleQuantity(scheduleId);
+      loadQtyTask?.complete(future);
+      final response = await completer!.future;
+      List<QtyResults> imageList = response.results ?? [];
+      final mShopList = <QuantityDetailsList>[];
+
+      for (var img in imageList) {
+        mShopList.add(
+          QuantityDetailsList(
+            editable: false,
+            existingQuantity: img.existingQuantity,
+            newQuantity: img.newQuantity,
+            productId: img.productId,
+            totalPrice: img.totalPrice,
+            totalQuantity: img.totalQuantity,
+          ),
+        );
+        shopQtyList.clear();
+        shopQtyList.value = mShopList;
+      }
+    } on DioException catch (e) {
+      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
+      // AppToast.showToast(message: errorMessage);
+    } on SocketException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+    } on ServerException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+    } catch (e) {
+      // AppToast.showToast();
+    } finally {
+      isGetQtyLoading.value = false;
+    }
+  }
+
   Future<void> addSchedule() async {
     if (dateController.text.isEmpty) {
       AppToast.showToast(message: 'Please select a date.');
@@ -300,8 +356,6 @@ class ScheduleController extends BaseController {
   void resetForm() {
     dateController.clear();
     timeController.clear();
-    existingQuantityController.clear();
-    newOrderQuantityController.clear();
     remarksController.clear();
     selectedShop = null;
     selectedDate = null;
@@ -342,19 +396,8 @@ class ScheduleController extends BaseController {
         '${dateController.text}T${timeController.text}'; //todo
     meetingDetail.meetingEndDateTime = DateFormatter.getCurrentDateTimeString();
     meetingDetail.meetingRemarks = remarksController.text;
-    quantityList.addAll(shopQtyList);
-    int qtyExisting = 0;
-    int qtyNew = 0;
-    try {
-      qtyExisting = int.parse(existingQuantityController.text);
-    } catch (_) {}
-    try {
-      qtyNew = int.parse(newOrderQuantityController.text);
-    } catch (_) {}
-    for (var e in quantityList) {
-      e.existingQuantity = qtyExisting;
-      e.newQuantity = qtyNew;
-    }
+    final mNewQtyList = shopQtyList.filter((n) => n.editable).toList();
+    quantityList.addAll(mNewQtyList);
     selectedImageCtr.getImagesBase64().forEach((image) {
       final imageMeeting = MeetingImagesList(images: image, type: "shop-front");
       imageList.add(imageMeeting);
@@ -429,6 +472,7 @@ class ScheduleController extends BaseController {
       dateController.text = dateTimeArray[0];
       timeController.text = dateTimeArray[1];
       getImages(value.id.toString());
+      getQtyList(value.id.toString());
     }
     if (dateTime != null) {}
     schedue.refresh();

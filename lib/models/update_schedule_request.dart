@@ -103,8 +103,8 @@ class QuantityDetailsList {
   int? quantityDifference;
   double? totalPrice;
   int? productId;
-  ProductMaster? product;
-
+  bool editable = true;
+  String? prodName = "";
   QuantityDetailsList({
     this.existingQuantity,
     this.newQuantity,
@@ -112,7 +112,8 @@ class QuantityDetailsList {
     this.quantityDifference,
     this.totalPrice,
     this.productId,
-    this.product,
+    this.editable=true,
+    this.prodName
   });
 
   QuantityDetailsList.fromJson(Map<String, dynamic> json) {
@@ -127,20 +128,13 @@ class QuantityDetailsList {
     double price = 0.0;
     try {
       price = double.parse(mPrice ?? "0.0");
-    } catch (e) {
-      
-    }
+    } catch (e) {}
 
     return price;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (product != null) {
-      productId = product?.id;
-      totalPrice = getPrice(product?.unitPrice);
-      productId = product?.id;
-    }
     data['existingQuantity'] = existingQuantity;
     data['newQuantity'] = newQuantity;
     data['totalQuantity'] = totalQuantity;

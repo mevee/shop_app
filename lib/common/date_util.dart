@@ -13,7 +13,11 @@ class DateFormatter {
 
   /// Parses a string in 'yyyy-MM-ddTHH:mm:ss' format to DateTime
   static DateTime parseDateTimeString(String dateString) {
-    return DateTime.parse(dateString);
+    try {
+      return DateTime.parse(dateString);
+    } catch (e) {
+      return DateTime.now();
+    }
   }
 
   /// Returns current date in 'yyyy-MM-dd' format
@@ -29,33 +33,49 @@ class DateFormatter {
 
   /// Parses a 'yyyy-MM-dd' string to DateTime
   static DateTime parse(String dateString) {
-    return DateTime.parse(dateString);
+    try {
+      return DateTime.parse(dateString);
+    } catch (e) {
+      return DateTime.now();
+    }
   }
 
   /// Parses a 'yyyy-MM-dd' string to DateTime
   static bool isToday(String dateString) {
-    DateTime givenDate = DateTime.parse(dateString);
-    DateTime now = DateTime.now();
-    return givenDate.isAtSameMomentAs(now);
+    try {
+      DateTime givenDate = DateTime.parse(dateString);
+      DateTime now = DateTime.now();
+      return givenDate.isAtSameMomentAs(now);
+    } catch (e) {
+      return false;
+    }
   }
 
   // Parses a 'yyyy-MM-dd' string to DateTime
   static bool isPastDate(String dateString) {
-    DateTime givenDate = DateTime.parse(dateString);
-    DateTime now = DateTime.now();
-    return givenDate.isBefore(now);
+    try {
+      DateTime givenDate = DateTime.parse(dateString);
+      DateTime now = DateTime.now();
+      return givenDate.isBefore(now);
+    } catch (e) {
+      return false;
+    }
   }
 
   // Parses a 'yyyy-MM-dd' string to DateTime
   static bool isFutureDate(String dateString) {
-    DateTime givenDate = DateTime.parse(dateString);
-    DateTime now = DateTime.now();
-    if (givenDate.isBefore(now)) {
+    try {
+      DateTime givenDate = DateTime.parse(dateString);
+      DateTime now = DateTime.now();
+      if (givenDate.isBefore(now)) {
+        return false;
+      } else if (givenDate.isAtSameMomentAs(now)) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
       return false;
-    } else if (givenDate.isAtSameMomentAs(now)) {
-      return false;
-    } else {
-      return true;
     }
   }
 
@@ -65,12 +85,16 @@ class DateFormatter {
 
   static String _twoDigits(int n) => n.toString().padLeft(2, '0');
   static String to24Format(String time12Hour) {
-    // Parse the 12-hour format string to DateTime
-    DateFormat inputFormat = DateFormat("yyyy-MM-dd'T'h:mm a");
-    DateTime dateTime = inputFormat.parse(time12Hour);
-    //-----
-    DateFormat outputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    String time24Hour = outputFormat.format(dateTime);
-    return time24Hour;
+    try {
+      // Parse the 12-hour format string to DateTime
+      DateFormat inputFormat = DateFormat("yyyy-MM-dd'T'h:mm a");
+      DateTime dateTime = inputFormat.parse(time12Hour);
+      //-----
+      DateFormat outputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      String time24Hour = outputFormat.format(dateTime);
+      return time24Hour;
+    } catch (e) {
+      return "";
+    }
   }
 }
