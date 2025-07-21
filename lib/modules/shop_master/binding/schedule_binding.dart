@@ -7,13 +7,13 @@ import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 
-class ScheduleBinding extends Bindings {
+class ShopMasterBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<ApplicationState>(() => ApplicationState());
     Get.lazyPut<SessionPref>(() => SharePrefSessiomImpl());
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
-    Get.create<ScheduleServiceProtocol>(() => ScheduleService());
+    Get.lazyPut<ScheduleServiceProtocol>(() => ScheduleService());
     Get.lazyPut<ShopMasterController>(() => ShopMasterController());
     Get.lazyPut<ScheduleController>(() => ScheduleController());
   }

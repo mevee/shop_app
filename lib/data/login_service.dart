@@ -19,8 +19,7 @@ abstract class LoginServiceProtocol {
 
   Future<CommonResponse> changePassword(ChangePasswordRequest request);
 
-  // Future<Either<Object, APIResponse<LoginResponse>>> getGoogleLoginResponse(
-  //     Map<String, dynamic> data);
+  Future<CommonResponse> logoutFromApp(LoginRequest request);
 }
 
 class LoginService extends BaseNetworkClient implements LoginServiceProtocol {
@@ -120,56 +119,30 @@ class LoginService extends BaseNetworkClient implements LoginServiceProtocol {
       rethrow;
     }
   }
-  // @override
-  // Future<Either<Object, APIResponse<LoginResponse>>> getGoogleLoginResponse(
-  //     Map<String, dynamic> data) async {
-  //   const endPoint = EndPoints.login;
-  //   try {
-  //     final response = await client.post(
-  //       endPoint,
-  //       data: data,
-  //     );
-  //     return Either.right(APIResponse(
-  //       response: LoginResponse.fromJson(response.data),
-  //       statusCode: response.statusCode ?? 400,
-  //       accessToken: response.headers['x-access-token']?.first ?? "",
-  //       userId: response.headers['x-userId']?.first ?? "",
-  //     ));
-  //   } catch (error) {
-  //     rethrow;
-  //   }
-  // }
 
-  // @override
-  // Future<int> forgotPassword({required String email}) async {
-  //   const endPoint = EndPoints.forgotPassword;
-  //   final Map<String, String> requestBody = {"email": email};
-  //   try {
-  //     final response =
-  //         await client.patch(endPoint, data: jsonEncode(requestBody));
-  //     return response.statusCode ?? 400;
-  //   } catch (error) {
-  //     rethrow;
-  //   }
-  // }
+  
+  @override
+  Future<CommonResponse> logoutFromApp(LoginRequest request) async {
+    var endPoint = EndPoints.userLogoutPOST;
+ 
+    try {
+      final response = await client.post(endPoint, data: request.toJson());
+      return CommonResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
 
-  // @override
-  // Future<UserCredential> signInWithGoogle() async {
-  //   await GoogleSignIn().signOut();
-
-  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-  //   if (googleUser == null) {
-  //     throw Exception('Google Sign-In was canceled');
-  //   }
-  //   final GoogleSignInAuthentication googleAuth =
-  //       await googleUser.authentication;
-
-  //   final credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth.accessToken,
-  //     idToken: googleAuth.idToken,
-  //   );
-
-  //   return await FirebaseAuth.instance.signInWithCredential(credential);
-  // }
 }

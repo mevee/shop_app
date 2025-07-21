@@ -136,7 +136,7 @@ class CallenderController extends BaseController {
         if (keyList != null) {
           keyList.add(apiModel);
         }
-      }else{
+      } else {
         dailyData[date] = [apiModel];
       }
     }
@@ -159,47 +159,4 @@ class CallenderController extends BaseController {
       return <ScheduleDateTimeModel>[];
     }
   }
-
-  // void getOutLocation() {
-  //   isPunchOutProgress.value = true;
-  //   refreshLocation().then((_) {
-  //     if (currentPosition != null) {
-  //       inLocation = LocationLatLon(
-  //         lat: currentPosition!.latitude,
-  //         long: currentPosition!.longitude,
-  //       );
-  //       _clockOut();
-  //     } else {
-  //       AppToast.showToast(message: 'Failed to get in location');
-  //     }
-  //     isPunchOutProgress.value = false;
-  //   });
-  // }
-
-  // Future<void> updateEmployeeRoute() async {
-  //   isLoding.value = true;
-  //   final request = [
-  //     UserDateLatRequest(
-  //       userName: _userManager.getUserData()?.login?.userName,
-  //       loginTime: DateFormatter.getCurrentDateTimeString(),
-  //       lat: inLocation.lat,
-  //       lng: inLocation.long,
-  //     ),
-  //   ];
-  //   try {
-  //     final response = await _employeeService.employeeRouteUpdate(request);
-  //   } on DioException catch (e) {
-  //     final errorMessage =
-  //         e.response?.data['error'] ?? "Failed to update password";
-  //     AppToast.showToast(message: errorMessage);
-  //   } on SocketException catch (e) {
-  //     AppToast.showToast(message: e.message ?? "Failed to update Password");
-  //   } on ServerException catch (e) {
-  //     AppToast.showToast(message: e.message ?? "Failed to Update Password");
-  //   } catch (e) {
-  //     AppToast.showToast();
-  //   } finally {
-  //     isLoding.value = false;
-  //   }
-  // }
 }

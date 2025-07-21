@@ -20,9 +20,10 @@ class SharePrefSessiomImpl with SessionPref {
     try {
       if (userDataString == "" || userDataString == null) {
         return null;
+      } else {
+        final Map<String, dynamic> userMap = jsonDecode(userDataString);
+        return LoginResponse.fromJson(userMap);
       }
-      final Map<String, dynamic> userMap = jsonDecode(userDataString);
-      return LoginResponse.fromJson(userMap);
     } on Exception catch (_) {
       return null;
     }
@@ -86,7 +87,6 @@ class SharePrefSessiomImpl with SessionPref {
     setIsUserLoggedIn(false);
     setUserData(null);
   }
-
 
   Future<void> _clear(String key) async {
     await _prefs?.clear();

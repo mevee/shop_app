@@ -8,21 +8,35 @@ import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
-import 'package:shop_app/data/app_state_manager.dart';
+import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
+import 'package:shop_app/data/shop_master_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/add_schedule_request.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
+import 'package:shop_app/models/schedule_detail_response.dart';
+import 'package:shop_app/models/schedule_image_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
-import 'package:shop_app/navigation/app_pages.dart';
+
+enum ScheduleType {
+  FRESH,
+  FUTURE,
+  VISITED,
+  NOT_VISITED,
+  TODAY_VISTED,
+  TODAY_NOT_VISITED,
+}
 
 class ScheduleController extends BaseController {
   final SessionPref _userManager = Get.find();
   final ScheduleServiceProtocol scheduleService = Get.find();
+  final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
+  UploadImageController selectedImageCtr = UploadImageController(maxCount: 5);
+
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
@@ -40,7 +54,14 @@ class ScheduleController extends BaseController {
   RxBool isLoding = false.obs;
   RxBool isDateWiseLoding = false.obs;
   RxBool isSearchLoading = false.obs;
+  RxBool isImageLoading = false.obs;
+  RxBool past = false.obs;
+  RxBool today = false.obs;
+  RxBool future = false.obs;
+  RxBool visted = false.obs;
+  Rx<ScheduleType> type = ScheduleType.FUTURE.obs;
 
+  RxBool scheduleDetailAdded = false.obs;
   RxBool updateScheduleLoding = false.obs;
   RxBool addScheduleLoding = false.obs;
   RxBool isLoginButtonLoading = false.obs;
@@ -52,30 +73,48 @@ class ScheduleController extends BaseController {
   final TextEditingController shopController = TextEditingController();
   ShopMasterResponse? selectedShop;
   Rx<String> selectedShopStr = "Select Shop".obs;
-
-  int? scheduleId;
-
+  Rx<ScheduleDateTimeModel> schedue = ScheduleDateTimeModel().obs;
   String? scheduleDate;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
-
+  RxList<ScheduleDateTimeModel> skuList = <ScheduleDateTimeModel>[].obs;
+  bool isOnInitRan = false;
   @override
   void onInit() {
     super.onInit();
     final Map<String, dynamic>? data = Get.arguments;
+    isOnInitRan = true;
+    print("onInit()");
+
+    _setInitialDate(data);
+  }
+
+  void _setInitialDate(Map<String, dynamic>? data) {
+    print("setInitialDate(arg$data)");
     if (data?.containsKey('id') == true) {
-      scheduleId = data?['id']!;
-      getScheduleDetails(scheduleId);
+      schedue.value = data?['id']!;
+      scheduleDetailAdded.value = false;
+      past.value = false;
+      visted.value = false;
+      getScheduleDetails(schedue.value.id);
     } else if (data?.containsKey('date') == true) {
       scheduleDate = data?['date']!;
       getTodaysScheduleList(scheduleDate);
     }
     loadUserData();
-    //getShopList();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     timeController.text = TimeOfDay.now().format(Get.context!);
   }
 
+  void setManualArguments(Map<String, dynamic>? data) async {
+    final Map<String, dynamic>? data = Get.arguments;
+    if (isOnInitRan) {
+      print("setManualArguments(arg$data)");
+      _setInitialDate(data);
+    }
+  }
+
   Future<void> getTodaysScheduleList(String? date) async {
+    print("getTodaysScheduleList($date)");
     isDateWiseLoding.value = true;
     try {
       final response = await scheduleService.getScheduleByDate(date);
@@ -84,6 +123,7 @@ class ScheduleController extends BaseController {
       } else {
         scheduleList.value = [];
       }
+      scheduleList.refresh();
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
@@ -104,6 +144,10 @@ class ScheduleController extends BaseController {
       final response = await scheduleService.getScheduleDetails("$scheduleId");
       if (response.results != null && response.results!.isNotEmpty) {
         // scheduleList.value = response.results!.first;
+        updaetUiAsPerOldScheduleData(response.results!.first);
+        setUiAsPerSchedule(schedue.value);
+      } else {
+        setUiAsPerSchedule(schedue.value);
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -131,7 +175,6 @@ class ScheduleController extends BaseController {
   }
 
   Completer? completer;
-
   Future<void> getShopList(String query) async {
     if (completer != null && !completer!.isCompleted) {
       completer!.complete();
@@ -144,7 +187,7 @@ class ScheduleController extends BaseController {
     completer = Completer();
     isSearchLoading.value = true;
     try {
-      final future = scheduleService.getShopByName(query);
+      final future = masterService.getShopByName(query);
       completer?.complete(future);
       final response = await completer!.future;
       shopDetailsOptions.value = response.results ?? [];
@@ -162,10 +205,45 @@ class ScheduleController extends BaseController {
     }
   }
 
-  void logout() {
-    _userManager.logOut();
-    ApplicationState().userLoggedOut();
-    Get.offAllNamed(Routes.login);
+  Completer? loadImagesTask;
+  Future<void> getImages(String scheduleId) async {
+    if (loadImagesTask != null && !loadImagesTask!.isCompleted) {
+      loadImagesTask!.complete();
+      isImageLoading.value = false;
+    }
+    loadImagesTask = Completer();
+    isImageLoading.value = true;
+    try {
+      final future = scheduleService.getScheduleImages(scheduleId);
+      loadImagesTask?.complete(future);
+      final response = await completer!.future;
+      List<ImgResult> imageList = response.results ?? [];
+      if (imageList.isNotEmpty) {
+        final mList = <ImgData>[];
+        for (var img in imageList) {
+          mList.add(
+            ImgData(
+              imagePath: img.images ?? "",
+              canEdit: false,
+              url: img.images,
+            ),
+          );
+        }
+
+        selectedImageCtr.setUploadedImages64(mList);
+      }
+    } on DioException catch (e) {
+      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
+      // AppToast.showToast(message: errorMessage);
+    } on SocketException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+    } on ServerException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+    } catch (e) {
+      // AppToast.showToast();
+    } finally {
+      isImageLoading.value = false;
+    }
   }
 
   Future<void> addSchedule() async {
@@ -181,18 +259,20 @@ class ScheduleController extends BaseController {
       AppToast.showToast(message: 'Please select a shop.');
       return;
     }
-    addScheduleLoding.value = true;
     final shop = selectedShop;
+    final combinedTime = '${dateController.text}T${timeController.text}';
     final request = AddScheduleRequest(
       userName: userData.value.login?.userName,
       shopId: shop?.id.toString(),
       shopName: shop?.unitName,
-      scheduleDateTime: '${dateController.text}T${timeController.text}', //todo
+      scheduleDateTime: DateFormatter.to24Format(combinedTime), //todo
       status: "ACTIVE",
       createdBy: userData.value.login?.role,
       day: dateController.text,
       isVisitDone: 0,
     );
+    addScheduleLoding.value = true;
+
     try {
       final response = await scheduleService.addSchedule(request);
       if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
@@ -200,8 +280,8 @@ class ScheduleController extends BaseController {
           message: response.responseMessage ?? 'Failed to add schedule.',
         );
       } else {
+        Get.back(closeOverlays: true);
         AppToast.showToast(message: 'Schedule added successfully!');
-        Get.back(result: true); // Close the dialog and return true
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -228,7 +308,7 @@ class ScheduleController extends BaseController {
     selectedTime = null;
   }
 
-  Future<void> submitForm() async {
+  Future<void> submitForm(Function() onDone) async {
     if (dateController.text.isEmpty) {
       AppToast.showToast(message: 'Please select a date.');
       return;
@@ -241,25 +321,45 @@ class ScheduleController extends BaseController {
       AppToast.showToast(message: 'Please select a shop.');
       return;
     }
+
     updateScheduleLoding.value = true;
     final shop = selectedShop;
-    final meetingDetail  = MeetingDetails();
-    final imageList  =<MeetingImagesList>[];
-    final quantityList  =<QuantityDetailsList>[];
+    final meetingDetail = MeetingDetails();
+    final imageList = <MeetingImagesList>[];
+    final quantityList = <QuantityDetailsList>[];
     final request = UpdateScheduleRequest(
       meetingDetails: meetingDetail,
       meetingImagesList: imageList,
-      quantityDetailsList: quantityList
+      quantityDetailsList: quantityList,
     );
-    meetingDetail.scheduleId = scheduleId;
+    meetingDetail.scheduleId = schedue.value.id;
     meetingDetail.shopId = shop?.id;
-    meetingDetail.shopName =  shop?.unitName;
-    meetingDetail.meetingStartDateTime ='${dateController.text}T${timeController.text}'; //todo
-    meetingDetail.meetingEndDateTime =DateFormatter.getCurrentDateTimeString();
-    meetingDetail.meetingRemarks = remarksController.text;  
+    meetingDetail.shopName = shop?.unitName;
     meetingDetail.meetingPersonName = shop?.ownerName;
     meetingDetail.meetingPersonContactNumber = shop?.mobileNumber;
-    // quantityList.addAll(shopQtyList);
+
+    meetingDetail.meetingStartDateTime =
+        '${dateController.text}T${timeController.text}'; //todo
+    meetingDetail.meetingEndDateTime = DateFormatter.getCurrentDateTimeString();
+    meetingDetail.meetingRemarks = remarksController.text;
+    quantityList.addAll(shopQtyList);
+    int qtyExisting = 0;
+    int qtyNew = 0;
+    try {
+      qtyExisting = int.parse(existingQuantityController.text);
+    } catch (_) {}
+    try {
+      qtyNew = int.parse(newOrderQuantityController.text);
+    } catch (_) {}
+    for (var e in quantityList) {
+      e.existingQuantity = qtyExisting;
+      e.newQuantity = qtyNew;
+    }
+    selectedImageCtr.getImagesBase64().forEach((image) {
+      final imageMeeting = MeetingImagesList(images: image, type: "shop-front");
+      imageList.add(imageMeeting);
+    });
+
     try {
       final response = await scheduleService.updateSchedule(request);
       if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
@@ -268,7 +368,7 @@ class ScheduleController extends BaseController {
         );
       } else {
         AppToast.showToast(message: 'Schedule update successfully!');
-        Get.back(result: true); // Close the dialog and return true
+        onDone();
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -282,5 +382,55 @@ class ScheduleController extends BaseController {
     } finally {
       updateScheduleLoding.value = false;
     }
+  }
+
+  void updaetUiAsPerOldScheduleData(SchedulApiResults scheduleApi) {
+    scheduleDetailAdded.value = true;
+    final mSchedule = schedue.value;
+    mSchedule.createdBy = scheduleApi.createdBy;
+    mSchedule.shopName = scheduleApi.shopName;
+    selectedShop = ShopMasterResponse(
+      id: scheduleApi.shopId,
+      mobileNumber: scheduleApi.meetingPersonContactNumber,
+      ownerName: scheduleApi.meetingPersonContactNumber,
+      unitName: scheduleApi.shopName,
+    );
+    shopController.text = scheduleApi.shopName ?? "";
+    remarksController.text = scheduleApi.meetingRemarks ?? "";
+    mSchedule.scheduleDateTime = scheduleApi.meetingStartDateTime;
+
+    if (scheduleApi.meetingStartDateTime != null &&
+        scheduleApi.meetingStartDateTime!.split("T").length > 1) {
+      final dateTimeArray = scheduleApi.meetingStartDateTime!.split("T");
+      dateController.text = dateTimeArray[0];
+      timeController.text = dateTimeArray[1];
+    }
+    schedue.value = mSchedule;
+  }
+
+  void setUiAsPerSchedule(ScheduleDateTimeModel value) {
+    type.value = ScheduleType.FUTURE;
+    past.value = DateFormatter.isPastDate(value.scheduleDateTime!);
+    today.value = DateFormatter.isToday(value.scheduleDateTime!);
+    future.value = DateFormatter.isToday(value.scheduleDateTime!);
+    type.value = value.isVisitDone == 0
+        ? ScheduleType.NOT_VISITED
+        : ScheduleType.VISITED;
+
+    final mSchedule = schedue.value;
+    shopController.text = mSchedule.shopName ?? "";
+    DateTime? dateTime;
+    // remarksController.text = mSchedule.meetingRemarks??"";
+
+    if (mSchedule.scheduleDateTime != null &&
+        mSchedule.scheduleDateTime!.split("T").length > 1) {
+      dateTime = DateFormatter.parse(mSchedule.scheduleDateTime!);
+      final dateTimeArray = mSchedule.scheduleDateTime!.split("T");
+      dateController.text = dateTimeArray[0];
+      timeController.text = dateTimeArray[1];
+      getImages(value.id.toString());
+    }
+    if (dateTime != null) {}
+    schedue.refresh();
   }
 }

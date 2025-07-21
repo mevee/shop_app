@@ -9,6 +9,7 @@ abstract class EndPoints {
   static const verifyOtpAndPassword = 'crm/auth/v1/forget-password';
 
   //employee
+  static const userLogoutPOST = '/crm/auth/v1/perform-logout';
   static const employeeClockInPOST = 'crm/auth/v1/employee-attendance';
   static const employeeClockOutPOST = 'crm/auth/v1/employee-attendance-logout';
   static const employeeRouteUpdatePOST = 'crm/auth/v1/employee-location';
@@ -35,6 +36,7 @@ abstract class EndPoints {
   // {{url}}/crm/shop/v1/get-shop-list-by-name?shopName=
   static const shopListGET = 'crm/shop/v1/get-shop-list';
   static const shopListSearchGET = 'crm/shop/v1/get-shop-list-by-name?shopName={shopName}';
+  static const addSShopPOST = '/crm/shop/v1/add-shop';
 
 
   }

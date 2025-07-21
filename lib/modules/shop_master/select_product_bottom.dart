@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
-import 'package:shop_app/modules/schedule/controller/product_controller.dart';
+import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
 
-class SelectProductBottomSheet extends GetView<ProductController> {
-  const SelectProductBottomSheet({super.key});
+class SelectSkuBottomSheet extends GetView<ShopMasterController> {
+  const SelectSkuBottomSheet({super.key});
  
   @override
   Widget build(BuildContext context) {
@@ -45,39 +45,13 @@ class SelectProductBottomSheet extends GetView<ProductController> {
               padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
               child: Divider(color: AppColors.lightGrey),
             ),
-            // Obx(
-            //   () => TextField(
-            //     controller: controller.searchCtr,
-            //     onTapOutside: (event) => FocusScope.of(context).unfocus(),
-            //     decoration: InputDecoration(
-            //       hintText: "Search Shop",
-            //       prefixIcon: Icon(Icons.search, color: AppColors.neutral400),
-            //       border: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(8.0),
-            //         borderSide: BorderSide(color: AppColors.lightGrey),
-            //       ),
-            //       suffix: controller.isSearchLoading.value
-            //           ? SizedBox(
-            //               width: 20,
-            //               height: 20,
-            //               child: CircularProgressIndicator(
-            //                 color: Colors.deepPurpleAccent,
-            //               ),
-            //             )
-            //           : null,
-            //     ),
-            //     onChanged: (value) {
-            //       controller.getShopList(value);
-            //     },
-            //   ),
-            // ),
-            Obx(() => prgressAndNoDatFound(controller.isLoding.value)),
+            Obx(() => prgressAndNoDatFound(controller.isSkuListLoding.value)),
             Obx(
               () => Expanded(
                 child: ListView.builder(
-                  itemCount: controller.productList.length,
+                  itemCount: controller.skuListApi.length,
                   itemBuilder: (context, index) {
-                    final shop = controller.productList[index];
+                    final shop = controller.skuListApi[index];
                     return InkWell(
                       borderRadius: BorderRadius.circular(8.0),
                       onTap: () {
@@ -104,23 +78,29 @@ class SelectProductBottomSheet extends GetView<ProductController> {
                           children: [
                             Icon(Icons.grid_on_outlined, color: Colors.blueAccent),
                             horizontalSpacing(8),
-                            Text(
-                              maxLines: 3,
-                              "${shop.productName ?? 'Unknown'}\nCategory: ${shop.category}\nSKU:${shop.sku}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                maxLines: 3,
+                                "${shop.productName ?? 'Unknown'}\nCategory: ${shop.category}\nSKU:${shop.sku}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ), 
                               ),
                             ),
                             Spacer(),
-                            Text(
-                              maxLines: 1,
-                              "Price: ${shop.unitPrice}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                maxLines: 1,
+                                "Price: ${shop.unitPrice}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ),
                           ],
@@ -151,11 +131,11 @@ class SelectProductBottomSheet extends GetView<ProductController> {
             ),
         ),
       );
-    } else if (controller.productList.isEmpty) {
+    } else if (controller.skuListApi.isEmpty) {
       return Expanded(
         child: Center(
           child: Text(
-            "No Shops Found",
+            "No Sku Found",
             style: TextStyle(color: AppColors.neutral400),
           ),
         ),

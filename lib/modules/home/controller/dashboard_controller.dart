@@ -5,9 +5,8 @@ import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/employee_service.dart';
-import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/employee_response.dart';
@@ -18,6 +17,7 @@ import 'package:shop_app/navigation/app_pages.dart';
 class DashboardController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
+  final LoginServiceProtocol _loginService = Get.find();
 
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
@@ -52,7 +52,7 @@ class DashboardController extends BaseController {
     }
   }
 
-  void loadUserData() async{
+  void loadUserData() async {
     await userManager.initPreferences();
     userData.value = userManager.getUserData() ?? LoginResponse();
   }
@@ -261,7 +261,32 @@ class DashboardController extends BaseController {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    isLoding.value = true;
+    try {
+      final response = await _loginService.logoutFromApp(
+        LoginRequest(userName: "0", password: "0"),
+      );
+      if (response.responseCode != null && response.responseCode == "fail") {
+        AppToast.showToast(message: "Logout failed");
+      } else {
+        _logout();
+      }
+    } on DioException catch (e) {
+      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
+      // AppToast.showToast(message: errorMessage);
+    } on SocketException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+    } on ServerException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+    } catch (e) {
+      // AppToast.showToast();
+    } finally {
+      isLoding.value = false;
+    }
+  }
+
+  void _logout() {
     userManager.logOut();
     Get.offAllNamed(Routes.login);
   }

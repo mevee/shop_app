@@ -23,3 +23,15 @@ class CommonResponse {
   //   return data;
   // }
 }
+
+class CommonModel {
+  String? responseMessage;
+  String? responseCode;
+
+  CommonModel({this.responseMessage, this.responseCode});
+
+  CommonModel.fromJson(Map<String, dynamic> json) {
+    responseMessage = json['responseMessage'];
+    responseCode = json['responseCode'];
+  }
+}

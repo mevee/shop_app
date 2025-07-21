@@ -7,22 +7,23 @@ class ScheduleDetailResponse {
   int? totalPages;
   int? currentPage;
   int? currentSize;
-  List<QtyResults>? results;
+  List<SchedulApiResults>? results;
   String? invoiceUrl;
   bool? lastPage;
 
-  ScheduleDetailResponse(
-      {this.action,
-      this.responseStatus,
-      this.responseCode,
-      this.responseMessage,
-      this.totalSize,
-      this.totalPages,
-      this.currentPage,
-      this.currentSize,
-      this.results,
-      this.invoiceUrl,
-      this.lastPage});
+  ScheduleDetailResponse({
+    this.action,
+    this.responseStatus,
+    this.responseCode,
+    this.responseMessage,
+    this.totalSize,
+    this.totalPages,
+    this.currentPage,
+    this.currentSize,
+    this.results,
+    this.invoiceUrl,
+    this.lastPage,
+  });
 
   ScheduleDetailResponse.fromJson(Map<String, dynamic> json) {
     action = json['action'];
@@ -34,9 +35,11 @@ class ScheduleDetailResponse {
     currentPage = json['currentPage'];
     currentSize = json['currentSize'];
     if (json['results'] != null) {
-      results = <QtyResults>[];
+      results = <SchedulApiResults>[];
       json['results'].forEach((v) {
-        results!.add(QtyResults.fromJson(v));
+        if (v != null) {
+          results!.add(SchedulApiResults.fromJson(v));
+        }
       });
     }
     invoiceUrl = json['invoiceUrl'];
@@ -62,60 +65,59 @@ class ScheduleDetailResponse {
   }
 }
 
-
-class QtyResults {
+class SchedulApiResults {
   int? id;
-  int? productId;
-  int? existingQuantity;
-  int? newQuantity;
-  int? totalQuantity;
-  int? totalPrice;
   int? scheduleId;
+  int? shopId;
+  String? shopName;
+  String? meetingStartDateTime;
+  String? meetingEndDateTime;
+  String? meetingPersonName;
+  String? meetingPersonContactNumber;
+  String? meetingRemarks;
   String? createdBy;
-  String? updatedBy;
   String? createdDate;
-  String? updatedDate;
 
-  QtyResults(
+  SchedulApiResults(
       {this.id,
-      this.productId,
-      this.existingQuantity,
-      this.newQuantity,
-      this.totalQuantity,
-      this.totalPrice,
       this.scheduleId,
+      this.shopId,
+      this.shopName,
+      this.meetingStartDateTime,
+      this.meetingEndDateTime,
+      this.meetingPersonName,
+      this.meetingPersonContactNumber,
+      this.meetingRemarks,
       this.createdBy,
-      this.updatedBy,
-      this.createdDate,
-      this.updatedDate});
+      this.createdDate});
 
-  QtyResults.fromJson(Map<String, dynamic> json) {
+  SchedulApiResults.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    productId = json['productId'];
-    existingQuantity = json['existingQuantity'];
-    newQuantity = json['newQuantity'];
-    totalQuantity = json['totalQuantity'];
-    totalPrice = json['totalPrice'];
     scheduleId = json['scheduleId'];
+    shopId = json['shopId'];
+    shopName = json['shopName'];
+    meetingStartDateTime = json['meetingStartDateTime'];
+    meetingEndDateTime = json['meetingEndDateTime'];
+    meetingPersonName = json['meetingPersonName'];
+    meetingPersonContactNumber = json['meetingPersonContactNumber'];
+    meetingRemarks = json['meetingRemarks'];
     createdBy = json['createdBy'];
-    updatedBy = json['updatedBy'];
     createdDate = json['createdDate'];
-    updatedDate = json['updatedDate'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['productId'] = productId;
-    data['existingQuantity'] = existingQuantity;
-    data['newQuantity'] = newQuantity;
-    data['totalQuantity'] = totalQuantity;
-    data['totalPrice'] = totalPrice;
     data['scheduleId'] = scheduleId;
+    data['shopId'] = shopId;
+    data['shopName'] = shopName;
+    data['meetingStartDateTime'] = meetingStartDateTime;
+    data['meetingEndDateTime'] = meetingEndDateTime;
+    data['meetingPersonName'] = meetingPersonName;
+    data['meetingPersonContactNumber'] = meetingPersonContactNumber;
+    data['meetingRemarks'] = meetingRemarks;
     data['createdBy'] = createdBy;
-    data['updatedBy'] = updatedBy;
     data['createdDate'] = createdDate;
-    data['updatedDate'] = updatedDate;
     return data;
   }
 }

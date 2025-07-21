@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 abstract class AssetImages {
   // // * SVG Assets
-  static const logo = AssetImage('assets/logo.png');
+  static const logo = AssetImage('assets/logo.jpeg');
   // static const splashLogo = AssetImage('assets/images/splash_logo.png');
   // static const email = AssetImage('assets/images/email.png');
   // static const password = AssetImage('assets/images/password.png');
@@ -50,7 +50,7 @@ abstract class AssetImages {
   static const edit2 = AssetImage('assets/images/edit-2.png');
   // static const messageText = AssetImage('assets/images/message-text.png');
   static const threeDotsHorizontal = AssetImage('assets/images/three_dots_horizontal.png');
-  // static const close = AssetImage('assets/images/close.png');
+  static const close = AssetImage('assets/images/close.png');
   // static const share2 = AssetImage('assets/images/shareNew.png');
   // static const tip = AssetImage('assets/images/tip.png');
   // static const copy = AssetImage('assets/images/copy.png');

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shop_app/data/common_response.dart';
 import 'package:shop_app/data/network/api_endpoint.dart';
 import 'package:shop_app/data/network/base_network_client.dart';
 import 'package:shop_app/exception/exceptions.dart';
@@ -9,14 +10,13 @@ import 'package:shop_app/models/schedule_detail_response.dart';
 import 'package:shop_app/models/schedule_image_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/schedule_qty_response.dart';
-import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/shop_prodlisr_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
 
 abstract class ScheduleServiceProtocol {
-  Future<GetDistanceResponse> addSchedule(AddScheduleRequest request); //d
-  Future<GetDistanceResponse> updateSchedule(UpdateScheduleRequest request); //d
-  Future<GetDistanceResponse> addScheduleDetail(
+  Future<CommonModel> addSchedule(AddScheduleRequest request); //d
+  Future<CommonModel> updateSchedule(UpdateScheduleRequest request); //d
+  Future<CommonModel> addScheduleDetail(
     ScheduleDetailRequest request,
   ); //d
 
@@ -28,20 +28,16 @@ abstract class ScheduleServiceProtocol {
   Future<ScheduleDetailResponse> getScheduleDetails(String? scheduleId); //d
   Future<ScheduleImageResponse> getScheduleImages(String? scheduleId); //d
   Future<ScheduleQtyResponse> getScheduleQuantity(String? scheduleId); //d
-
-  Future<List<ShopMasterResponse>> getShopList(); //d
-  Future<ShopMasterListResponse> getShopByName(String query);
-
 }
 
 class ScheduleService extends BaseNetworkClient
     implements ScheduleServiceProtocol {
   @override
-  Future<GetDistanceResponse> addSchedule(AddScheduleRequest request) async {
+  Future<CommonModel> addSchedule(AddScheduleRequest request) async {
     const endPoint = EndPoints.addEmployeeSchedulePOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
-      return GetDistanceResponse.fromJson(response.data);
+      return CommonModel.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
@@ -60,11 +56,13 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<GetDistanceResponse> updateSchedule(UpdateScheduleRequest request) async {
-    const endPoint = EndPoints.updateEmployeeSchedulePOST;
+  Future<CommonModel> updateSchedule(
+    UpdateScheduleRequest request,
+  ) async {
+    const endPoint = EndPoints.addEmployeeScheduleDetailPOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
-      return GetDistanceResponse.fromJson(response.data);
+      return CommonModel.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
@@ -83,13 +81,13 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<GetDistanceResponse> addScheduleDetail(
+  Future<CommonModel> addScheduleDetail(
     ScheduleDetailRequest request,
   ) async {
     const endPoint = EndPoints.addEmployeeScheduleDetailPOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
-      return GetDistanceResponse.fromJson(response.data);
+      return CommonModel.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
@@ -234,67 +232,6 @@ class ScheduleService extends BaseNetworkClient
     try {
       final response = await client.get(endPoint);
       return ScheduleImageResponse.fromJson(response.data);
-    } on DioException catch (e) {
-      // Handle Dio-specific errors
-      if (e.response != null) {
-        // You can throw a custom exception or return an error response
-        throw ServerException(
-          message: e.response?.data['error'] ?? 'Internal Server Error',
-          statusCode: e.response?.statusCode ?? 500,
-        );
-      } else {
-        // Other Dio errors (network, timeout, etc.)
-        throw NetworkException(message: e.message ?? 'Network error occurred');
-      }
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<ShopMasterResponse>> getShopList() async {
-    var endPoint = EndPoints.shopListGET;
-
-    try {
-      final response = await client.get(endPoint);
-      final List<ShopMasterResponse> shopList = [];
-      if (response.data is List) {
-        response.data.forEach((element) {
-          shopList.add(ShopMasterResponse.fromJson(element));
-        });
-      }
-      return shopList;
-    } on DioException catch (e) {
-      // Handle Dio-specific errors
-      if (e.response != null) {
-        // You can throw a custom exception or return an error response
-        throw ServerException(
-          message: e.response?.data['error'] ?? 'Internal Server Error',
-          statusCode: e.response?.statusCode ?? 500,
-        );
-      } else {
-        // Other Dio errors (network, timeout, etc.)
-        throw NetworkException(message: e.message ?? 'Network error occurred');
-      }
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<ShopMasterListResponse> getShopByName(String query) async {
-    var endPoint = EndPoints.shopListSearchGET;
-    endPoint = endPoint.replaceAll("{shopName}", query);
-
-    try {
-      final response = await client.get(endPoint);
-      // final List<ShopMasterResponse> shopList = [];
-      // if (response.data is List) {
-      //   response.data.forEach((element) {
-      //     shopList.add(ShopMasterResponse.fromJson(element));
-      //   });
-      // }
-      return ShopMasterListResponse.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {

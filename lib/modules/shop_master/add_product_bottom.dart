@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
-import 'package:shop_app/modules/schedule/controller/product_controller.dart';
-import 'package:shop_app/modules/schedule/select_product_bottom.dart';
+import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
+import 'package:shop_app/modules/shop_master/select_product_bottom.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
 import 'package:shop_app/widgets/helper.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
-class AddProductBottomSheet extends GetView<ProductController> {
-  const AddProductBottomSheet({super.key});
+class AddProductBottomSheet extends GetView<ShopMasterController> {
+  final Function(ProductMaster product)? onItemselect;
+  const AddProductBottomSheet(this.onItemselect, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,25 @@ class AddProductBottomSheet extends GetView<ProductController> {
               padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
               child: Divider(color: AppColors.lightGrey),
             ),
-
+            Spacer(),
+            Obx(
+              ()=> buttonWithLoader(
+                label: "Submit",
+                color: Colors.deepPurpleAccent,
+                textColor: Colors.white,
+                onPressed: () {
+                  if(controller.product.value.id!=null){
+                  onItemselect?.call(controller.product.value);
+                  Get.back();
+                  }else{
+                    AppToast.showToast(message: "No product selected");
+                  }
+                },
+                disable: controller.product.value.category != null ? false : true,
+                isLoading: false,
+                context: context,
+              ),
+            ),
             // Expanded(child: ,),
             const SizedBox(height: 16),
           ],
@@ -70,11 +91,11 @@ class AddProductBottomSheet extends GetView<ProductController> {
           ),
         ),
       );
-    } else if (controller.productList.isEmpty) {
+    } else if (controller.skuListApi.isEmpty) {
       return Expanded(
         child: Center(
           child: Text(
-            "No prodct Found",
+            "No product Found",
             style: TextStyle(color: AppColors.neutral400),
           ),
         ),
@@ -138,9 +159,9 @@ class AddProductBottomSheet extends GetView<ProductController> {
   }
 
   void _showSelectProductDialog(BuildContext context) {
-    controller.getShopList();
+    controller.getSkuList();
     Get.bottomSheet(
-      SelectProductBottomSheet(),
+      SelectSkuBottomSheet(),
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(

@@ -10,6 +10,7 @@ import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
+import 'package:shop_app/data/shop_master_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/add_schedule_request.dart';
 import 'package:shop_app/models/employee_response.dart';
@@ -21,6 +22,8 @@ import 'package:shop_app/navigation/app_pages.dart';
 class ScheduleController extends BaseController {
   final SessionPref _userManager = Get.find();
   final ScheduleServiceProtocol scheduleService = Get.find();
+  final ShopMasterServiceProtocol masterService = Get.find();
+
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
@@ -100,7 +103,6 @@ class ScheduleController extends BaseController {
       final response = await scheduleService.getScheduleDetails("$scheduleId");
       if (response.results != null && response.results!.isNotEmpty) {
         // scheduleList.value = response.results!.first;
-        
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -141,7 +143,7 @@ class ScheduleController extends BaseController {
     completer = Completer();
     isSearchLoading.value = true;
     try {
-      final future = scheduleService.getShopByName(query);
+      final future = masterService.getShopByName(query);
       completer?.complete(future);
       final response = await completer!.future;
       shopDetailsOptions.value = response.results ?? [];

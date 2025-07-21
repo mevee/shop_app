@@ -116,7 +116,7 @@ class LoginScreen extends GetView<AuthController> {
         AppLogo(
           subtitle: 'Welcome back.',
           assetPath: AppImages.premier,
-          iconSize: 100,
+          iconSize: 200,
           assetColor: Colors.white,
           titleSize: 32.0,
           showBackground: false,

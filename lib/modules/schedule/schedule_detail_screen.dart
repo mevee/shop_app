@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shop_app/data/network/app_colors.dart';
-import 'package:shop_app/modules/schedule/add_product_bottom.dart';
-import 'package:shop_app/modules/schedule/controller/product_controller.dart';
+import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/models/product_master_response.dart';
+import 'package:shop_app/models/update_schedule_request.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
-import 'package:shop_app/modules/schedule/select_product_bottom.dart';
+import 'package:shop_app/modules/shop_master/add_product_bottom.dart';
+import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/screens/calendar/shop_select_bottom.dart';
-import 'package:shop_app/widgets/comon_widgets.dart';
+import 'package:shop_app/widgets/helper.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class ScheduleDetailView extends GetView<ScheduleController> {
   const ScheduleDetailView({super.key});
@@ -24,218 +26,225 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              // Date Field
-              TextFormField(
-                controller: controller.dateController,
-                decoration: InputDecoration(
-                  labelText: 'Date',
-                  hintText: 'Select Date',
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+          child: Obx(
+            () => Opacity(
+              opacity: (controller.past.value && controller.visted.value ||
+                        controller.today.value && controller.visted.value) ? 0.6:1,
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    controller: controller.dateController,
+                    decoration: InputDecoration(
+                      labelText: 'Date',
+                      hintText: 'Select Date',
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
+                    readOnly:
+                        controller.schedue.value !=
+                        null, // Makes the field non-editable, only selectable via picker
+                    onTap: () => _selectDate(context),
                   ),
-                ),
-                readOnly:
-                    true, // Makes the field non-editable, only selectable via picker
-                onTap: () => _selectDate(context),
-              ),
-              const SizedBox(height: 15),
-
-              // Time Field
-              TextFormField(
-                controller: controller.timeController,
-                decoration: InputDecoration(
-                  labelText: 'Time',
-                  hintText: 'Select Time',
-                  prefixIcon: const Icon(Icons.access_time),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+                  const SizedBox(height: 15),
+              
+                  // Time Field
+                  TextFormField(
+                    controller: controller.timeController,
+                    decoration: InputDecoration(
+                      labelText: 'Time',
+                      hintText: 'Select Time',
+                      prefixIcon: const Icon(Icons.access_time),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                readOnly: true,
-                onTap: () => _selectTime(context),
-              ),
-              const SizedBox(height: 15),
-
-              InkWell(
-                onTap: () {
-                  _showSelectShopDialog(context, controller);
-                },
-                child: IgnorePointer(
-                  ignoring: true,
-                  child: CommonWidgets.text(
-                    controller: controller.shopController,
                     readOnly: true,
-                    textColor: AppColors.black01,
-                    labelText: 'Select Shop',
-                    errorMessage: 'Shop is required',
-                    fontSize: 14.0,
-                    isPassword: false,
-                    prefixIcon: Icon(Icons.store, color: Colors.black),
-                    tailfixIcon: Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.black,
+                    onTap: () => _selectTime(context),
+                  ),
+                  const SizedBox(height: 15),
+              
+                  InkWell(
+                    onTap: () {
+                      _showSelectShopDialog(context, controller);
+                    },
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: TextFormField(
+                        controller: controller.shopController,
+                        // onTapOutside: ,
+                        decoration: InputDecoration(
+                          labelText: 'Select Shop',
+                          hintText: 'Select Shop',
+                          prefixIcon: const Icon(Icons.store),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Colors.blue,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        readOnly: true,
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              // Existing Quantity Textbox
-              TextFormField(
-                controller: controller.existingQuantityController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Existing Quantity',
-                  hintText: 'Enter existing quantity',
-                  prefixIcon: const Icon(Icons.inventory),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: controller.existingQuantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Existing Quantity',
+                      hintText: 'Enter existing quantity',
+                      prefixIcon: const Icon(Icons.inventory),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              InkWell(
-                onTap: () {
-                  _showSelectProductDialog(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: controller.newOrderQuantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'New Quantity',
+                      hintText: 'Enter new quantity',
+                      prefixIcon: const Icon(Icons.inventory),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  InkWell(
+                    onTap: () {
+                      _showSelectProductDialog(context, null);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "New Order Quantity (Grid)",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              // color: Colors.blue,
+                            ),
+                          ),
+                          // Icon(size: 24, Icons.add,color: Colors.blue,),
+                          Icon(size: 24, Icons.grid_on, color: Colors.blue),
+                        ],
+                      ),
+                    ),
+                  ),
+                  listViewOfQtyView(),
+                  // New Order Quantity (represented as a text field, but in real app could be a GridView/DataTable)
+                  const SizedBox(height: 20),
+                  Row(
                     children: [
                       Text(
-                        "New Order Quantity (Grid)",
+                        "Photos",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          // color: Colors.blue,
                         ),
                       ),
-                      // Icon(size: 24, Icons.add,color: Colors.blue,),
-                      Icon(size: 24, Icons.grid_on, color: Colors.blue),
+                      Spacer(),
                     ],
                   ),
-                ),
-              ),
-              listViewOfQtyView(),
-              // New Order Quantity (represented as a text field, but in real app could be a GridView/DataTable)
-              TextFormField(
-                controller: controller.newOrderQuantityController,
-                keyboardType: TextInputType
-                    .text, // Could be number or text based on grid content
-                decoration: InputDecoration(
-                  labelText: 'New Order Quantity (Grid)',
-                  hintText: 'Enter new order quantity details',
-                  prefixIcon: const Icon(Icons.grid_on),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  UploadImageWidget(
+                    controller: controller.selectedImageCtr,
+                    enabled: !controller.addScheduleLoding.value,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+              
+                  const SizedBox(height: 15),
+                  // Remarks MultiText Box
+                  TextFormField(
+                    controller: controller.remarksController,
+                    maxLines: 4, // Allows for multiple lines of input
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Remarks',
+                      hintText: 'Enter any additional remarks here...',
+                      prefixIcon: const Icon(Icons.notes),
+                      alignLabelWithHint: true,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                maxLines:
-                    2, // Allow multiple lines for potential grid-like input description
-              ),
-              const SizedBox(height: 20),
-
-              CommonWidgets.button(
-                lable: 'Capture Photo',
-                color: Colors.blue.shade600,
-                onPressed: () {
-                  _showMessage(
-                    context,
-                    'Capture Photo functionality not implemented.',
-                  );
-                },
-                icon: const Icon(Icons.camera, color: Colors.white),
-              ),
-              const SizedBox(height: 15),
-
-              CommonWidgets.button(
-                lable: 'Capture Video',
-                color: Colors.blue.shade600,
-                icon: const Icon(Icons.video_call, color: Colors.white),
-              ),
-
-              const SizedBox(height: 15),
-
-              // Remarks MultiText Box
-              TextFormField(
-                controller: controller.remarksController,
-                maxLines: 4, // Allows for multiple lines of input
-                keyboardType: TextInputType.multiline,
-                decoration: InputDecoration(
-                  labelText: 'Remarks',
-                  hintText: 'Enter any additional remarks here...',
-                  prefixIcon: const Icon(Icons.notes),
-                  alignLabelWithHint: true,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+                  const SizedBox(height: 16),
+                  Obx(
+                    () => buttonWithLoader(
+                      disable:
+                          (controller.past.value && controller.visted.value ||
+                          controller.today.value && controller.visted.value ||
+                          controller.updateScheduleLoding.value),
+                      label: 'Submit',
+                      color: Colors.deepPurple,
+                      textColor: Colors.white,
+                      progressColor: Colors.white,
+                      onPressed: () => controller.submitForm(() {
+                        Get.back();
+                      }),
+                      isLoading:
+                          (controller.updateScheduleLoding.value ||
+                          controller.isLoding.value),
+                      context: context,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: CommonWidgets.button(
-                      lable: 'Submit',
-                      color: Colors.blue.shade800,
-                      onPressed: controller.submitForm,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: CommonWidgets.button(
-                      lable: 'Reset',
-                      color: Colors.blue.shade800,
-                      // onPressed: controller.submitForm,
-                    ),
-                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -277,13 +286,27 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     );
   }
 
-
-void _showSelectProductDialog(
-    BuildContext context,
-   ) {
-    ProductController controller = Get.find<ProductController>();
-     Get.bottomSheet(
-      AddProductBottomSheet(),
+  void _showSelectProductDialog(BuildContext context, ProductMaster? prduct) {
+    ShopMasterController ctr = Get.find<ShopMasterController>();
+    if (prduct != null) {
+      ctr.product.value = prduct;
+    } else {
+      ctr.product.value = ProductMaster();
+    }
+    Get.bottomSheet(
+      AddProductBottomSheet((product) {
+        controller.shopQtyList.add(
+          QuantityDetailsList(
+            existingQuantity: 0,
+            newQuantity: 0,
+            productId: 0,
+            totalPrice: 0,
+            totalQuantity: 0,
+            product: product,
+          ),
+        );
+        controller.shopQtyList.refresh();
+      }),
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -314,17 +337,28 @@ void _showSelectProductDialog(
         itemBuilder: (ctx, index) {
           final model = controller.shopQtyList[index];
           return Container(
-            decoration: BoxDecoration(),
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Colors.red[100],
+              border: BoxBorder.all(color: Colors.black54, width: .1),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+            ),
             child: Row(
               children: [
-                Text("${model.productId}"),
+                Text(
+                  "${model.product?.sku} (${model.product?.productName})",
+                  style: TextStyle(fontSize: 14.0),
+                ),
                 // Text("${model.existingQuantity}"),
+                horizontalSpacing(4.0),
                 Text("${model.newQuantity}"),
+                Spacer(),
                 InkWell(
-                  onTap: (){
+                  onTap: () {
                     controller.shopQtyList.remove(model);
                   },
-                  child: Icon(Icons.close)),
+                  child: Icon(Icons.close),
+                ),
               ],
             ),
           );

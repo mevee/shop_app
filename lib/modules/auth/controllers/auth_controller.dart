@@ -26,8 +26,8 @@ class AuthController extends GetxController {
   final LoginServiceProtocol _authService = Get.find();
 
   final formKey = GlobalKey<FormState>();
-  final loginEmailCtr = TextEditingController(text: "admin@hamster.com");
-  final loginPasswordCtr = TextEditingController(text: "test@1234");
+  final loginEmailCtr = TextEditingController(text: "");
+  final loginPasswordCtr = TextEditingController(text: "");
 
   final fpUserNameCtr = TextEditingController(text: "ddd");
   final otpCtr = TextEditingController(text: "");

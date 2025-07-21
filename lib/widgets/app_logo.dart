@@ -37,7 +37,7 @@ class AppLogo extends StatelessWidget {
             width: iconSize,
             height: iconSize,
             fit: BoxFit.contain,
-            color: assetColor,
+            // color: assetColor,
           )
         else
           Icon(

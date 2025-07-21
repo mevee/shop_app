@@ -13,6 +13,9 @@ abstract class AppColors {
   static final Color neutral400 = Vx.hexToColor('#888888');
   static const Color neutral200 = Color.fromRGBO(209, 209, 209, 1);
   static const Color neutral600 = Color.fromRGBO(93, 93, 93, 1);
+  static const Color disabled = Color.fromRGBO(93, 93, 93, 1);
+  static const Color primary = Color.fromRGBO(6, 48, 154, 1);
+  static const Color divider = Color.fromRGBO(93, 93, 93, 1);
   static const Color blackText = Color.fromRGBO(45, 45, 45, 1);
   static const Color greyText = Color.fromRGBO(79, 79, 79, 1);
   static const Color red = Color.fromRGBO(255, 55, 98, 1);

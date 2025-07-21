@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         ),
         
       ),
-      initialRoute: Routes.scheduleDetail,
+      initialRoute: Routes.splash,
       getPages: AppPages.routes,
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,

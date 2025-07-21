@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shop_app/screens/calendar/create_shchedule_bottom.dart';
+import 'package:shop_app/screens/calendar/add_shchedule_bottom.dart';
 
 class CalendarScreenStatic extends StatefulWidget {
   const CalendarScreenStatic({super.key});

@@ -5,6 +5,7 @@ import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/dashboard_controller.dart';
+import 'package:shop_app/modules/home/more_options_bottom.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/app_images.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
@@ -134,45 +135,49 @@ class HomeScreen extends GetView<DashboardController> {
         ),
       );
     } else {
-      return ListView.builder(
-        itemCount: list.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          final log = list[index];
-          return InkWell(
-            onTap: () {
-              Get.toNamed(Routes.scheduleDetail, arguments: {"id":log.id});
-            },
-            borderRadius: BorderRadius.circular(8.0),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 4.0),
-              padding: const EdgeInsets.symmetric(
-                vertical: 3.0,
-                horizontal: 10.0,
-              ),
-              decoration: BoxDecoration(
-                color: log.isVisitDone == 0 ? Colors.white : Colors.grey.shade50,
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black54,
+      return Expanded(
+        child: ListView.builder(
+          itemCount: list.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            final log = list[index];
+            return InkWell(
+              onTap: () {
+                Get.toNamed(Routes.scheduleDetail, arguments: {"id": log});
+              },
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 3.0,
+                  horizontal: 10.0,
+                ),
+                decoration: BoxDecoration(
+                  color: log.isVisitDone == 0
+                      ? Colors.white
+                      : Colors.grey.shade50,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black54,
+                      ),
+        
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-            
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
     }
   }
@@ -232,6 +237,36 @@ class HomeScreen extends GetView<DashboardController> {
       ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    MoreOptionBottomSheet(),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25.0),
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Icon(Icons.more_horiz, size: 24, color: Colors.black),
+                ),
+              ),
+            ],
+          ),
           Row(
             children: [
               Text(

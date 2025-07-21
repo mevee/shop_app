@@ -1,3 +1,6 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:shop_app/models/product_master_response.dart';
+
 class UpdateScheduleRequest {
   MeetingDetails? meetingDetails;
   List<MeetingImagesList>? meetingImagesList;
@@ -9,19 +12,20 @@ class UpdateScheduleRequest {
     this.quantityDetailsList,
   });
 
-
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (meetingDetails != null) {
       data['meetingDetails'] = meetingDetails!.toJson();
     }
     if (meetingImagesList != null) {
-      data['meetingImagesList'] =
-          meetingImagesList!.map((v) => v.toJson()).toList();
+      data['meetingImagesList'] = meetingImagesList!
+          .map((v) => v.toJson())
+          .toList();
     }
     if (quantityDetailsList != null) {
-      data['quantityDetailsList'] =
-          quantityDetailsList!.map((v) => v.toJson()).toList();
+      data['quantityDetailsList'] = quantityDetailsList!
+          .map((v) => v.toJson())
+          .toList();
     }
     return data;
   }
@@ -37,15 +41,16 @@ class MeetingDetails {
   String? meetingPersonContactNumber;
   String? meetingRemarks;
 
-  MeetingDetails(
-      {this.scheduleId,
-      this.shopId,
-      this.shopName,
-      this.meetingStartDateTime,
-      this.meetingEndDateTime,
-      this.meetingPersonName,
-      this.meetingPersonContactNumber,
-      this.meetingRemarks});
+  MeetingDetails({
+    this.scheduleId,
+    this.shopId,
+    this.shopName,
+    this.meetingStartDateTime,
+    this.meetingEndDateTime,
+    this.meetingPersonName,
+    this.meetingPersonContactNumber,
+    this.meetingRemarks,
+  });
 
   MeetingDetails.fromJson(Map<String, dynamic> json) {
     scheduleId = json['scheduleId'];
@@ -96,16 +101,19 @@ class QuantityDetailsList {
   int? newQuantity;
   int? totalQuantity;
   int? quantityDifference;
-  int? totalPrice;
+  double? totalPrice;
   int? productId;
+  ProductMaster? product;
 
-  QuantityDetailsList(
-      {this.existingQuantity,
-      this.newQuantity,
-      this.totalQuantity,
-      this.quantityDifference,
-      this.totalPrice,
-      this.productId});
+  QuantityDetailsList({
+    this.existingQuantity,
+    this.newQuantity,
+    this.totalQuantity,
+    this.quantityDifference,
+    this.totalPrice,
+    this.productId,
+    this.product,
+  });
 
   QuantityDetailsList.fromJson(Map<String, dynamic> json) {
     existingQuantity = json['existingQuantity'];
@@ -115,9 +123,24 @@ class QuantityDetailsList {
     totalPrice = json['totalPrice'];
     productId = json['productId'];
   }
+  double getPrice(String? mPrice) {
+    double price = 0.0;
+    try {
+      price = double.parse(mPrice ?? "0.0");
+    } catch (e) {
+      
+    }
+
+    return price;
+  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    if (product != null) {
+      productId = product?.id;
+      totalPrice = getPrice(product?.unitPrice);
+      productId = product?.id;
+    }
     data['existingQuantity'] = existingQuantity;
     data['newQuantity'] = newQuantity;
     data['totalQuantity'] = totalQuantity;

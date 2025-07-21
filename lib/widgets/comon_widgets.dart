@@ -30,8 +30,9 @@ class CommonWidgets {
         fillColor: filledColor,
         prefixIcon: prefixIcon,
         suffixIcon: tailfixIcon,
-        hintStyle: TextStyle(color: Colors.white, fontSize: fontSize),
-        floatingLabelStyle: TextStyle(color: Colors.white, fontSize: 14.0),
+        labelStyle: TextStyle(color: textColor.withOpacity(.9), fontSize: fontSize),
+        hintStyle: TextStyle(color: textColor, fontSize: fontSize),
+        floatingLabelStyle: TextStyle(color: textColor, fontSize: 14.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(border)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(border),
@@ -48,7 +49,7 @@ class CommonWidgets {
           borderSide: BorderSide(color: errorColor ?? Colors.redAccent),
         ),
         errorStyle: TextStyle(
-          color: Colors.white,
+          color: textColor,
           fontSize: 12.0,
           fontWeight: FontWeight.normal,
         ),
