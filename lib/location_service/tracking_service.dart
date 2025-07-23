@@ -8,7 +8,7 @@ import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/models/employee_response.dart';
 
 // class LocationTrackingService extends GetxService {
-class LocationTrackingService  {
+class LocationTrackingService extends GetxService {
   final EmployeeServiceProtocol employeeService = EmployeeService();
   final RxList<Map<String, dynamic>> locations = <Map<String, dynamic>>[].obs;
   final RxString lastSyncStatus = 'Not started'.obs;
@@ -22,11 +22,11 @@ class LocationTrackingService  {
   static const String _prefsKey = 'location_logs';
   static const int syncInterval = 4 * 60; // 4 minutes in seconds
 
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   _loadLocationsFromPrefs();
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    _loadLocationsFromPrefs();
+  }
 
   Future<void> startTracking() async {
     if (isTracking.value) return;
@@ -145,10 +145,10 @@ class LocationTrackingService  {
     }
   }
 
-  // @override
-  // void onClose() {
-  //   _locationTimer?.cancel();
-  //   _syncTimer?.cancel();
-  //   super.onClose();
-  // }
+  @override
+  void onClose() {
+    _locationTimer?.cancel();
+    _syncTimer?.cancel();
+    super.onClose();
+  }
 }
