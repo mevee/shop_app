@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
 import 'package:shop_app/widgets/helper.dart';
@@ -14,7 +15,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
       appBar: AppBar(
         title: Text("Update Password"),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       body: Container(
@@ -24,7 +25,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            colors: [AppColors.primary, AppColors.primaryAccent],
             stops: [0.0, 1.0],
           ),
         ),

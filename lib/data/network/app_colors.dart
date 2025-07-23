@@ -33,6 +33,7 @@ abstract class AppColors {
   static const Color darkWhite1 = Color.fromRGBO(246, 246, 246, 1);
   static const Color darkWhite2 = Color.fromRGBO(253, 253, 253, 1);
   static const Color textGrey = Color.fromRGBO(109, 109, 109, 1);
+  static const Color green = Color.fromRGBO(22, 168, 42, 1);
   static const Color red01 = Color(0xffCD3232);
   static const Color lightgreen = Color(0xffF1FCF4);
   // static  Color lightRed = (Get.context as BuildContext).isDarkMode ? Colors.amber : Color(0xffFDF3F3);

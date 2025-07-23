@@ -28,6 +28,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Add this line inside defaultConfig
+        multiDexEnabled = true
     }
 
     buildTypes {

@@ -35,7 +35,8 @@ abstract class EndPoints {
   //Shop master
   // {{url}}/crm/shop/v1/get-shop-list-by-name?shopName=
   static const shopListGET = 'crm/shop/v1/get-shop-list';
-  static const shopListSearchGET = 'crm/shop/v1/get-shop-list-by-name?shopName={shopName}';
+  //  get-shop-list-by-name?shopName=star&pageNumber=0&pageSize=10
+  static const shopListSearchGET = 'crm/shop/v1/get-shop-list-by-name?shopName={shopName}&pageNumber={pageNumber}&pageSize={pageSize}';
   static const addSShopPOST = '/crm/shop/v1/add-shop';
 
 

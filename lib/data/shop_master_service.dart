@@ -10,7 +10,7 @@ import 'package:shop_app/models/shop_master_response.dart';
 abstract class ShopMasterServiceProtocol {
   Future<CommonModel> addShop(AddShopRequest request); //d
   Future<ProductMasterListResponse> getSkuList(); //d
-  Future<List<ShopMasterResponse>> getShopList(); //d
+  Future<List<ShopMasterModel>> getShopList(); //d
   Future<ShopMasterListResponse> getShopByName(String query);
 }
 
@@ -64,15 +64,15 @@ class ShopMasterService extends BaseNetworkClient
   }
 
   @override
-  Future<List<ShopMasterResponse>> getShopList() async {
+  Future<List<ShopMasterModel>> getShopList() async {
     var endPoint = EndPoints.shopListGET;
 
     try {
       final response = await client.get(endPoint);
-      final List<ShopMasterResponse> shopList = [];
+      final List<ShopMasterModel> shopList = [];
       if (response.data is List) {
         response.data.forEach((element) {
-          shopList.add(ShopMasterResponse.fromJson(element));
+          shopList.add(ShopMasterModel.fromJson(element));
         });
       }
       return shopList;
@@ -97,6 +97,8 @@ class ShopMasterService extends BaseNetworkClient
   Future<ShopMasterListResponse> getShopByName(String query) async {
     var endPoint = EndPoints.shopListSearchGET;
     endPoint = endPoint.replaceAll("{shopName}", query);
+    endPoint = endPoint.replaceAll("{pageSize}", "100");
+    endPoint = endPoint.replaceAll("{pageNumber}", "0");
 
     try {
       final response = await client.get(endPoint);

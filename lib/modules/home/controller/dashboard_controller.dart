@@ -23,6 +23,7 @@ class DashboardController extends BaseController {
   LocationLatLon outLocation = LocationLatLon();
 
   final RxBool isObscureNewPassword = true.obs;
+  RxBool isTodaysLoding = false.obs;
   RxBool isLoding = false.obs;
   RxBool isLoginButtonLoading = false.obs;
   Rx<LoginResponse> userData = LoginResponse().obs;
@@ -44,10 +45,11 @@ class DashboardController extends BaseController {
   }
 
   void punchUpdate() {
-    clockedIn.value = !clockedIn.value;
-    if (clockedIn.value) {
+    if (attandanceObj.value.isLoggedIn) {
+      clockedIn.value = true;
       AppToast.showToast(message: "Punch In Successful");
     } else {
+      clockedIn.value = false;
       AppToast.showToast(message: "Punch Out Successful");
     }
   }
@@ -84,7 +86,6 @@ class DashboardController extends BaseController {
           long: currentPosition!.longitude,
         );
         _clockOut();
-        getEmployeeAttandance();
       } else {
         AppToast.showToast(message: 'Failed to get in location');
       }
@@ -104,12 +105,14 @@ class DashboardController extends BaseController {
       if (response.responseCode?.toLowerCase() == "Fail".toLowerCase()) {
         AppToast.showToast(message: response.responseCode ?? "Punch In Failed");
       } else {
-        clockedIn.value = true;
         AppToast.showToast(
           message: response.responseCode ?? "Punch In Sucessful",
         );
         if (response.results != null && response.results!.isEmpty) {
           attandanceObj.value = response.results!.first;
+          clockedIn.value =
+              attandanceObj.value.isLoggedIn &&
+              !attandanceObj.value.isLoggedOut;
         }
       }
     } on DioException catch (e) {
@@ -140,7 +143,7 @@ class DashboardController extends BaseController {
     );
     try {
       final response = await _employeeService.clockOut(loginData);
-      punchUpdate();
+      getEmployeeAttandance();
     } on DioException catch (e) {
       final errorMessage =
           e.response?.data['error'] ?? "Failed to update password";
@@ -224,6 +227,8 @@ class DashboardController extends BaseController {
         attandanceObj.value = response.results!.first;
         isPunchInProgress.refresh();
         isPunchOutProgress.refresh();
+        clockedIn.value =
+            attandanceObj.value.isLoggedIn && !attandanceObj.value.isLoggedOut;
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -241,7 +246,7 @@ class DashboardController extends BaseController {
 
   Future<void> getTodaysSchedules() async {
     getEmployeeAttandance();
-    isLoding.value = true;
+    isTodaysLoding.value = true;
     try {
       final response = await _scheduleService.getScheduleByDate(
         DateFormatter.currentDate,
@@ -261,7 +266,7 @@ class DashboardController extends BaseController {
     } catch (e) {
       // AppToast.showToast();
     } finally {
-      isLoding.value = false;
+      isTodaysLoding.value = false;
     }
   }
 

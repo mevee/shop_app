@@ -46,10 +46,10 @@ class ScheduleController extends BaseController {
   RxBool isLoginButtonLoading = false.obs;
   Rx<LoginResponse> userData = LoginResponse().obs;
 
-  RxList<ShopMasterResponse> shopDetailsOptions = <ShopMasterResponse>[].obs;
+  RxList<ShopMasterModel> shopDetailsOptions = <ShopMasterModel>[].obs;
 
   final TextEditingController shopController = TextEditingController();
-  ShopMasterResponse? selectedShop;
+  ShopMasterModel? selectedShop;
   Rx<String> selectedShopStr = "Select Shop".obs;
 
   int? scheduleId;
@@ -123,7 +123,7 @@ class ScheduleController extends BaseController {
     userData.value = userManager.getUserData() ?? LoginResponse();
   }
 
-  void selectShop(ShopMasterResponse shop) {
+  void selectShop(ShopMasterModel shop) {
     selectedShop = shop;
     selectedShopStr.value = shop.unitName ?? "Select Shop";
     shopController.text = shop.unitName ?? 'Unknown Shop';

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/two_state_widget.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
-import 'package:shop_app/utils/app_images.dart';
 
 class ScheduleListView extends GetView<ScheduleController> {
   const ScheduleListView({super.key});
@@ -16,7 +17,7 @@ class ScheduleListView extends GetView<ScheduleController> {
         appBar: AppBar(
           title: Text('Schedule of ${controller.scheduleDate}'),
           centerTitle: true,
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: AppColors.primaryAccent,
           foregroundColor: Colors.white,
         ),
         body: RefreshIndicator(
@@ -24,15 +25,11 @@ class ScheduleListView extends GetView<ScheduleController> {
               controller.getTodaysScheduleList(controller.scheduleDate),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: controller.isDateWiseLoding.value
-                ? Center(
-                    child: SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : scheduleListView(controller.scheduleList),
+            child: twoState(
+              state: controller.isDateWiseLoding.value,
+              replace: LinearProgressIndicator(),
+              child: scheduleListView(controller.scheduleList),
+            ),
           ),
         ),
       ),
@@ -64,7 +61,7 @@ class ScheduleListView extends GetView<ScheduleController> {
             onTap: () {
               // controller.setManualArguments({"id": log});
               final dta = {"id": log};
-              Get.toNamed(Routes.scheduleDetail,arguments:dta );
+              Get.toNamed(Routes.scheduleDetail, arguments: dta);
               controller.setManualArguments(dta);
             },
             child: Container(
@@ -74,9 +71,7 @@ class ScheduleListView extends GetView<ScheduleController> {
                 horizontal: 10.0,
               ),
               decoration: BoxDecoration(
-                color: log.isVisitDone == 0
-                    ? Colors.white
-                    : Colors.grey.shade50,
+                color: log.isVisitDone == 1 ? AppColors.green : AppColors.red,
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -84,23 +79,16 @@ class ScheduleListView extends GetView<ScheduleController> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                      "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}",
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: Colors.black54,
+                        color: AppColors.white,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (log.isVisitDone == 1)
-                      Image(
-                        image: AssetImages.eye,
-                        height: 24,
-                        width: 24,
-                        color: Colors.green,
-                      ),
                 ],
               ),
             ),

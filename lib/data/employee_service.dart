@@ -6,7 +6,7 @@ import 'package:shop_app/models/employee_response.dart';
 
 abstract class EmployeeServiceProtocol {
   Future<AttandanceResponse> clockIn(ClockInRequest request);
-  Future<GetDistanceResponse> clockOut(ClockRequest request);
+  Future<AttandanceResponse> clockOut(ClockRequest request);
   Future<GetDistanceResponse> employeeRouteUpdate(
     List<UserDateLatRequest> request,
   );
@@ -30,11 +30,11 @@ class EmployeeService extends BaseNetworkClient
   }
 
   @override
-  Future<GetDistanceResponse> clockOut(ClockRequest data) async {
+  Future<AttandanceResponse> clockOut(ClockRequest data) async {
     const endPoint = EndPoints.employeeClockOutPOST;
     try {
       final response = await client.post(endPoint, data: data.toJson());
-      return GetDistanceResponse.fromJson(response.data);
+      return AttandanceResponse.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {

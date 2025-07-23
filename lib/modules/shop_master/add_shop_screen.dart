@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/widgets/comon_widgets.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
@@ -15,7 +16,7 @@ class AddShopMasterScreen extends GetView<ShopMasterController> {
       appBar: AppBar(
         title: const Text('Add Shop Master'),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primaryAccent,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
 
@@ -111,7 +112,7 @@ class AddShopMasterScreen extends GetView<ShopMasterController> {
                   label: "Add Shop",
                   textColor: Colors.white,
                   progressColor: Colors.white,
-                  color: Colors.deepPurple,
+                  color: AppColors.primary,
                   onPressed: () {
                     controller.createShop();
                   },

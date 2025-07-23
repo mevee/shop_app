@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/bottomNav/controller/bottom_nav_controller.dart';
 import 'package:shop_app/modules/calendar/calendar_screen.dart';
 import 'package:shop_app/modules/home/home_screen.dart';
 import 'package:shop_app/modules/shop_master/shop_master_screen.dart';
+import 'package:shop_app/utils/constants.dart';
 // import 'package:shop_app/screens/schedule/schedule_screen.dart';
 
 class BottomNavScreen extends GetView<BotomNavController> {
@@ -28,7 +30,7 @@ class BottomNavScreen extends GetView<BotomNavController> {
             controller.currentIndex.value = index;
             controller.currentIndex.refresh();
           },
-          selectedItemColor: Colors.deepPurple,
+          selectedItemColor: AppColors.primary,
           unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

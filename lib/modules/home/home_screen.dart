@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/common/app_toast.dart';
+import 'package:shop_app/common/two_state_widget.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
@@ -67,16 +69,16 @@ class HomeScreen extends GetView<DashboardController> {
                           progressColor: Colors.white,
                           label: "Clock IN",
                           onPressed: () {
-                            if (controller.attandanceObj.value.loginTime ==
-                                null) {
-                              AppToast.showToast(
-                                message:
-                                    "User attandance was not loaded. Re loading to check attandance.",
-                              );
-                              controller.getEmployeeAttandance();
-                            } else {
+                            // if (controller.attandanceObj.value.loginTime ==
+                            //     null) {
+                            //   AppToast.showToast(
+                            //     message:
+                            //         "User attandance was not loaded. Re loading to check attandance.",
+                            //   );
+                            //   controller.getEmployeeAttandance();
+                            // } else {
                               controller.getInLocation();
-                            }
+                            // }
                           },
                         ),
                       ),
@@ -97,7 +99,16 @@ class HomeScreen extends GetView<DashboardController> {
                           progressColor: Colors.white,
                           label: "Clock OUT",
                           onPressed: () {
-                            controller.getOutLocation();
+                            if (controller.attandanceObj.value.loginTime ==
+                                null) {
+                              AppToast.showToast(
+                                message:
+                                    "User attandance was not loaded. Re loading to check attandance.",
+                              );
+                              controller.getEmployeeAttandance();
+                            } else {
+                              controller.getOutLocation();
+                            }
                           },
                         ),
                       ),
@@ -105,16 +116,31 @@ class HomeScreen extends GetView<DashboardController> {
                   ],
                 ),
                 verticalSpace(16.0),
-                Text(
-                  "Todays Schedules:",
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Todays Schedules:",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => controller.getTodaysSchedules(),
+                      child: Icon(Icons.refresh),
+                    ),
+                  ],
                 ),
                 verticalSpace(8.0),
-                Obx(() => scheduleListView(controller.scheduleList)),
-                // Obx(() => attandanceLogView(controller.attandanceList)),
+                Obx(
+                  () => twoState(
+                    state: controller.isTodaysLoding.value,
+                    replace: LinearProgressIndicator(),
+                    child: scheduleListView(controller.scheduleList),
+                  ),
+                ),
               ],
             ),
           ),
@@ -157,9 +183,7 @@ class HomeScreen extends GetView<DashboardController> {
                   horizontal: 10.0,
                 ),
                 decoration: BoxDecoration(
-                  color: log.isVisitDone == 0
-                      ? Colors.white
-                      : Colors.grey.shade50,
+                  color: log.isVisitDone == 1 ? AppColors.green : AppColors.red,
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -167,77 +191,30 @@ class HomeScreen extends GetView<DashboardController> {
                   children: [
                     Expanded(
                       child: Text(
-                        "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}\nStatus: ${log.status}",
+                        "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}",
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: Colors.black54,
+                          color: AppColors.white,
                         ),
-
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
 
-                    if (log.isVisitDone == 1)
-                      Image(
-                        image: AssetImages.eye,
-                        height: 24,
-                        width: 24,
-                        color: Colors.green,
-                      ),
+                    // if (log.isVisitDone == 1)
+                    //   Image(
+                    //     image: AssetImages.eye,
+                    //     height: 24,
+                    //     width: 24,
+                    //     color: AppColors.green,
+                    //   ),
                   ],
                 ),
               ),
             );
           },
         ),
-      );
-    }
-  }
-
-  Widget attandanceLogView(List<AttandanceModel> attandanceList) {
-    if (attandanceList.isEmpty) {
-      return Center(
-        child: Text(
-          "No logs found for today",
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    } else {
-      return ListView.builder(
-        itemCount: attandanceList.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          final log = attandanceList[index];
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Row(
-              children: [
-                Text(log.loginTime ?? ""),
-                Spacer(),
-                Transform(
-                  // angle: index % 2 == 0 ? 90 : 125,
-                  alignment: FractionalOffset.center,
-                  transform: Matrix4.identity()
-                    ..rotateZ((!log.isLoggedOut ? 140 : 315) * 3.1415927 / 180),
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: !log.isLoggedOut ? Colors.red : Colors.green,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       );
     }
   }
@@ -273,8 +250,11 @@ class HomeScreen extends GetView<DashboardController> {
                 flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           "Working Staus:",
@@ -289,6 +269,8 @@ class HomeScreen extends GetView<DashboardController> {
                       ],
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           "Distance : ",
@@ -311,6 +293,8 @@ class HomeScreen extends GetView<DashboardController> {
                       ],
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           "M.Name : ",
@@ -445,14 +429,9 @@ class HomeScreen extends GetView<DashboardController> {
       width: 20,
       height: 20,
       decoration: BoxDecoration(
+        color: isGreen ? Colors.green : AppColors.primaryAccent,
         border: Border.all(color: Colors.grey.shade300, width: 2),
         borderRadius: BorderRadius.circular(10.0),
-      ),
-      padding: const EdgeInsets.only(left: 2.0),
-      child: Icon(
-        Icons.circle,
-        color: isGreen ? Colors.green : Colors.redAccent,
-        size: 16,
       ),
     );
   }

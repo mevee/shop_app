@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/utils/image_constants.dart';
 import 'package:shop_app/widgets/app_logo.dart';
@@ -14,7 +15,7 @@ class PasswordResetScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primaryAccent,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       body: Container(
@@ -23,7 +24,7 @@ class PasswordResetScreen extends GetView<AuthController> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            colors: [AppColors.primary, AppColors.primaryAccent],
             stops: [0.0, 1.0],
           ),
         ),

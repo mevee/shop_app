@@ -105,6 +105,8 @@ class QuantityDetailsList {
   int? productId;
   bool editable = true;
   String? prodName = "";
+  String? sku = "";
+  String? category = "";
   QuantityDetailsList({
     this.existingQuantity,
     this.newQuantity,
@@ -113,7 +115,9 @@ class QuantityDetailsList {
     this.totalPrice,
     this.productId,
     this.editable=true,
-    this.prodName
+    this.prodName,
+    this.sku,
+    this.category,
   });
 
   QuantityDetailsList.fromJson(Map<String, dynamic> json) {

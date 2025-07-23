@@ -7,7 +7,7 @@ class ShopMasterListResponse {
   int? totalPages;
   int? currentPage;
   int? currentSize;
-  List<ShopMasterResponse>? results;
+  List<ShopMasterModel>? results;
   String? invoiceUrl;
   bool? lastPage;
 
@@ -34,9 +34,9 @@ class ShopMasterListResponse {
     currentPage = json['currentPage'];
     currentSize = json['currentSize'];
     if (json['results'] != null) {
-      results = <ShopMasterResponse>[];
+      results = <ShopMasterModel>[];
       json['results'].forEach((v) {
-        results!.add(ShopMasterResponse.fromJson(v));
+        results!.add(ShopMasterModel.fromJson(v));
       });
     }
     invoiceUrl = json['invoiceUrl'];
@@ -62,7 +62,7 @@ class ShopMasterListResponse {
   }
 }
 
-class ShopMasterResponse {
+class ShopMasterModel {
   int? id;
   String? districtName;
   String? entityType;
@@ -78,7 +78,7 @@ class ShopMasterResponse {
   String? updatedDate;
   String? createdDate;
 
-  ShopMasterResponse(
+  ShopMasterModel(
       {this.id,
       this.districtName,
       this.entityType,
@@ -94,7 +94,7 @@ class ShopMasterResponse {
       this.updatedDate,
       this.createdDate});
       
-  ShopMasterResponse.fromJson(Map<String, dynamic> json) {
+  ShopMasterModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     districtName = json['districtName'];
     entityType = json['entityType'];

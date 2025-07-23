@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/image_constants.dart';
@@ -18,7 +19,7 @@ class LoginScreen extends GetView<AuthController> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            colors: [AppColors.primary, AppColors.primaryAccent],
             stops: [0.0, 1.0],
           ),
         ),
@@ -32,17 +33,6 @@ class LoginScreen extends GetView<AuthController> {
                   topLogoTagLine(),
                   Container(
                     padding: const EdgeInsets.all(24),
-                    // decoration: BoxDecoration(
-                    //   color: Colors.white,
-                    //   borderRadius: BorderRadius.circular(20),
-                    //   boxShadow: [
-                    //     BoxShadow(
-                    //       color: Colors.black.withOpacity(0.1),
-                    //       blurRadius: 20,
-                    //       offset: const Offset(0, 10),
-                    //     ),
-                    //   ],
-                    // ),
                     child: Form(
                       key: controller.formKey,
                       child: Column(

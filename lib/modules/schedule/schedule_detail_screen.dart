@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/common/string_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
@@ -34,7 +36,11 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ? 0.6
                   : 1,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  timeWidgetAndSubmitButton(context),
+                  const SizedBox(height: 15),
                   IgnorePointer(
                     ignoring: true,
                     child: TextFormField(
@@ -119,12 +125,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 15),
-                  InkWell(
-                    onTap: () {
-                      _showSelectProductDialog(context, null);
-                    },
+                  IgnorePointer(
+                    ignoring: controller.detailWasAdded.value,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Row(
@@ -140,7 +143,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                           ),
                           buttonWithImage(
                             leftIcon: Icon(
-                              size: 24,
+                              size: 20,
                               Icons.add,
                               color: Colors.white,
                             ),
@@ -148,35 +151,41 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                             context: context,
                             textColor: Colors.white,
                             onPressed: () {
-
+                              _showSelectProductDialog(context, null);
                             },
                             label: 'Add',
+                            color: AppColors.primary,
+                            horiontal: 12,
+                            vertical: 8,
                           ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 6),
-                  listViewOfQtyView(),
+                  IgnorePointer(
+                    ignoring: controller.detailWasAdded.value,
+                    child: Opacity(
+                      opacity: controller.detailWasAdded.value ? 0.6 : 1,
+                      child: listViewOfQtyView(context),
+                    ),
+                  ),
                   // New Order Quantity (represented as a text field, but in real app could be a GridView/DataTable)
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Text(
-                        "Photos",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          // color: Colors.blue,
-                        ),
-                      ),
-                      Spacer(),
-                    ],
+                  Text(
+                    "Photos",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      // color: Colors.blue,
+                    ),
                   ),
 
                   UploadImageWidget(
                     controller: controller.selectedImageCtr,
-                    enabled: !controller.addScheduleLoding.value,
+                    enabled:
+                        (!controller.addScheduleLoding.value ||
+                        !controller.detailWasAdded.value),
                   ),
 
                   const SizedBox(height: 15),
@@ -185,6 +194,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     controller: controller.remarksController,
                     maxLines: 4, // Allows for multiple lines of input
                     keyboardType: TextInputType.multiline,
+                    onTapOutside: (event) => FocusScope.of(context).unfocus(),
                     decoration: InputDecoration(
                       labelText: 'Remarks',
                       hintText: 'Enter any additional remarks here...',
@@ -205,22 +215,26 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                   const SizedBox(height: 16),
                   Obx(
-                    () => buttonWithLoader(
-                      disable:
-                          (controller.past.value && controller.visted.value ||
-                          controller.today.value && controller.visted.value ||
-                          controller.updateScheduleLoding.value),
-                      label: 'Submit',
-                      color: AppColors.primary,
-                      textColor: Colors.white,
-                      progressColor: Colors.white,
-                      onPressed: () => controller.submitForm(() {
-                        Get.back();
-                      }),
-                      isLoading:
-                          (controller.updateScheduleLoding.value ||
-                          controller.isLoding.value),
-                      context: context,
+                    () => Visibility(
+                      visible:
+                          (controller.meetingStatus.value ==
+                              MeetingStatus.IDEAL) &&
+                          controller.schedue.value.isVisitDone == 0,
+                      child: buttonWithLoader(
+                        disable:
+                            (controller.past.value && controller.visted.value ||
+                            controller.today.value && controller.visted.value ||
+                            controller.updateScheduleLoding.value),
+                        label: 'Start Meeting',
+                        color: AppColors.primary,
+                        textColor: Colors.white,
+                        progressColor: Colors.white,
+                        onPressed: () => showConfirmDialog(context),
+                        isLoading:
+                            (controller.updateScheduleLoding.value ||
+                            controller.isLoding.value),
+                        context: context,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -230,6 +244,22 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           ),
         ),
       ),
+    );
+  }
+
+  // Function to show date picker
+  Future<void> showConfirmDialog(BuildContext context) async {
+    showCustomDialog(
+      context: context,
+      title: 'Confirmation',
+      message: 'Are you sure you want to start meeting?',
+      primaryButtonText: 'Yes',
+      secondaryButtonText: 'No',
+      isDestructiveAction: true,
+      onPrimaryPressed: () {
+        controller.startCountdown();
+      },
+      onSecondaryPressed: () {},
     );
   }
 
@@ -266,29 +296,60 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     );
   }
 
-  void _showSelectProductDialog(BuildContext context, ProductMaster? prduct) {
+  void _showSelectProductDialog(
+    BuildContext context,
+    QuantityDetailsList? editProduct,
+  ) {
     ShopMasterController ctr = Get.find<ShopMasterController>();
-    if (prduct != null) {
-      ctr.product.value = prduct;
+    print("${ctr.hashCode}");
+
+    if (editProduct != null) {
+      print("prduct != null");
+      final prod = ProductMaster(
+        id: editProduct.productId,
+        productName: editProduct.prodName,
+        sku: editProduct.sku,
+        category: editProduct.category,
+        unitPrice: editProduct.totalPrice.toString(),
+      );
+      prod.eQtyController.text =
+          editProduct.existingQuantity?.toString() ?? "0";
+      prod.nQtyController.text = editProduct.newQuantity?.toString() ?? "0";
+      ctr.product.value = prod;
     } else {
       ctr.product.value = ProductMaster();
+      // controller.product.value
     }
     Get.bottomSheet(
       AddProductBottomSheet((product) {
         var eQty = int.parse(product.eQtyController.text);
         var nQty = int.parse(product.nQtyController.text);
         var unitPrice = double.parse(product.unitPrice ?? "0.0");
-        controller.shopQtyList.add(
-          QuantityDetailsList(
-            existingQuantity: eQty,
-            newQuantity: nQty,
-            productId: product.id,
-            totalPrice: unitPrice,
-            totalQuantity: nQty,
-            prodName: "${product.productName}(${product.sku})",
-          ),
-        );
-        controller.shopQtyList.refresh();
+        if (editProduct != null) {
+          editProduct.existingQuantity = eQty;
+          editProduct.newQuantity = nQty;
+          editProduct.productId = product.id;
+          editProduct.totalPrice = unitPrice;
+          editProduct.totalQuantity = nQty;
+          editProduct.sku = product.sku;
+          editProduct.category = product.category;
+          editProduct.prodName = "${product.productName}(${product.sku})";
+        } else {
+          controller.shopQtyListInput.add(
+            QuantityDetailsList(
+              existingQuantity: eQty,
+              newQuantity: nQty,
+              productId: product.id,
+              totalPrice: unitPrice,
+              totalQuantity: nQty,
+              sku: product.sku,
+              category: product.category,
+              prodName: "${product.productName}(${product.sku})",
+            ),
+          );
+        }
+
+        controller.shopQtyListInput.refresh();
         controller.calculateTotal();
       }),
       isScrollControlled: true,
@@ -313,7 +374,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     );
   }
 
-  Widget listViewOfQtyView() {
+  Widget listViewOfQtyView(BuildContext context) {
     return Obx(
       () => Column(
         children: [
@@ -339,7 +400,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 Expanded(
                   child: Text(
-                    "New QTY",
+                    "Exist QTY",
                     textAlign: TextAlign.center,
 
                     style: TextStyle(
@@ -351,7 +412,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 Expanded(
                   child: Text(
-                    "Exist QTY",
+                    "New QTY",
                     textAlign: TextAlign.center,
 
                     style: TextStyle(
@@ -378,75 +439,81 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
           ListView.builder(
             shrinkWrap: true,
-            itemCount: controller.shopQtyList.length,
+            itemCount: controller.shopQtyListInput.length,
             itemBuilder: (ctx, index) {
-              final model = controller.shopQtyList[index];
-              return Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  border: BoxBorder.all(color: Colors.black54, width: .1),
-                  // borderRadius: BorderRadius.all(Radius.circular(0)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "${model.prodName}",
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
+              final model = controller.shopQtyListInput[index];
+              return InkWell(
+                onTap: () {
+                  // print("${model.prodName}");
+                  if (model.editable) _showSelectProductDialog(context, model);
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.red[100],
+                    border: BoxBorder.all(color: Colors.black54, width: .1),
+                    // borderRadius: BorderRadius.all(Radius.circular(0)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${model.prodName}",
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        "${model.newQuantity}",
-                        textAlign: TextAlign.center,
-
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
+                      Expanded(
+                        child: Text(
+                          "${model.existingQuantity}",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        "${model.existingQuantity}",
-                        textAlign: TextAlign.center,
+                      Expanded(
+                        child: Text(
+                          "${model.newQuantity}",
+                          textAlign: TextAlign.center,
 
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        "${model.totalPrice}",
-                        textAlign: TextAlign.center,
+                      Expanded(
+                        child: Text(
+                          "${model.totalPrice}",
+                          textAlign: TextAlign.center,
 
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
-                    ),
-                    if (model.editable)
-                      InkWell(
-                        onTap: () {
-                          controller.shopQtyList.remove(model);
-                        },
-                        child: Icon(Icons.close),
-                      ),
-                  ],
+                      if (model.editable)
+                        InkWell(
+                          onTap: () {
+                            controller.shopQtyListInput.remove(model);
+                            controller.shopQtyListInput.refresh();
+                            controller.calculateTotal();
+                          },
+                          child: Icon(Icons.close),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -468,14 +535,14 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 Expanded(
                   child: Text(
-                    "${controller.totalNewQty}",
+                    "${controller.totalExtQty}",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14.0),
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    "${controller.totalExtQty}",
+                    "${controller.totalNewQty}",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14.0),
                   ),
@@ -487,11 +554,75 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     style: TextStyle(fontSize: 14.0),
                   ),
                 ),
+                SizedBox(width: 20, height: 16),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget timeWidgetAndSubmitButton(BuildContext context) {
+    return Obx(
+      () => (controller.meetingStatus.value == MeetingStatus.IDEAL)
+          ? SizedBox.shrink()
+          : Container(
+              margin: EdgeInsets.symmetric(vertical: 12),
+              // padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red[100],
+                border: BoxBorder.all(color: AppColors.green, width: 2),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  Text(
+                    "Meeting Started and time remaining ${formatSecondsToMinSec(controller.remainingSeconds.value)}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 5.0,
+                    ),
+                    child: buttonWithLoader(
+                      disable:
+                          (
+                          // controller.past.value && controller.visted.value ||
+                          // controller.today.value && controller.visted.value ||
+                          controller.updateScheduleLoding.value ||
+                          controller.remainingSeconds.value != 0),
+                      label: 'Submit',
+                      color: AppColors.primary,
+                      textColor: Colors.white,
+                      progressColor: Colors.white,
+                      onPressed: () => controller.submitForm(() {
+                        Get.back();
+                      }),
+                      isLoading:
+                          (controller.updateScheduleLoding.value ||
+                          controller.isLoding.value),
+                      context: context,
+                    ),
+                  ),
+                  // buttonWithLoader(
+                  //   disable: false,
+                  //   label: 'Reset',
+                  //   color: AppColors.primary,
+                  //   textColor: Colors.white,
+                  //   progressColor: Colors.white,
+                  //   onPressed: () => controller.closeTime(),
+                  //   isLoading: false,
+                  //   context: context,
+                  // ),
+                ],
+              ),
+            ),
     );
   }
 }

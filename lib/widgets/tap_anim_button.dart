@@ -176,6 +176,8 @@ Widget buttonWithImage({
   required BuildContext context,
   required String label,
   required Widget leftIcon,
+  double horiontal = 20,
+  double vertical = 12,
   Color color = AppColors.lightGrey,
   Color textColor = AppColors.textGrey,
   Color progressColor = Colors.deepPurpleAccent,
@@ -186,7 +188,7 @@ Widget buttonWithImage({
     onTap: disable ? () {} : onPressed,
     child: Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: horiontal, vertical: vertical),
       decoration: BoxDecoration(
         color: disable ? color.withValues(alpha: 0.3) : color,
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -194,8 +196,8 @@ Widget buttonWithImage({
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-           leftIcon,
-           Text(
+          leftIcon,
+          Text(
             label,
             style: GoogleFonts.inter(
               fontSize: 16,

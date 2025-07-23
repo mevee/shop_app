@@ -16,7 +16,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
       appBar: AppBar(
         title: const Text('Shop Master'),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primaryAccent,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       floatingActionButton: FloatingActionButton(
@@ -46,13 +46,15 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.deepPurpleAccent,
+                            color: AppColors.primaryAccent,
                           ),
                         )
                       : null,
                 ),
                 onChanged: (value) {
+                  if(value.isNotEmpty){
                   controller.searchShopList(value);
+                  }
                 },
               ),
             ),
@@ -86,8 +88,8 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                           horizontalSpacing(8),
                           Expanded(
                             child: Text(
-                              maxLines: 3,
-                              "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}\nDistric:${shop.districtName}\nOwner:${shop.ownerName}\nMob:${shop.mobileNumber}",
+                              // maxLines: 6,
+                              "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}\nDistric:${shop.districtName}\nOwner:${shop.ownerName}\nAddress:${shop.premisesAddress}\nMob:${shop.mobileNumber}",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

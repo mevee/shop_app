@@ -17,6 +17,8 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
 
   @override
   Widget build(BuildContext context) {
+    // print(controller.hashCode);
+    print(controller.product.value.eQtyController.text);
     return SafeArea(
       child: Container(
         height: 70.h(context),
@@ -117,7 +119,7 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
   }
 
   Widget showProductView(BuildContext context, ProductMaster data) {
-    if (data.category == null) {
+    if (data.id == null) {
       return Expanded(
         child: Center(
           child: Column(
@@ -233,12 +235,15 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
           ),
         ),
         horizontalSpacing(8.0),
-        Text(
-          value ?? '',
-          style: GoogleFonts.poppins(
-            fontSize: 18,
-            fontWeight: FontWeight.normal,
-            color: Colors.black,
+        Expanded(
+          child: Text(
+            value ?? '',
+            maxLines: 2,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
           ),
         ),
       ],

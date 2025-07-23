@@ -33,10 +33,16 @@ class ShopMasterController extends BaseController {
   RxBool isSkuListLoding = false.obs;
   RxBool isAddShopLoding = false.obs;
   RxList<ProductMaster> skuListApi = <ProductMaster>[].obs;
-  RxList<ShopMasterResponse> shopListApi = <ShopMasterResponse>[].obs;
+  RxList<ShopMasterModel> shopListApi = <ShopMasterModel>[].obs;
 
   Rx<ProductMaster> product = ProductMaster().obs;
   RxList<ProductMaster> selectedSkuList = <ProductMaster>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    searchShopList("");
+  }
 
   void onProducSelected(ProductMaster prod) {
     product.value = prod;
@@ -102,9 +108,6 @@ class ShopMasterController extends BaseController {
     if (completer != null && !completer!.isCompleted) {
       completer!.complete();
       isLoding.value = false;
-    }
-    if (query.isEmpty) {
-      return;
     }
 
     completer = Completer();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shop_app/common/date_util.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/calendar/controller/calender_controller.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -15,28 +16,21 @@ class CalendarScreen extends GetView<CallenderController> {
     // Determine if the cell should have a special background color (like red/green in the image)
     Color? backgroundColor;
     final bool hasData = controller.dailyData.containsKey(date);
-    final bool isSpecialDay =
-        date.day == 7 ||
-        date.day == 19 ||
-        date.day == 24; // Example days from image
-
-    if (isSpecialDay) {
-      backgroundColor = Colors.red.shade100; // Light red for highlighted days
-    } else if (hasData && isCurrentMonth) {
-      backgroundColor = Colors.green.shade100; // Light green for days with data
-    }
+    // if (hasData && isCurrentMonth) {
+    //   backgroundColor = Colors.green.shade100; // Light green for days with data
+    // }
     return InkWell(
       onTap: () {
         print(date);
         // final scheduleList = controller.checkIfSchedulAvailable(date);
+        final ctr = Get.put(ScheduleController());
 
         if (hasData) {
           Get.toNamed(
             Routes.scheduleList,
             arguments: {"date": DateFormatter.format(date)},
           );
-          final ctr = Get.find<ScheduleController?>();
-          ctr?.setManualArguments({"date": DateFormatter.format(date)});
+          ctr.setManualArguments({"date": DateFormatter.format(date)});
         }
       },
       child: Container(
@@ -44,7 +38,7 @@ class CalendarScreen extends GetView<CallenderController> {
         decoration: BoxDecoration(
           color:
               backgroundColor ??
-              Colors.white, // Default to white if no special color
+              AppColors.white, // Default to white if no special color
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: Colors.grey.shade300),
           boxShadow: [
@@ -95,15 +89,15 @@ class CalendarScreen extends GetView<CallenderController> {
                           vertical: 2.0,
                         ),
                         decoration: BoxDecoration(
-                          color: item.isVisitDone==1?Colors.green:
-                           Colors
-                              .yellow
-                              .shade100, // Light blue background for text items
+                          color: item.isVisitDone == 1
+                              ? AppColors.green
+                              : AppColors
+                                    .red, // Light blue background for text items
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                         child: Text(
                           item.shopName ?? 'No Data',
-                          style: TextStyle(fontSize: 9.0, color: Colors.black),
+                          style: TextStyle(fontSize: 9.0, color: Colors.white),
                           overflow: TextOverflow.clip, // Truncate long text
                           maxLines: 1,
                         ),
@@ -140,9 +134,12 @@ class CalendarScreen extends GetView<CallenderController> {
           child: Column(
             children: [
               monthTitleTopView1(),
-              Obx(()=>  Visibility(
-                visible: controller.isLoding.value,
-                child: LinearProgressIndicator())),
+              Obx(
+                () => Visibility(
+                  visible: controller.isLoding.value,
+                  child: LinearProgressIndicator(),
+                ),
+              ),
               SizedBox(height: 8.0),
               weekDayTitleView2(),
               Obx(
