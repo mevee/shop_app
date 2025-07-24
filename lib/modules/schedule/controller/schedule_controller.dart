@@ -103,9 +103,6 @@ class ScheduleController extends BaseController {
 
   void checkIfMeetingWasStarted() {
     final meet1 = userManager.getMeetingSession(schedue.value.id.toString());
-    // final timeRemaining = userManager.isMeetingCompletedMinDuration(
-    //   schedue.value.id.toString(),
-    // );
     if (meet1 != null && meet1.timeRemainingSeconds > 0) {
       final status = meet1.getMeetingStatusInSeconds();
       if (status['is20MinCompleted']) {
@@ -115,7 +112,6 @@ class ScheduleController extends BaseController {
         meet1.timeRemainingSeconds = status['remainingSeconds'];
         startCountdown(remaingTime: meet1.timeRemainingSeconds);
       }
-      startCountdown(remaingTime: meet1.timeRemainingSeconds);
     } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
       isButtonEnabled.value = false;
       meetingStatus.value = MeetingStatus.END;
@@ -143,7 +139,9 @@ class ScheduleController extends BaseController {
     isButtonEnabled.value = true;
     remainingSeconds.value = remaingTime; // 20 minutes in seconds
     meetingStatus.value = MeetingStatus.STARTED;
-
+    if (_timer != null) {
+      _timer?.cancel();
+    }
     saveMeetingTimeLocal();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingSeconds.value > 0) {

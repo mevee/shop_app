@@ -9,6 +9,7 @@ import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
+import 'package:shop_app/location_service/bg_service.dart';
 import 'package:shop_app/location_service/tracking_service.dart';
 import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
@@ -19,7 +20,7 @@ class DashboardController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   final LoginServiceProtocol _loginService = Get.find();
-  final LocationTrackingService _locationService = Get.put(LocationTrackingService());
+  final FlutterBgService locationService = FlutterBgService();
 
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
@@ -73,7 +74,7 @@ class DashboardController extends BaseController {
     isPunchOutProgress.value = true;
     refreshLocation().then((_) {
       if (currentPosition != null) {
-        inLocation = LocationLatLon(
+        outLocation = LocationLatLon(
           lat: currentPosition!.latitude,
           long: currentPosition!.longitude,
         );
@@ -307,10 +308,13 @@ class DashboardController extends BaseController {
   }
 
   void _startForgrundService() {
+    print("_startForgrundService()");
     if (userManager.getIsWorking() == true) {
-      _locationService.startBackgroundLocation();
+      locationService.startTracking();
+      // _locationService.startBackgroundLocation();
     } else {
-      _locationService.stopBackgroundLocation();
+      // locationService.stopTracking();
+      // _locationService.stopBackgroundLocation();
     }
   }
 }

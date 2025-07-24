@@ -19,7 +19,7 @@ void main() async {
     ),
   );
   // Start background service
-  await initializeBackgroundService();
+  // await initializeBackgroundService();
   runApp(const MyApp());
 }
 

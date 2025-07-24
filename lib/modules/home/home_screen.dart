@@ -74,7 +74,6 @@ class HomeScreen extends GetView<DashboardController> {
                     ),
                     horizontalSpace(16),
                     Expanded(
-                      
                       child: Obx(
                         () => buttonWithLoader(
                           disable:
@@ -89,16 +88,7 @@ class HomeScreen extends GetView<DashboardController> {
                           progressColor: Colors.white,
                           label: "Clock OUT",
                           onPressed: () {
-                            if (controller.attandanceObj.value.loginTime ==
-                                null) {
-                              AppToast.showToast(
-                                message:
-                                    "User attandance was not loaded. Re loading to check attandance.",
-                              );
-                              controller.getEmployeeAttandance();
-                            } else {
-                              controller.getOutLocation();
-                            }
+                            controller.getOutLocation();
                           },
                         ),
                       ),
