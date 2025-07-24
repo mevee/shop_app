@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
-import 'package:shop_app/location_service/tracking_service.dart';
 
 // this will be used as notification channel id
 const notificationChannelId = 'my_foreground';
@@ -74,14 +72,12 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-
+  
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
     });
   }
-  LocationSyncService syncService = Get.put(LocationSyncService());
-  syncService.loadLocationsFromPrefs();
   final location = Geolocator(); // or Location()
   // Main tracking loop
   while (true) {
@@ -97,10 +93,16 @@ void onStart(ServiceInstance service) async {
         accuracy: LocationAccuracy.best,
         distanceFilter: 1,
       ),
+      // timeLimit: Duration(seconds: 5)
     );
-    syncService.startRecording(position);
+
     print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+    // Save to SharedPreferences or send to server
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setString('last_location',
+    //   'Lat: ${position.latitude}, Lng: ${position.longitude}'
+    // );
+    // Delay between updates (minimum 1 second)
     await Future.delayed(Duration(seconds: 10));
   }
-
 }

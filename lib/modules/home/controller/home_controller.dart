@@ -16,14 +16,10 @@ import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
-enum UserState { IDEAL, WORKING, NOT_WORKING }
-
-class HomeController extends BaseController {
+class DashboardController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   final LoginServiceProtocol _loginService = Get.find();
-  final LocationSyncService syncService = Get.put(LocationSyncService());
-
   final FlutterBgService locationService = FlutterBgService();
 
   LocationLatLon inLocation = LocationLatLon();
@@ -38,7 +34,7 @@ class HomeController extends BaseController {
   RxBool isPunchInProgress = false.obs;
   RxBool isPunchOutProgress = false.obs;
 
-  Rx<UserState> userState = UserState.IDEAL.obs;
+  RxBool clockedIn = false.obs;
   RxString distance = "0km".obs;
 
   Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
@@ -49,16 +45,6 @@ class HomeController extends BaseController {
     super.onInit();
     loadUserData();
     getTodaysSchedules();
-    startObs();
-  }
-
-  void startObs() {
-    ever(syncService.syncCount, (newValue) {
-      print('Count changed to: $newValue');
-      if (newValue != 0) {
-        getEmployeeTravelDistance();
-      }
-    });
   }
 
   void loadUserData() async {
@@ -115,14 +101,16 @@ class HomeController extends BaseController {
         AppToast.showToast(
           message: response.responseCode ?? "Punch In Sucessful",
         );
-        if (response.results != null && response.results!.isNotEmpty) {
+        if (response.results != null && response.results!.isEmpty) {
           attandanceObj.value = response.results!.first;
-          if (attandanceObj.value.isLoggedIn &&
-              !attandanceObj.value.isLoggedOut) {
-            userState.value = UserState.WORKING;
-            userManager.setIsWorking(true);
-            _startForgrundService();
-          }
+          clockedIn.value =
+              attandanceObj.value.isLoggedIn &&
+              !attandanceObj.value.isLoggedOut;
+
+          userManager.setIsWorking(
+            attandanceObj.value.isLoggedIn && !attandanceObj.value.isLoggedOut,
+          );
+          _startForgrundService();
         }
       }
     } on DioException catch (e) {
@@ -143,7 +131,7 @@ class HomeController extends BaseController {
     isPunchOutProgress.value = true;
 
     final ClockRequest loginData = ClockRequest(
-      id: attandanceObj.value.id,
+      id: userManager.getUserData()?.login?.id,
       username: userManager.getUserData()?.login?.userName,
       loginTime: DateFormatter.getCurrentDateTimeString(),
       loginLat: inLocation.lat.toString(),
@@ -160,7 +148,8 @@ class HomeController extends BaseController {
       // }
       getEmployeeAttandance();
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ?? "Failed to clock out";
+      final errorMessage =
+          e.response?.data['error'] ?? "Failed to clock out";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
       AppToast.showToast(message: e.message ?? "Failed to clock out");
@@ -237,35 +226,17 @@ class HomeController extends BaseController {
     );
     try {
       final response = await _employeeService.getEmployeeAttandance(request);
-      if (response.results != null) {
-        if (response.results!.isNotEmpty == true) {
-          attandanceObj.value = response.results!.first;
-          isPunchInProgress.refresh();
-          isPunchOutProgress.refresh();
-
-          if (attandanceObj.value.isLoggedIn) {
-            if (attandanceObj.value.isLoggedOut == false) {
-              userState.value = UserState.WORKING;
-              userManager.setIsWorking(true);
-              _startForgrundService();
-            } else {
-              userState.value = UserState.NOT_WORKING;
-              userManager.setIsWorking(false);
-            }
-          } else {
-            userManager.setIsWorking(false);
-            userState.value = UserState.IDEAL;
-          }
-        } else {
-          userState.value = UserState.IDEAL;
-          attandanceObj.value.id = -1;
-          userManager.setIsWorking(false);
-          // attandanceObj.value.isLoggedIn =
-        }
+      if (response.results != null && response.results!.isNotEmpty) {
+        attandanceObj.value = response.results!.first;
+        isPunchInProgress.refresh();
+        isPunchOutProgress.refresh();
+        clockedIn.value =
+            attandanceObj.value.isLoggedIn && !attandanceObj.value.isLoggedOut;
+        userManager.setIsWorking(
+          attandanceObj.value.isLoggedIn && !attandanceObj.value.isLoggedOut,
+        );
+        _startForgrundService();
       }
-      getEmployeeTravelDistance();
-
-      print("userState:::${userState.value}");
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
@@ -281,6 +252,7 @@ class HomeController extends BaseController {
   }
 
   Future<void> getTodaysSchedules() async {
+    getEmployeeAttandance();
     isTodaysLoding.value = true;
     try {
       final response = await _scheduleService.getScheduleByDate(
