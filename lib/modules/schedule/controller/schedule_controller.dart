@@ -9,6 +9,7 @@ import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/data/meeting_model.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/data/shop_master_service.dart';
@@ -22,15 +23,6 @@ import 'package:shop_app/models/schedule_qty_response.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
 import 'package:velocity_x/velocity_x.dart';
-
-enum ScheduleType {
-  FRESH,
-  FUTURE,
-  VISITED,
-  NOT_VISITED,
-  TODAY_VISTED,
-  TODAY_NOT_VISITED,
-}
 
 enum MeetingStatus { IDEAL, STARTED, END }
 
@@ -56,7 +48,6 @@ class ScheduleController extends BaseController {
   RxBool today = false.obs;
   RxBool future = false.obs;
   RxBool visted = false.obs;
-  Rx<ScheduleType> type = ScheduleType.FUTURE.obs;
 
   RxBool scheduleDetailAdded = false.obs;
   RxBool updateScheduleLoding = false.obs;
@@ -110,13 +101,50 @@ class ScheduleController extends BaseController {
   RxInt remainingSeconds = 0.obs;
   Timer? _timer;
 
+  void checkIfMeetingWasStarted() {
+    final meet1 = userManager.getMeetingSession(schedue.value.id.toString());
+    // final timeRemaining = userManager.isMeetingCompletedMinDuration(
+    //   schedue.value.id.toString(),
+    // );
+    if (meet1 != null && meet1.timeRemainingSeconds > 0) {
+      final status = meet1.getMeetingStatusInSeconds();
+      if (status['is20MinCompleted']) {
+        isButtonEnabled.value = false;
+        meetingStatus.value = MeetingStatus.END;
+      } else {
+        meet1.timeRemainingSeconds = status['remainingSeconds'];
+        startCountdown(remaingTime: meet1.timeRemainingSeconds);
+      }
+      startCountdown(remaingTime: meet1.timeRemainingSeconds);
+    } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
+      isButtonEnabled.value = false;
+      meetingStatus.value = MeetingStatus.END;
+    }
+  }
+
+  void saveMeetingTimeLocal() {
+    final meet1 = userManager.getMeetingSession(schedue.value.id.toString());
+    if (meet1 != null) {
+      meet1.timeRemainingSeconds = remainingSeconds.value;
+      userManager.saveMeetingSession(schedue.value.id.toString(), meet1);
+    } else {
+      final meeting = MeetingData(
+        sessionId: schedue.value.id.toString(),
+        timeRemainingSeconds: remainingSeconds.value,
+        startTimeMillis: DateTime.now().millisecondsSinceEpoch,
+      );
+      userManager.saveMeetingSession(schedue.value.id.toString(), meeting);
+    }
+  }
+
   // Start a 20-minute countdown
-  void startCountdown() {
+  void startCountdown({int remaingTime = 20 * 60}) {
     meetingStarted.value = true;
     isButtonEnabled.value = true;
-    remainingSeconds.value = 20 * 60; // 20 minutes in seconds
+    remainingSeconds.value = remaingTime; // 20 minutes in seconds
     meetingStatus.value = MeetingStatus.STARTED;
 
+    saveMeetingTimeLocal();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingSeconds.value > 0) {
         remainingSeconds.value--;
@@ -125,6 +153,7 @@ class ScheduleController extends BaseController {
         isButtonEnabled.value = false;
         meetingStatus.value = MeetingStatus.END;
       }
+      saveMeetingTimeLocal();
     });
   }
 
@@ -519,13 +548,9 @@ class ScheduleController extends BaseController {
     ScheduleDateTimeModel value,
     SchedulApiResults? apiResultDetail,
   ) {
-    type.value = ScheduleType.FUTURE;
     past.value = DateFormatter.isPastDate(value.scheduleDateTime!);
     today.value = DateFormatter.isToday(value.scheduleDateTime!);
     future.value = DateFormatter.isToday(value.scheduleDateTime!);
-    type.value = value.isVisitDone == 0
-        ? ScheduleType.NOT_VISITED
-        : ScheduleType.VISITED;
 
     final mSchedule = schedue.value;
     if (apiResultDetail == null) {
@@ -549,5 +574,6 @@ class ScheduleController extends BaseController {
     }
     if (dateTime != null) {}
     schedue.refresh();
+    checkIfMeetingWasStarted();
   }
 }

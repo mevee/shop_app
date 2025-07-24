@@ -1,3 +1,4 @@
+import 'package:shop_app/data/meeting_model.dart';
 import 'package:shop_app/models/login_response.dart';
 
 enum UserManagerKeys {
@@ -5,6 +6,8 @@ enum UserManagerKeys {
   userLoggedIn("USER_LOGGED_IN"),
   userAccessToken("USER_TOKEN"),
   userId("USER_ID"),
+  working("WORKING"),
+  meetingsData("MEETING_DATA"),
   userData("USER_DATA");
 
   final String value;
@@ -25,5 +28,16 @@ mixin SessionPref {
   void setUserToken(String? token);
   String? getUserId();
   void setUserId(String? value);
+
+  bool? getIsWorking();
+  void setIsWorking(bool? value);
+
+  Future<void> saveMeetingSession(String meetingId, MeetingData data);
+  MeetingData? getMeetingSession(String meetingId);
+  Future<void> removeMeetingSession(String meetingId);
+  Map<String, MeetingData>? getAllMeetingSessions();
+  Future<void> clearAllMeetingSessions();
+  bool isMeetingCompletedMinDuration(String meetingId, int minDurationMinutes);
+
   void logOut();
 }

@@ -1,18 +1,18 @@
 class ClockInRequest {
-  String? userName;
+  String? username;
   String? loginLong; // "2025-07-06T10:00:00"
   String? loginLat;
-  ClockInRequest({this.userName, this.loginLat, this.loginLong});
+  ClockInRequest({this.username, this.loginLat, this.loginLong});
 
   ClockInRequest.fromJson(Map<String, dynamic> json) {
-    userName = json['userName'];
+    username = json['username'];
     loginLong = json['loginLong'];
     loginLat = json['loginLat'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['userName'] = userName;
+    data['username'] = username;
     data['loginLat'] = loginLat;
     data['loginLong'] = loginLong;
     return data;
@@ -21,7 +21,7 @@ class ClockInRequest {
 
 class ClockRequest {
   int? id;
-  String? userName;
+  String? username;
   String? loginTime; // "2025-07-06T10:00:00"
   String? loginLat;
   String? loginLong;
@@ -29,7 +29,7 @@ class ClockRequest {
   String? logoutLong;
   ClockRequest({
     this.id,
-    this.userName,
+    this.username,
     this.loginTime,
     this.loginLat,
     this.loginLong,
@@ -39,7 +39,7 @@ class ClockRequest {
 
   ClockRequest.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    userName = json['userName'];
+    username = json['username'];
     loginTime = json['loginTime'];
     loginLat = json['loginLat'];
     loginLong = json['loginLong'];
@@ -50,7 +50,7 @@ class ClockRequest {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['userName'] = userName;
+    data['username'] = username;
     data['loginTime'] = loginTime;
     data['loginLat'] = loginLat;
     data['loginLong'] = loginLong;

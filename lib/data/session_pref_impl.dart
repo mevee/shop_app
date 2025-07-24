@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app/data/meeting_model.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/models/login_response.dart';
 
-class SharePrefSessiomImpl with SessionPref {
+class SPrefSessiomImpl with SessionPref {
   SharedPreferences? _prefs;
-  SharePrefSessiomImpl() {
+  SPrefSessiomImpl() {
     initPreferences();
   }
   @override
@@ -94,9 +95,102 @@ class SharePrefSessiomImpl with SessionPref {
     setUserId(null);
     setIsUserLoggedIn(false);
     setUserData(null);
+    setIsWorking(false);
+    clearAllMeetingSessions();
   }
 
   Future<void> _clear(String key) async {
     await _prefs?.clear();
+  }
+
+  @override
+  bool? getIsWorking() {
+    return _prefs?.getBool(UserManagerKeys.working.value) ?? false;
+  }
+
+  @override
+  void setIsWorking(bool? value) {
+    _prefs?.setBool(UserManagerKeys.working.value, value ?? false);
+  }
+
+  // --- Meeting Session Functions ---
+
+  Map<String, MeetingData>? _getRawMeetingSessions() {
+    final String? meetingsJsonString = _prefs?.getString(
+      UserManagerKeys.meetingsData.value,
+    );
+    if (meetingsJsonString == null || meetingsJsonString.isEmpty) {
+      return null;
+    }
+    try {
+      final Map<String, dynamic> decodedMap = jsonDecode(meetingsJsonString);
+      return decodedMap.map(
+        (key, value) =>
+            MapEntry(key, MeetingData.fromJson(value as Map<String, dynamic>)),
+      );
+    } catch (e) {
+      print("Error decoding meeting sessions: $e");
+      return null;
+    }
+  }
+
+  Future<void> _saveRawMeetingSessions(
+    Map<String, MeetingData> meetings,
+  ) async {
+    final Map<String, dynamic> jsonMap = meetings.map(
+      (key, value) => MapEntry(key, value.toJson()),
+    );
+    final String encodedString = jsonEncode(jsonMap);
+    await _prefs?.setString(UserManagerKeys.meetingsData.value, encodedString);
+  }
+
+  @override
+  Future<void> saveMeetingSession(String meetingId, MeetingData data) async {
+    final Map<String, MeetingData> currentMeetings =
+        _getRawMeetingSessions() ?? {};
+    currentMeetings[meetingId] = data;
+    await _saveRawMeetingSessions(currentMeetings);
+  }
+
+  @override
+  MeetingData? getMeetingSession(String meetingId) {
+    final Map<String, MeetingData>? currentMeetings = _getRawMeetingSessions();
+    return currentMeetings?[meetingId];
+  }
+
+  @override
+  Future<void> removeMeetingSession(String meetingId) async {
+    final Map<String, MeetingData>? currentMeetings = _getRawMeetingSessions();
+    if (currentMeetings != null && currentMeetings.containsKey(meetingId)) {
+      currentMeetings.remove(meetingId);
+      await _saveRawMeetingSessions(currentMeetings);
+    }
+  }
+
+  @override
+  Map<String, MeetingData>? getAllMeetingSessions() {
+    return _getRawMeetingSessions();
+  }
+
+  @override
+  Future<void> clearAllMeetingSessions() async {
+    await _prefs?.remove(UserManagerKeys.meetingsData.value);
+  }
+
+  // --- New Function to check a single meeting's duration completion ---
+  @override
+  bool isMeetingCompletedMinDuration(String meetingId, int minDurationMinutes) {
+    final MeetingData? meetingData = getMeetingSession(meetingId);
+
+    if (meetingData == null || meetingData.startTimeMillis == null) {
+      return false; // Meeting not found or start time not recorded
+    }
+
+    final int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final int requiredDurationMillis = minDurationMinutes * 60 * 1000;
+
+    final int elapsedMillis = currentTimeMillis - meetingData.startTimeMillis!;
+
+    return elapsedMillis >= requiredDurationMillis;
   }
 }

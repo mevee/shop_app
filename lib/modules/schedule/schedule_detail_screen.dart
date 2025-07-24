@@ -565,7 +565,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
   Widget timeWidgetAndSubmitButton(BuildContext context) {
     return Obx(
-      () => (controller.meetingStatus.value == MeetingStatus.IDEAL)
+      () =>
+          (controller.meetingStatus.value == MeetingStatus.IDEAL ||
+              controller.schedue.value.isVisitDone == 1)
           ? SizedBox.shrink()
           : Container(
               margin: EdgeInsets.symmetric(vertical: 12),
@@ -594,7 +596,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       disable:
                           (
                           // controller.past.value && controller.visted.value ||
-                          // controller.today.value && controller.visted.value ||
+                          controller.visted.value ||
                           controller.updateScheduleLoding.value ||
                           controller.remainingSeconds.value != 0),
                       label: 'Submit',

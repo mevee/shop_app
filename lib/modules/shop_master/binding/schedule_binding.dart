@@ -11,7 +11,7 @@ class ShopMasterBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<ApplicationState>(() => ApplicationState());
-    Get.lazyPut<SessionPref>(() => SharePrefSessiomImpl());
+    Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
     Get.lazyPut<ScheduleServiceProtocol>(() => ScheduleService());
     Get.lazyPut<ShopMasterController>(() => ShopMasterController());

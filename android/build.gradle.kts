@@ -2,6 +2,11 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+         // [required] background_geolocation
+//       maven(url = "${project(":flutter_background_geolocation").projectDir}/libs")
+//       maven(url = "https://developer.huawei.com/repo/")
+       // [required] background_fetch
+//       maven(url = "${project(":background_fetch").projectDir}/libs")
     }
 }
 

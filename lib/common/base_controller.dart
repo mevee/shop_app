@@ -6,7 +6,7 @@ import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
 
 class BaseController extends GetxController {
-  final SessionPref userManager = SharePrefSessiomImpl();
+  final SessionPref userManager = SPrefSessiomImpl();
   Position? currentPosition;
 
   Future<void> refreshLocation() async {

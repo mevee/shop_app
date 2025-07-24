@@ -11,7 +11,7 @@ import 'utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharePrefSessiomImpl().initPreferences();
+  await SPrefSessiomImpl().initPreferences();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: AppColors.primaryAccent,

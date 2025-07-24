@@ -11,7 +11,7 @@ class DashboardBinding extends Bindings {
   void dependencies() {
     // Get.lazyPut<LoginServiceProtocol>(() => LoginService());
     Get.lazyPut<ApplicationState>(() => ApplicationState());
-    Get.lazyPut<SessionPref>(() => SharePrefSessiomImpl());
+    Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
     Get.lazyPut<EmployeeServiceProtocol>(() => EmployeeService());
     Get.lazyPut<ScheduleServiceProtocol>(() => ScheduleService());
     Get.lazyPut<DashboardController>(() => DashboardController());

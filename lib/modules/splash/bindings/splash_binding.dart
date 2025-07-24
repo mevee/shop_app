@@ -7,6 +7,6 @@ class SplashBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<ApplicationState>(() => ApplicationState());
-    Get.lazyPut<SessionPref>(() => SharePrefSessiomImpl());
+    Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
   }
 }

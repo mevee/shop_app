@@ -9,7 +9,7 @@ class InitialBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<ApplicationState>(() => ApplicationState(), fenix: true);
-    Get.lazyPut<SessionPref>(() => SharePrefSessiomImpl(), fenix: true);
+    Get.lazyPut<SessionPref>(() => SPrefSessiomImpl(), fenix: true);
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
 
   }

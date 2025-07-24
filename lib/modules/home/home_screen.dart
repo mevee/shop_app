@@ -4,13 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
-import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/dashboard_controller.dart';
 import 'package:shop_app/modules/home/more_options_bottom.dart';
 import 'package:shop_app/navigation/app_pages.dart';
-import 'package:shop_app/utils/app_images.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class HomeScreen extends GetView<DashboardController> {
@@ -69,22 +67,14 @@ class HomeScreen extends GetView<DashboardController> {
                           progressColor: Colors.white,
                           label: "Clock IN",
                           onPressed: () {
-                            // if (controller.attandanceObj.value.loginTime ==
-                            //     null) {
-                            //   AppToast.showToast(
-                            //     message:
-                            //         "User attandance was not loaded. Re loading to check attandance.",
-                            //   );
-                            //   controller.getEmployeeAttandance();
-                            // } else {
-                              controller.getInLocation();
-                            // }
+                            controller.getInLocation();
                           },
                         ),
                       ),
                     ),
                     horizontalSpace(16),
                     Expanded(
+                      
                       child: Obx(
                         () => buttonWithLoader(
                           disable:

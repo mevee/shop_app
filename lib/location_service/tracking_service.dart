@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:get/get.dart';
+
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/models/employee_response.dart';
+import 'package:workmanager/workmanager.dart';
 
 // class LocationTrackingService extends GetxService {
 class LocationTrackingService extends GetxService {
@@ -97,12 +99,17 @@ class LocationTrackingService extends GetxService {
     try {
       lastSyncStatus.value = 'Syncing...';
       // Get your token from shared preferences
-      final userName = Get.find<SharePrefSessiomImpl>()
+      final working = Get.find<SPrefSessiomImpl>().getIsWorking();
+      final userName = Get.find<SPrefSessiomImpl>()
           .getUserData()
           ?.login
           ?.userName;
       if (userName == null || userName.isEmpty) {
         lastError.value = 'User not authenticated';
+        return;
+      }
+      if (working == null || working == false) {
+        lastError.value = 'User not working';
         return;
       }
       // Prepare data to send
@@ -128,8 +135,11 @@ class LocationTrackingService extends GetxService {
   }
 
   Future<void> _saveLocationsToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, jsonEncode(locations));
+    final working = Get.find<SPrefSessiomImpl>().getIsWorking();
+    if (working != null && working) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefsKey, jsonEncode(locations));
+    }
   }
 
   Future<void> _loadLocationsFromPrefs() async {
@@ -150,5 +160,20 @@ class LocationTrackingService extends GetxService {
     _locationTimer?.cancel();
     _syncTimer?.cancel();
     super.onClose();
+  }
+
+  void startBackgroundLocation() {
+    print("startBackgroundLocation()");
+    Workmanager().registerPeriodicTask(
+      "locationTask",
+      "fetchLocation",
+      frequency: Duration(minutes: 1),
+    );
+  }
+
+  // Call this when user disables tracking
+  void stopBackgroundLocation() {
+    print("stopBackgroundLocation()");
+    Workmanager().cancelByTag("locationTask");
   }
 }
