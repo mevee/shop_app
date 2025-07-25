@@ -25,7 +25,9 @@ class LocationSyncService {
     };
 
     locations.add(newLocation);
-    await _saveLocationsToPrefs();
+    await _saveLocationsToPrefs(
+
+    );
 
     // Initial sync
     await _syncLocationsWithServer();

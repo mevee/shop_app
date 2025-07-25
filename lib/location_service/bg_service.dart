@@ -22,17 +22,17 @@ class FlutterBgService {
       notificationChannelId, // id
       'MY FOREGROUND SERVICE', // title
       description:
-          'This channel is used for important notifications.', // description
+      'This channel is used for important notifications.', // description
       importance: Importance.low, // importance must be at low or higher level
     );
 
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+        AndroidFlutterLocalNotificationsPlugin
+    >()
         ?.createNotificationChannel(channel);
 
     await service.configure(
@@ -42,7 +42,7 @@ class FlutterBgService {
         isForegroundMode: true,
         autoStart: true,
         notificationChannelId:
-            notificationChannelId, // this must match with notification channel you created above.
+        notificationChannelId, // this must match with notification channel you created above.
         initialNotificationTitle: 'Location Tracker Running',
         initialNotificationContent: 'Tracking your location',
         foregroundServiceNotificationId: notificationId,
@@ -72,7 +72,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-  
+
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
