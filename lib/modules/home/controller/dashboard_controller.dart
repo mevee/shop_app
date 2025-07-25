@@ -20,6 +20,8 @@ class DashboardController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   final LoginServiceProtocol _loginService = Get.find();
+  final LocationSyncService syncService = Get.put(LocationSyncService());
+
   final FlutterBgService locationService = FlutterBgService();
 
   LocationLatLon inLocation = LocationLatLon();
@@ -45,6 +47,16 @@ class DashboardController extends BaseController {
     super.onInit();
     loadUserData();
     getTodaysSchedules();
+    startObs();
+  }
+
+  void startObs() {
+    ever(syncService.syncCount, (newValue) {
+      print('Count changed to: $newValue');
+      if (newValue != 0) {
+        getEmployeeTravelDistance();
+      }
+    });
   }
 
   void loadUserData() async {
@@ -101,12 +113,11 @@ class DashboardController extends BaseController {
         AppToast.showToast(
           message: response.responseCode ?? "Punch In Sucessful",
         );
-        if (response.results != null && response.results!.isEmpty) {
+        if (response.results != null && response.results!.isNotEmpty) {
           attandanceObj.value = response.results!.first;
           clockedIn.value =
               attandanceObj.value.isLoggedIn &&
               !attandanceObj.value.isLoggedOut;
-
           userManager.setIsWorking(
             attandanceObj.value.isLoggedIn && !attandanceObj.value.isLoggedOut,
           );
@@ -148,8 +159,7 @@ class DashboardController extends BaseController {
       // }
       getEmployeeAttandance();
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ?? "Failed to clock out";
+      final errorMessage = e.response?.data['error'] ?? "Failed to clock out";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
       AppToast.showToast(message: e.message ?? "Failed to clock out");

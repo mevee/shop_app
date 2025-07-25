@@ -7,109 +7,49 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/models/employee_response.dart';
-import 'package:workmanager/workmanager.dart';
 
-// class LocationTrackingService extends GetxService {
-class LocationTrackingService extends GetxService {
+class LocationSyncService {
   final EmployeeServiceProtocol employeeService = EmployeeService();
   final RxList<Map<String, dynamic>> locations = <Map<String, dynamic>>[].obs;
   final RxString lastSyncStatus = 'Not started'.obs;
   final RxString lastError = ''.obs;
-  final RxBool isTracking = false.obs;
   final RxInt syncCount = 0.obs;
-
-  Timer? _syncTimer;
-  Timer? _locationTimer;
-
   static const String _prefsKey = 'location_logs';
-  static const int syncInterval = 4 * 60; // 4 minutes in seconds
 
-  @override
-  void onInit() {
-    super.onInit();
-    _loadLocationsFromPrefs();
-  }
-
-  Future<void> startTracking() async {
-    if (isTracking.value) return;
-
-    isTracking.value = true;
+  Future<void> startRecording(Position position) async {
     lastSyncStatus.value = 'Tracking started';
+    final newLocation = {
+      'lat': position.latitude,
+      'lng': position.longitude,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
 
-    // Request location permissions
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      lastError.value = 'Location services are disabled';
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        lastError.value = 'Location permissions denied';
-        return;
-      }
-    }
-
-    // Start periodic location updates
-    _locationTimer = Timer.periodic(Duration(seconds: 30), (timer) async {
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.bestForNavigation,
-        );
-
-        final newLocation = {
-          'lat': position.latitude,
-          'lng': position.longitude,
-          'timestamp': DateTime.now().toIso8601String(),
-        };
-
-        locations.add(newLocation);
-        await _saveLocationsToPrefs();
-      } catch (e) {
-        lastError.value = 'Location error: ${e.toString()}';
-      }
-    });
-
-    // Start periodic sync
-    _syncTimer = Timer.periodic(Duration(minutes: 4), (timer) async {
-      await _syncLocationsWithServer();
-    });
+    locations.add(newLocation);
+    await _saveLocationsToPrefs();
 
     // Initial sync
     await _syncLocationsWithServer();
   }
 
-  Future<void> stopTracking() async {
-    _locationTimer?.cancel();
-    _syncTimer?.cancel();
-    isTracking.value = false;
-    lastSyncStatus.value = 'Tracking stopped';
-    await _syncLocationsWithServer(); // Final sync before stopping
-  }
-
   Future<void> _syncLocationsWithServer() async {
-    if (locations.isEmpty) {
+    if (locations.isEmpty && locations.length > 4) {
       lastSyncStatus.value = 'No locations to sync';
       return;
     }
-
     try {
       lastSyncStatus.value = 'Syncing...';
       // Get your token from shared preferences
       final working = Get.find<SPrefSessiomImpl>().getIsWorking();
+      if (working == null || working == false) {
+        lastError.value = 'User not working';
+        return;
+      }
       final userName = Get.find<SPrefSessiomImpl>()
           .getUserData()
           ?.login
           ?.userName;
       if (userName == null || userName.isEmpty) {
         lastError.value = 'User not authenticated';
-        return;
-      }
-      if (working == null || working == false) {
-        lastError.value = 'User not working';
         return;
       }
       // Prepare data to send
@@ -142,7 +82,7 @@ class LocationTrackingService extends GetxService {
     }
   }
 
-  Future<void> _loadLocationsFromPrefs() async {
+  Future<void> loadLocationsFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final locationsJson = prefs.getString(_prefsKey);
     if (locationsJson != null && locationsJson.isNotEmpty) {
@@ -153,27 +93,5 @@ class LocationTrackingService extends GetxService {
         lastError.value = 'Failed to load locations: ${e.toString()}';
       }
     }
-  }
-
-  @override
-  void onClose() {
-    _locationTimer?.cancel();
-    _syncTimer?.cancel();
-    super.onClose();
-  }
-
-  void startBackgroundLocation() {
-    print("startBackgroundLocation()");
-    Workmanager().registerPeriodicTask(
-      "locationTask",
-      "fetchLocation",
-      frequency: Duration(minutes: 1),
-    );
-  }
-
-  // Call this when user disables tracking
-  void stopBackgroundLocation() {
-    print("stopBackgroundLocation()");
-    Workmanager().cancelByTag("locationTask");
   }
 }
