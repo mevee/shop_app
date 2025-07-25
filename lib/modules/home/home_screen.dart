@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
-import 'package:shop_app/modules/home/controller/dashboard_controller.dart';
+import 'package:shop_app/modules/home/controller/home_controller.dart';
 import 'package:shop_app/modules/home/more_options_bottom.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
-class HomeScreen extends GetView<DashboardController> {
+class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
 
   @override
@@ -27,36 +26,15 @@ class HomeScreen extends GetView<DashboardController> {
               children: [
                 Obx(() => userInfoWidget(controller.userData.value.login)),
                 verticalSpace(16.0),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(vertical: 12.0),
-                //   child: Row(
-                //     children: [
-                //       Image(image: AssetImages.timeline, width: 24, height: 24),
-                //       horizontalSpace(8),
-                //       Text(
-                //         "Distance Travelled Today: ",
-                //         style: GoogleFonts.poppins(
-                //           fontSize: 16,
-                //           fontWeight: FontWeight.normal,
-                //         ),
-                //       ),
-                //       Text(
-                //         controller.distance.value,
-                //         style: GoogleFonts.poppins(
-                //           fontSize: 16,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
+
                 Row(
                   children: [
                     Expanded(
                       child: Obx(
                         () => buttonWithLoader(
                           disable:
-                              (controller.attandanceObj.value.isLoggedIn ||
+                              (controller.userState.value == UserState.WORKING ||
+                              controller.userState.value == UserState.NOT_WORKING ||
                                   controller.isPunchInProgress.value)
                               ? true
                               : false,
@@ -77,7 +55,8 @@ class HomeScreen extends GetView<DashboardController> {
                       child: Obx(
                         () => buttonWithLoader(
                           disable:
-                              (controller.attandanceObj.value.isLoggedOut ||
+                              (controller.userState.value == UserState.IDEAL ||
+                              controller.userState.value == UserState.NOT_WORKING ||
                                   controller.isPunchOutProgress.value)
                               ? true
                               : false,
@@ -229,33 +208,32 @@ class HomeScreen extends GetView<DashboardController> {
               Expanded(
                 flex: 2,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Working Staus:",
+                          "Working Staus :",
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
                         horizontalSpace(8),
-                        Obx(() => circleDot(controller.clockedIn.value)),
+                        Obx(() => circleDot(controller.userState.value == UserState.WORKING)),
                       ],
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      // mainAxisAlignment: MainAxisAlignment.end,
+                      // crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           "Distance : ",
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -264,7 +242,7 @@ class HomeScreen extends GetView<DashboardController> {
                           () => Text(
                             controller.distance.value,
                             style: GoogleFonts.poppins(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -273,24 +251,29 @@ class HomeScreen extends GetView<DashboardController> {
                       ],
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // alignment: WrapAlignment.start,
                       children: [
                         Text(
                           "M.Name : ",
                           style: GoogleFonts.poppins(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
                         Obx(
-                          () => Text(
-                            controller.userData.value.login?.managerName ?? "",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          () => Flexible(
+                            child: Text(
+                              controller.userData.value.login?.managerName ?? "",
+                              overflow:TextOverflow.clip ,
+                              softWrap: true,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

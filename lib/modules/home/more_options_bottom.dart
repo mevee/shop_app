@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
-import 'package:shop_app/modules/home/controller/dashboard_controller.dart';
+import 'package:shop_app/modules/home/controller/home_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
 
-class MoreOptionBottomSheet extends GetView<DashboardController> {
+class MoreOptionBottomSheet extends GetView<HomeController> {
   const MoreOptionBottomSheet({super.key});
 
   @override
