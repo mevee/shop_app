@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/app_bindings/initial_binding.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
+import 'package:shop_app/location_service/bg_service.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
 import 'utils/constants.dart';

@@ -13,13 +13,15 @@ import 'package:shop_app/utils/app_images.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class ImgData {
   String imagePath = "";
   String? url = "";
   RxBool isLoading = false.obs;
   bool canEdit = true;
-  ImgData({required this.imagePath, this.url, this.canEdit = true});
+  bool isbase64 = false;
+  ImgData({required this.imagePath, this.url, this.canEdit = true,this.isbase64=false});
 }
 
 class UploadImageController extends BaseController {
@@ -274,43 +276,43 @@ class UploadImageWidget extends StatelessWidget {
                         },
                       ),
                     ),
-                    horizontalSpacing(12),
-                    Obx(
-                      () => TapAnimationButton(
-                        disabled: controller.isFull.value || !enabled,
-                        child: Container(
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: enabled
-                                ? AppColors.primary
-                                : AppColors.disabled,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(8.0),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                "Choose File",
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          controller.pickFromGallery(onComplete: (value) {});
-                        },
-                      ),
-                    ),
+                    // horizontalSpacing(12),
+                    // Obx(
+                    //   () => TapAnimationButton(
+                    //     disabled: controller.isFull.value || !enabled,
+                    //     child: Container(
+                    //       alignment: Alignment.center,
+                    //       padding: const EdgeInsets.symmetric(
+                    //         horizontal: 16,
+                    //         vertical: 8,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: enabled
+                    //             ? AppColors.primary
+                    //             : AppColors.disabled,
+                    //         borderRadius: const BorderRadius.all(
+                    //           Radius.circular(8.0),
+                    //         ),
+                    //       ),
+                    //       child: Row(
+                    //         mainAxisSize: MainAxisSize.min,
+                    //         children: [
+                    //           Text(
+                    //             "Choose File",
+                    //             style: GoogleFonts.inter(
+                    //               fontSize: 12,
+                    //               fontWeight: FontWeight.w400,
+                    //               color: AppColors.white,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     onTap: () {
+                    //       controller.pickFromGallery(onComplete: (value) {});
+                    //     },
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -341,7 +343,7 @@ class UploadImageWidget extends StatelessWidget {
                 : SizedBox(
                     width: 30,
                     height: 30,
-                    child: Image.network(model.imagePath),
+                    child: base64ToImage(model.imagePath),
                   ),
           ),
           horizontalSpacing(16),
@@ -362,6 +364,12 @@ class UploadImageWidget extends StatelessWidget {
                 width: 16,
                 child: CircularProgressIndicator(),
               ),
+            ),
+          if (model.isbase64)
+            const Icon(
+              Icons.check,
+              size: 16,
+              color: AppColors.green,
             ),
           if (model.canEdit)
             InkWell(

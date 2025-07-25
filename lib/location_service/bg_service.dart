@@ -102,4 +102,5 @@ void onStart(ServiceInstance service) async {
     print('Lat: ${position.latitude}, Lng: ${position.longitude}');
     await Future.delayed(Duration(seconds: 10));
   }
+
 }

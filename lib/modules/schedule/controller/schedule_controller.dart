@@ -56,7 +56,7 @@ class ScheduleController extends BaseController {
   Rx<LoginResponse> userData = LoginResponse().obs;
 
   RxList<ShopMasterModel> shopDetailsOptions = <ShopMasterModel>[].obs;
-  RxList<QuantityDetailsList> shopQtyListInput = <QuantityDetailsList>[].obs;
+  RxList<QuantityDetailsList> skListQtyInput = <QuantityDetailsList>[].obs;
   RxInt totalExtQty = 0.obs;
   RxInt totalNewQty = 0.obs;
   RxDouble totalPrice = (0.0).obs;
@@ -65,7 +65,7 @@ class ScheduleController extends BaseController {
     totalNewQty.value = 0;
     totalPrice.value = 0.0;
 
-    for (var e in shopQtyListInput) {
+    for (var e in skListQtyInput) {
       totalExtQty += (e.existingQuantity ?? 0);
       totalNewQty += (e.newQuantity ?? 0);
       totalPrice.value += (e.totalPrice ?? 0.0);
@@ -91,6 +91,7 @@ class ScheduleController extends BaseController {
     meetingStarted.value = false;
     detailWasAdded.value = false;
     remarksController.text = "";
+    skuListInput.value =[];
     closeTime();
   }
 
@@ -316,7 +317,7 @@ class ScheduleController extends BaseController {
     try {
       final future = scheduleService.getScheduleImages(scheduleId);
       loadImagesTask?.complete(future);
-      final response = await completer!.future;
+      final response = await loadImagesTask!.future;
       List<ImgResult> imageList = response.results ?? [];
       if (imageList.isNotEmpty) {
         final mList = <ImgData>[];
@@ -325,6 +326,8 @@ class ScheduleController extends BaseController {
             ImgData(
               imagePath: img.images ?? "",
               canEdit: false,
+              isbase64: true,
+          
               url: img.images,
             ),
           );
@@ -357,13 +360,14 @@ class ScheduleController extends BaseController {
     try {
       final future = scheduleService.getScheduleQuantity(scheduleId);
       loadQtyTask?.complete(future);
-      final response = await completer!.future;
-      List<QtyResults> imageList = response.results ?? [];
+      final response = await loadQtyTask!.future;
+      List<QtyResults> result = response.results ?? [];
       final mShopList = <QuantityDetailsList>[];
 
-      for (var img in imageList) {
+      for (var img in result) {
         mShopList.add(
           QuantityDetailsList(
+            prodName: img.productId?.toString()??"Id:${img.productId}",
             editable: false,
             existingQuantity: img.existingQuantity,
             newQuantity: img.newQuantity,
@@ -372,9 +376,12 @@ class ScheduleController extends BaseController {
             totalQuantity: img.totalQuantity,
           ),
         );
-        shopQtyListInput.clear();
-        shopQtyListInput.value = mShopList;
       }
+      skListQtyInput.addAll(mShopList);
+      skListQtyInput.refresh();
+      calculateTotal();
+      detailWasAdded.refresh();
+      print("Qty::${skuListInput.length}");
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
@@ -484,7 +491,7 @@ class ScheduleController extends BaseController {
         '${dateController.text}T${timeController.text}'; //todo
     meetingDetail.meetingEndDateTime = DateFormatter.getCurrentDateTimeString();
     meetingDetail.meetingRemarks = remarksController.text;
-    final mNewQtyList = shopQtyListInput.filter((n) => n.editable).toList();
+    final mNewQtyList = skListQtyInput.filter((n) => n.editable).toList();
     quantityList.addAll(mNewQtyList);
     selectedImageCtr.getImagesBase64().forEach((image) {
       final imageMeeting = MeetingImagesList(images: image, type: "shop-front");

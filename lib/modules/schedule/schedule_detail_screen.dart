@@ -147,7 +147,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                               Icons.add,
                               color: Colors.white,
                             ),
-                            disable: false,
+                            disable: controller.detailWasAdded.value,
                             context: context,
                             textColor: Colors.white,
                             onPressed: () {
@@ -183,9 +183,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
                   UploadImageWidget(
                     controller: controller.selectedImageCtr,
-                    enabled:
-                        (!controller.addScheduleLoding.value ||
-                        !controller.detailWasAdded.value),
+                    enabled: (!controller.detailWasAdded.value),
                   ),
 
                   const SizedBox(height: 15),
@@ -335,7 +333,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           editProduct.category = product.category;
           editProduct.prodName = "${product.productName}(${product.sku})";
         } else {
-          controller.shopQtyListInput.add(
+          controller.skListQtyInput.add(
             QuantityDetailsList(
               existingQuantity: eQty,
               newQuantity: nQty,
@@ -349,7 +347,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           );
         }
 
-        controller.shopQtyListInput.refresh();
+        controller.skListQtyInput.refresh();
         controller.calculateTotal();
       }),
       isScrollControlled: true,
@@ -375,6 +373,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   }
 
   Widget listViewOfQtyView(BuildContext context) {
+    print("LLLL${controller.skListQtyInput.length}");
     return Obx(
       () => Column(
         children: [
@@ -439,9 +438,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
           ListView.builder(
             shrinkWrap: true,
-            itemCount: controller.shopQtyListInput.length,
+            itemCount: controller.skListQtyInput.length,
             itemBuilder: (ctx, index) {
-              final model = controller.shopQtyListInput[index];
+              final model = controller.skListQtyInput[index];
               return InkWell(
                 onTap: () {
                   // print("${model.prodName}");
@@ -506,8 +505,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       if (model.editable)
                         InkWell(
                           onTap: () {
-                            controller.shopQtyListInput.remove(model);
-                            controller.shopQtyListInput.refresh();
+                            controller.skListQtyInput.remove(model);
+                            controller.skListQtyInput.refresh();
                             controller.calculateTotal();
                           },
                           child: Icon(Icons.close),
@@ -554,7 +553,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     style: TextStyle(fontSize: 14.0),
                   ),
                 ),
-                SizedBox(width: 20, height: 16),
+                if (controller.detailWasAdded.value)
+                  SizedBox(width: 20, height: 16),
               ],
             ),
           ),
