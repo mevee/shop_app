@@ -1,10 +1,21 @@
+import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/location_service/tracking_service.dart';
+
+import '../data/employee_service.dart';
+import '../data/network/api_endpoint.dart';
+import '../data/preference.dart';
+import '../data/session_pref_impl.dart';
+import '../models/employee_response.dart';
+import '../utils/constants.dart';
 
 // this will be used as notification channel id
 const notificationChannelId = 'my_foreground';
@@ -13,7 +24,9 @@ const notificationId = 888;
 
 class FlutterBgService {
   FlutterBgService._internal();
+
   static final FlutterBgService _instance = FlutterBgService._internal();
+
   factory FlutterBgService() {
     return _instance;
   }
@@ -43,8 +56,8 @@ class FlutterBgService {
         onStart: onStart,
         isForegroundMode: true,
         autoStart: true,
-        notificationChannelId:
-            notificationChannelId, // this must match with notification channel you created above.
+        notificationChannelId: notificationChannelId,
+        // this must match with notification channel you created above.
         initialNotificationTitle: 'Location Tracker Running',
         initialNotificationContent: 'Tracking your location',
         foregroundServiceNotificationId: notificationId,
@@ -80,9 +93,10 @@ void onStart(ServiceInstance service) async {
       service.setAsForegroundService();
     });
   }
-  LocationSyncService syncService = Get.put(LocationSyncService());
-  syncService.loadLocationsFromPrefs();
-  final location = Geolocator(); // or Location()
+  // final location = Geolocator(); // or Location()
+
+  // LocationSyncService syncService = LocationSyncService();
+  // await syncService.loadLocationsFromPrefs();
   // Main tracking loop
   while (true) {
     if (service is AndroidServiceInstance) {
@@ -98,9 +112,73 @@ void onStart(ServiceInstance service) async {
         distanceFilter: 1,
       ),
     );
-    syncService.startRecording(position);
+    // syncService.startRecording(position);
     print('Lat: ${position.latitude}, Lng: ${position.longitude}');
-    await Future.delayed(Duration(seconds: 10));
+    // Save to SharedPreferences or send to server
+    await _syncLocationsWithServer(position);
+    // Delay between updates (minimum 1 second)
+    await Future.delayed(Duration(seconds: 20));
   }
+}
 
+Future<void> _syncLocationsWithServer(Position position) async {
+  // print("_syncLocationsWithServer ::position$position");
+  try {
+    // Get your token from shared preferences
+    final session = SPrefSessiomImpl();
+    await session.initPreferences();
+    final working = session.getIsWorking();
+    final userName = session.getUserData()?.login?.userName;
+    final token = session.getUserToken();
+    // print("try ::userName$userName");
+    if (userName == null || userName.isEmpty) {
+      // lastError = 'User not authenticated';
+      return;
+    }
+    print("try ::working$working");
+    if (working == null || working == false) {
+      return;
+    }
+    // Prepare data to send
+    List<UserDateLatRequest> request = [
+      UserDateLatRequest(
+        userName: userName,
+        lat: position.latitude,
+        lng: position.longitude,
+        loginTime: DateFormatter.getCurrentDateTimeString()
+      ),
+    ];
+    sendLogToServer(token, request);
+  } catch (e) {
+    // lastError = 'Sync error: ${e.toString()}';
+    print("sync ::WORKING$e");
+  }
+}
+
+void sendLogToServer(String? token, List<UserDateLatRequest> request) async {
+  final url = Uri.parse(
+    '${AppConstants.baseUrl}${EndPoints.employeeRouteUpdatePOST}',
+  );
+  if (kDebugMode) {
+    print('request: ${request.map((item) => item.toJson()).toList()}');
+  }
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': '$token', // Add token here
+      },
+      body: json.encode(request.map((item) => item.toJson()).toList()),
+    ).timeout(const Duration(seconds: 20));
+    if (response.statusCode == 200) {
+      if (kDebugMode) {
+        print('Success: ${response.body}');
+      }
+    } else {
+      print('Error: ${response.statusCode} - ${response.body}');
+    }
+  } catch (e) {
+    // print('Exception: $e');
+  }
 }

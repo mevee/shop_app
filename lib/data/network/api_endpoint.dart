@@ -12,7 +12,7 @@ abstract class EndPoints {
   static const userLogoutPOST = '/crm/auth/v1/perform-logout';
   static const employeeClockInPOST = 'crm/auth/v1/employee-attendance';
   static const employeeClockOutPOST = 'crm/auth/v1/employee-attendance-logout';
-  static const employeeRouteUpdatePOST = 'crm/auth/v1/employee-location';
+  static const employeeRouteUpdatePOST = 'crm/employee/v1/employee-location';
   //get-employee-today-total-distance?userName=admin@hamster.com&date=2025-07-12
   static const employeeDistanceGET = 'crm/auth/v1/get-employee-today-total-distance?userName={userName}&date={date}';
   //{{url}}/crm/auth/v1/get-employee-attendance?userName=admin@hamster.com

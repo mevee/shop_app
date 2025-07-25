@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -23,9 +24,7 @@ class HomeController extends BaseController {
   final ScheduleServiceProtocol _scheduleService = Get.find();
   final LoginServiceProtocol _loginService = Get.find();
   final LocationSyncService syncService = Get.put(LocationSyncService());
-
   final FlutterBgService locationService = FlutterBgService();
-
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
 
@@ -43,6 +42,8 @@ class HomeController extends BaseController {
 
   Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
+  Timer? _timer;
+
 
   @override
   void onInit() {
@@ -53,11 +54,13 @@ class HomeController extends BaseController {
   }
 
   void startObs() {
-    ever(syncService.syncCount, (newValue) {
-      print('Count changed to: $newValue');
-      if (newValue != 0) {
-        getEmployeeTravelDistance();
-      }
+    if (_timer != null) {
+      _timer?.cancel();
+    }
+    _timer = Timer.periodic(Duration(seconds: 15), (timer) {
+       if(userManager.getIsWorking()==true){
+         getEmployeeTravelDistance();
+       }
     });
   }
 
@@ -153,12 +156,12 @@ class HomeController extends BaseController {
     );
     try {
       final response = await _employeeService.clockOut(loginData);
-      // if(response.responseCode?.toLowerCase()=="fail"){
-
-      // }else{
-
-      // }
-      getEmployeeAttandance();
+      if(response.responseCode?.toLowerCase()=="success"){
+        AppToast.showToast(message: "Clock out");
+        userManager.setIsWorking(false);
+      }else{
+        AppToast.showToast(message: response.responseCode??"Failed to clock out");
+      }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to clock out";
       AppToast.showToast(message: errorMessage);
@@ -201,6 +204,9 @@ class HomeController extends BaseController {
   }
 
   Future<void> getEmployeeTravelDistance() async {
+    if(userManager.getIsWorking()==false) {
+      return;
+    }
     isLoding.value = true;
     final request = GetDistanceRequest(
       userName: userManager.getUserData()?.login?.userName,

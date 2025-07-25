@@ -10,14 +10,14 @@ import 'package:shop_app/models/employee_response.dart';
 
 class LocationSyncService {
   final EmployeeServiceProtocol employeeService = EmployeeService();
-  final RxList<Map<String, dynamic>> locations = <Map<String, dynamic>>[].obs;
-  final RxString lastSyncStatus = 'Not started'.obs;
-  final RxString lastError = ''.obs;
-  final RxInt syncCount = 0.obs;
+  final List<Map<String, dynamic>> locations = <Map<String, dynamic>>[];
+  String lastSyncStatus = 'Not started';
+  String lastError = '';
+  int syncCount = 0;
   static const String _prefsKey = 'location_logs';
 
   Future<void> startRecording(Position position) async {
-    lastSyncStatus.value = 'Tracking started';
+    lastSyncStatus = 'Tracking started';
     final newLocation = {
       'lat': position.latitude,
       'lng': position.longitude,
@@ -33,23 +33,22 @@ class LocationSyncService {
 
   Future<void> _syncLocationsWithServer() async {
     if (locations.isEmpty && locations.length > 4) {
-      lastSyncStatus.value = 'No locations to sync';
+      lastSyncStatus = 'No locations to sync';
       return;
     }
     try {
-      lastSyncStatus.value = 'Syncing...';
+      lastSyncStatus = 'Syncing...';
       // Get your token from shared preferences
-      final working = Get.find<SPrefSessiomImpl>().getIsWorking();
+      final session = SPrefSessiomImpl();
+      await session.initPreferences();
+      final working = session.getIsWorking();
       if (working == null || working == false) {
-        lastError.value = 'User not working';
+        lastError = 'User not working';
         return;
       }
-      final userName = Get.find<SPrefSessiomImpl>()
-          .getUserData()
-          ?.login
-          ?.userName;
+      final userName = session.getUserData()?.login?.userName;
       if (userName == null || userName.isEmpty) {
-        lastError.value = 'User not authenticated';
+        lastError = 'User not authenticated';
         return;
       }
       // Prepare data to send
@@ -64,18 +63,20 @@ class LocationSyncService {
       if (response.responseCode?.toLowerCase() != "fail") {
         locations.removeRange(0, locationsToSend.length);
         await _saveLocationsToPrefs();
-        syncCount.value++;
-        lastSyncStatus.value = 'Last sync: ${DateTime.now()} - Success';
+        syncCount++;
+        lastSyncStatus = 'Last sync: ${DateTime.now()} - Success';
       } else {
-        lastError.value = 'Sync failed: ${response.responseCode}';
+        lastError = 'Sync failed: ${response.responseCode}';
       }
     } catch (e) {
-      lastError.value = 'Sync error: ${e.toString()}';
+      lastError = 'Sync error: ${e.toString()}';
     }
   }
 
   Future<void> _saveLocationsToPrefs() async {
-    final working = Get.find<SPrefSessiomImpl>().getIsWorking();
+    final session = SPrefSessiomImpl();
+    await session.initPreferences();
+    final working = session.getIsWorking();
     if (working != null && working) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefsKey, jsonEncode(locations));
@@ -90,7 +91,7 @@ class LocationSyncService {
         final List<dynamic> parsed = jsonDecode(locationsJson);
         locations.assignAll(parsed.cast<Map<String, dynamic>>());
       } catch (e) {
-        lastError.value = 'Failed to load locations: ${e.toString()}';
+        lastError = 'Failed to load locations: ${e.toString()}';
       }
     }
   }
