@@ -26,7 +26,7 @@ class ScheduleListView extends GetView<ScheduleController> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: twoState(
-              state: controller.isDateWiseLoding.value,
+              state: controller.isDateWiseLoading.value,
               replace: LinearProgressIndicator(),
               child: scheduleListView(controller.scheduleList),
             ),

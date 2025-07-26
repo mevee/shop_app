@@ -31,8 +31,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           child: Obx(
             () => Opacity(
               opacity:
-                  (controller.past.value && controller.visted.value ||
-                      controller.today.value && controller.visted.value)
+                  (controller.past.value && controller.visited.value ||
+                      controller.today.value && controller.visited.value)
                   ? 0.6
                   : 1,
               child: Column(
@@ -217,20 +217,20 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       visible:
                           (controller.meetingStatus.value ==
                               MeetingStatus.IDEAL) &&
-                          controller.schedue.value.isVisitDone == 0,
+                          controller.schedule.value.isVisitDone == 0,
                       child: buttonWithLoader(
                         disable:
-                            (controller.past.value && controller.visted.value ||
-                            controller.today.value && controller.visted.value ||
-                            controller.updateScheduleLoding.value),
+                            (controller.past.value && controller.visited.value ||
+                            controller.today.value && controller.visited.value ||
+                            controller.updateScheduleLoading.value),
                         label: 'Start Meeting',
                         color: AppColors.primary,
                         textColor: Colors.white,
                         progressColor: Colors.white,
                         onPressed: () => showConfirmDialog(context),
                         isLoading:
-                            (controller.updateScheduleLoding.value ||
-                            controller.isLoding.value),
+                            (controller.updateScheduleLoading.value ||
+                            controller.isLoading.value),
                         context: context,
                       ),
                     ),
@@ -567,7 +567,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     return Obx(
       () =>
           (controller.meetingStatus.value == MeetingStatus.IDEAL ||
-              controller.schedue.value.isVisitDone == 1)
+              controller.schedule.value.isVisitDone == 1)
           ? SizedBox.shrink()
           : Container(
               margin: EdgeInsets.symmetric(vertical: 12),
@@ -596,8 +596,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       disable:
                           (
                           // controller.past.value && controller.visted.value ||
-                          controller.visted.value ||
-                          controller.updateScheduleLoding.value ||
+                          controller.visited.value ||
+                          controller.updateScheduleLoading.value ||
                           controller.remainingSeconds.value != 0),
                       label: 'Submit',
                       color: AppColors.primary,
@@ -607,8 +607,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         Get.back();
                       }),
                       isLoading:
-                          (controller.updateScheduleLoding.value ||
-                          controller.isLoding.value),
+                          (controller.updateScheduleLoading.value ||
+                          controller.isLoading.value),
                       context: context,
                     ),
                   ),

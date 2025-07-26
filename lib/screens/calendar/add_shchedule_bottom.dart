@@ -131,8 +131,8 @@ class AddScheduleBottomSheet extends StatelessWidget {
           const SizedBox(height: 16),
           Obx(
             () => buttonWithLoader(
-              disable: controller.addScheduleLoding.value ? true : false,
-              isLoading: controller.addScheduleLoding.value,
+              disable: controller.addScheduleLoading.value ? true : false,
+              isLoading: controller.addScheduleLoading.value,
               context: context,
               color: AppColors.primaryPurple,
               textColor: Colors.white,

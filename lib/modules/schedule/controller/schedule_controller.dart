@@ -39,19 +39,19 @@ class ScheduleController extends BaseController {
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  RxBool isLoding = false.obs;
-  RxBool isDateWiseLoding = false.obs;
+  RxBool isLoading = false.obs;
+  RxBool isDateWiseLoading = false.obs;
   RxBool isSearchLoading = false.obs;
   RxBool isImageLoading = false.obs;
   RxBool isGetQtyLoading = false.obs;
   RxBool past = false.obs;
   RxBool today = false.obs;
   RxBool future = false.obs;
-  RxBool visted = false.obs;
+  RxBool visited = false.obs;
 
   RxBool scheduleDetailAdded = false.obs;
-  RxBool updateScheduleLoding = false.obs;
-  RxBool addScheduleLoding = false.obs;
+  RxBool updateScheduleLoading = false.obs;
+  RxBool addScheduleLoading = false.obs;
   RxBool isLoginButtonLoading = false.obs;
   Rx<LoginResponse> userData = LoginResponse().obs;
 
@@ -60,6 +60,7 @@ class ScheduleController extends BaseController {
   RxInt totalExtQty = 0.obs;
   RxInt totalNewQty = 0.obs;
   RxDouble totalPrice = (0.0).obs;
+
   void calculateTotal() {
     totalExtQty.value = 0;
     totalNewQty.value = 0;
@@ -75,7 +76,7 @@ class ScheduleController extends BaseController {
   final TextEditingController shopController = TextEditingController();
   ShopMasterModel? selectedShop;
   Rx<String> selectedShopStr = "Select Shop".obs;
-  Rx<ScheduleDateTimeModel> schedue = ScheduleDateTimeModel().obs;
+  Rx<ScheduleDateTimeModel> schedule = ScheduleDateTimeModel().obs;
   String? scheduleDate;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
   RxList<ScheduleDateTimeModel> skuListInput = <ScheduleDateTimeModel>[].obs;
@@ -84,14 +85,14 @@ class ScheduleController extends BaseController {
 
   void resetUi() {
     calculateTotal();
-    skuListInput.clear();
-    schedue.value = ScheduleDateTimeModel();
+    schedule.value = ScheduleDateTimeModel();
     isButtonEnabled.value = false;
     remainingSeconds.value = 0;
     meetingStarted.value = false;
     detailWasAdded.value = false;
     remarksController.text = "";
-    skuListInput.value =[];
+    skuListInput.value = [];
+    skuListInput.refresh();
     closeTime();
   }
 
@@ -103,7 +104,7 @@ class ScheduleController extends BaseController {
   Timer? _timer;
 
   void checkIfMeetingWasStarted() {
-    final meet1 = userManager.getMeetingSession(schedue.value.id.toString());
+    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
     if (meet1 != null && meet1.timeRemainingSeconds > 0) {
       final status = meet1.getMeetingStatusInSeconds();
       if (status['is20MinCompleted']) {
@@ -120,17 +121,17 @@ class ScheduleController extends BaseController {
   }
 
   void saveMeetingTimeLocal() {
-    final meet1 = userManager.getMeetingSession(schedue.value.id.toString());
+    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
     if (meet1 != null) {
       meet1.timeRemainingSeconds = remainingSeconds.value;
-      userManager.saveMeetingSession(schedue.value.id.toString(), meet1);
+      userManager.saveMeetingSession(schedule.value.id.toString(), meet1);
     } else {
       final meeting = MeetingData(
-        sessionId: schedue.value.id.toString(),
+        sessionId: schedule.value.id.toString(),
         timeRemainingSeconds: remainingSeconds.value,
         startTimeMillis: DateTime.now().millisecondsSinceEpoch,
       );
-      userManager.saveMeetingSession(schedue.value.id.toString(), meeting);
+      userManager.saveMeetingSession(schedule.value.id.toString(), meeting);
     }
   }
 
@@ -190,13 +191,12 @@ class ScheduleController extends BaseController {
   void _setInitialDate(Map<String, dynamic>? data) {
     print("setInitialDate(arg$data)");
     resetUi();
-
     if (data?.containsKey('id') == true) {
-      schedue.value = data?['id']!;
+      schedule.value = data?['id']!;
       scheduleDetailAdded.value = false;
       past.value = false;
-      visted.value = false;
-      getScheduleDetails(schedue.value.id);
+      visited.value = false;
+      getScheduleDetails(schedule.value.id);
     } else if (data?.containsKey('date') == true) {
       scheduleDate = data?['date']!;
       getTodaysScheduleList(scheduleDate);
@@ -216,7 +216,7 @@ class ScheduleController extends BaseController {
 
   Future<void> getTodaysScheduleList(String? date) async {
     print("getTodaysScheduleList($date)");
-    isDateWiseLoding.value = true;
+    isDateWiseLoading.value = true;
     try {
       final response = await scheduleService.getScheduleByDate(date);
       if (response.results != null && response.results!.isNotEmpty) {
@@ -235,20 +235,20 @@ class ScheduleController extends BaseController {
     } catch (e) {
       // AppToast.showToast();
     } finally {
-      isDateWiseLoding.value = false;
+      isDateWiseLoading.value = false;
     }
   }
 
   Future<void> getScheduleDetails(int? scheduleId) async {
-    isLoding.value = true;
+    isLoading.value = true;
     try {
       final response = await scheduleService.getScheduleDetails("$scheduleId");
       if (response.results != null && response.results!.isNotEmpty) {
         // scheduleList.value = response.results!.first;
         updaetUiAsPerOldScheduleData(response.results!.first);
-        setUiAsPerSchedule(schedue.value, response.results!.first);
+        setUiAsPerSchedule(schedule.value, response.results!.first);
       } else {
-        setUiAsPerSchedule(schedue.value, null);
+        setUiAsPerSchedule(schedule.value, null);
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -260,7 +260,7 @@ class ScheduleController extends BaseController {
     } catch (e) {
       // AppToast.showToast();
     } finally {
-      isLoding.value = false;
+      isLoading.value = false;
     }
   }
 
@@ -276,6 +276,7 @@ class ScheduleController extends BaseController {
   }
 
   Completer? completer;
+
   Future<void> getShopList(String query) async {
     if (completer != null && !completer!.isCompleted) {
       completer!.complete();
@@ -307,6 +308,7 @@ class ScheduleController extends BaseController {
   }
 
   Completer? loadImagesTask;
+
   Future<void> getImages(String scheduleId) async {
     if (loadImagesTask != null && !loadImagesTask!.isCompleted) {
       loadImagesTask!.complete();
@@ -327,7 +329,7 @@ class ScheduleController extends BaseController {
               imagePath: img.images ?? "",
               canEdit: false,
               isbase64: true,
-          
+
               url: img.images,
             ),
           );
@@ -350,6 +352,7 @@ class ScheduleController extends BaseController {
   }
 
   Completer? loadQtyTask;
+
   Future<void> getQtyList(String scheduleId) async {
     if (loadQtyTask != null && !loadQtyTask!.isCompleted) {
       loadQtyTask!.complete();
@@ -363,11 +366,10 @@ class ScheduleController extends BaseController {
       final response = await loadQtyTask!.future;
       List<QtyResults> result = response.results ?? [];
       final mShopList = <QuantityDetailsList>[];
-
       for (var img in result) {
         mShopList.add(
           QuantityDetailsList(
-            prodName: img.productId?.toString()??"Id:${img.productId}",
+            prodName: img.productId?.toString() ?? "Id:${img.productId}",
             editable: false,
             existingQuantity: img.existingQuantity,
             newQuantity: img.newQuantity,
@@ -377,6 +379,7 @@ class ScheduleController extends BaseController {
           ),
         );
       }
+      skListQtyInput.value = [];
       skListQtyInput.addAll(mShopList);
       skListQtyInput.refresh();
       calculateTotal();
@@ -415,14 +418,15 @@ class ScheduleController extends BaseController {
       userName: userData.value.login?.userName,
       shopId: shop?.id.toString(),
       shopName: shop?.unitName,
-      scheduleDateTime: combinedTime, //todo
+      scheduleDateTime: combinedTime,
+      //todo
       // scheduleDateTime: DateFormatter.to24Format(combinedTime), //todo
       status: "ACTIVE",
       createdBy: userData.value.login?.role,
       day: dateController.text,
       isVisitDone: 0,
     );
-    addScheduleLoding.value = true;
+    addScheduleLoading.value = true;
 
     try {
       final response = await scheduleService.addSchedule(request);
@@ -444,7 +448,7 @@ class ScheduleController extends BaseController {
     } catch (e) {
       // AppToast.showToast();
     } finally {
-      addScheduleLoding.value = false;
+      addScheduleLoading.value = false;
     }
   }
 
@@ -471,7 +475,7 @@ class ScheduleController extends BaseController {
       return;
     }
 
-    updateScheduleLoding.value = true;
+    updateScheduleLoading.value = true;
     final shop = selectedShop;
     final meetingDetail = MeetingDetails();
     final imageList = <MeetingImagesList>[];
@@ -481,7 +485,7 @@ class ScheduleController extends BaseController {
       meetingImagesList: imageList,
       quantityDetailsList: quantityList,
     );
-    meetingDetail.scheduleId = schedue.value.id;
+    meetingDetail.scheduleId = schedule.value.id;
     meetingDetail.shopId = shop?.id;
     meetingDetail.shopName = shop?.unitName;
     meetingDetail.meetingPersonName = shop?.ownerName;
@@ -519,14 +523,14 @@ class ScheduleController extends BaseController {
     } catch (e) {
       // AppToast.showToast();
     } finally {
-      updateScheduleLoding.value = false;
+      updateScheduleLoading.value = false;
     }
   }
 
   void updaetUiAsPerOldScheduleData(SchedulApiResults scheduleApi) {
     scheduleDetailAdded.value = true;
     detailWasAdded.value = true;
-    final mSchedule = schedue.value;
+    final mSchedule = schedule.value;
     mSchedule.createdBy = scheduleApi.createdBy;
     mSchedule.shopName = scheduleApi.shopName;
     shopController.text = scheduleApi.shopName ?? "";
@@ -546,7 +550,7 @@ class ScheduleController extends BaseController {
       dateController.text = dateTimeArray[0];
       timeController.text = dateTimeArray[1];
     }
-    schedue.value = mSchedule;
+    schedule.value = mSchedule;
   }
 
   void setUiAsPerSchedule(
@@ -557,7 +561,7 @@ class ScheduleController extends BaseController {
     today.value = DateFormatter.isToday(value.scheduleDateTime!);
     future.value = DateFormatter.isToday(value.scheduleDateTime!);
 
-    final mSchedule = schedue.value;
+    final mSchedule = schedule.value;
     if (apiResultDetail == null) {
       selectedShop = ShopMasterModel(
         id: int.parse(value.shopId ?? "0"),
@@ -578,7 +582,7 @@ class ScheduleController extends BaseController {
       getQtyList(value.id.toString());
     }
     if (dateTime != null) {}
-    schedue.refresh();
+    schedule.refresh();
     checkIfMeetingWasStarted();
   }
 }

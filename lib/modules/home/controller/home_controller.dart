@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
@@ -16,6 +17,8 @@ import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
+
+import '../../../common/app_log_util.dart';
 
 enum UserState { IDEAL, WORKING, NOT_WORKING }
 
@@ -38,12 +41,11 @@ class HomeController extends BaseController {
   RxBool isPunchOutProgress = false.obs;
 
   Rx<UserState> userState = UserState.IDEAL.obs;
-  RxString distance = "0km".obs;
+  RxString distance = "0 m".obs;
 
   Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
   Timer? _timer;
-
 
   @override
   void onInit() {
@@ -58,9 +60,9 @@ class HomeController extends BaseController {
       _timer?.cancel();
     }
     _timer = Timer.periodic(Duration(seconds: 15), (timer) {
-       if(userManager.getIsWorking()==true){
-         getEmployeeTravelDistance();
-       }
+      if (userManager.getIsWorking() == true) {
+        getEmployeeTravelDistance();
+      }
     });
   }
 
@@ -156,11 +158,13 @@ class HomeController extends BaseController {
     );
     try {
       final response = await _employeeService.clockOut(loginData);
-      if(response.responseCode?.toLowerCase()=="success"){
+      if (response.responseCode?.toLowerCase() == "success") {
         AppToast.showToast(message: "Clock out");
         userManager.setIsWorking(false);
-      }else{
-        AppToast.showToast(message: response.responseCode??"Failed to clock out");
+      } else {
+        AppToast.showToast(
+          message: response.responseCode ?? "Failed to clock out",
+        );
       }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to clock out";
@@ -204,9 +208,11 @@ class HomeController extends BaseController {
   }
 
   Future<void> getEmployeeTravelDistance() async {
-    if(userManager.getIsWorking()==false) {
-      return;
-    }
+    // if (userManager.getIsWorking() == false) {
+    //   return;
+    // }
+    aLog("getEmployeeTravelDistance()");
+
     isLoding.value = true;
     final request = GetDistanceRequest(
       userName: userManager.getUserData()?.login?.userName,
@@ -216,10 +222,11 @@ class HomeController extends BaseController {
       final response = await _employeeService.getEmployeeTravelDistance(
         request,
       );
+      aLog("response::${response.results}");
       if (response.results != null && response.results!.isNotEmpty) {
-        distance.value = "${response.results!.first.toStringAsFixed(2)} km";
+        distance.value = "${response.results!.first.toStringAsFixed(2)} m";
       } else {
-        distance.value = "0 km";
+        distance.value = "0 m";
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
@@ -269,8 +276,6 @@ class HomeController extends BaseController {
           // attandanceObj.value.isLoggedIn =
         }
       }
-      getEmployeeTravelDistance();
-
       print("userState:::${userState.value}");
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
