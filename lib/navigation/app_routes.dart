@@ -13,6 +13,8 @@ abstract class Routes {
   static const scheduleDetail = _Paths.scheduleDetail;
   static const scheduleList = _Paths.scheduleList;
   static const createShop = _Paths.createShop;
+  static const schedule = _Paths.createShop;
+  static const manager = _Paths.manager;
 }
 
 abstract class _Paths {
@@ -27,4 +29,5 @@ abstract class _Paths {
   static const profile = '/profile';
   static const scheduleDetail = '/schedule-detail';
   static const createShop = '/create-shop';
+  static const manager = '/manager';
 }

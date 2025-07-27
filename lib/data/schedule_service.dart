@@ -4,7 +4,6 @@ import 'package:shop_app/data/network/api_endpoint.dart';
 import 'package:shop_app/data/network/base_network_client.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/add_schedule_request.dart';
-import 'package:shop_app/models/employee_response.dart';
 import 'package:shop_app/models/schedule_detail_request.dart';
 import 'package:shop_app/models/schedule_detail_response.dart';
 import 'package:shop_app/models/schedule_image_response.dart';
@@ -16,12 +15,14 @@ import 'package:shop_app/models/update_schedule_request.dart';
 abstract class ScheduleServiceProtocol {
   Future<CommonModel> addSchedule(AddScheduleRequest request); //d
   Future<CommonModel> updateSchedule(UpdateScheduleRequest request); //d
-  Future<CommonModel> addScheduleDetail(
-    ScheduleDetailRequest request,
-  ); //d
+  Future<CommonModel> cancelSchedule(UpdateScheduleRequest request); //d
+  Future<CommonModel> addScheduleDetail(ScheduleDetailRequest request); //d
 
   Future<ScheduleListResponse> getScheduleByMonth(String? month);
+
   Future<ScheduleListResponse> getScheduleByDate(String? date);
+
+  Future<CommonModel> updateAuthorizeSchedule(AuthorizeRequest request);
 
   Future<ShopProductResponse> getProductDetails(); //d
 
@@ -56,9 +57,7 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<CommonModel> updateSchedule(
-    UpdateScheduleRequest request,
-  ) async {
+  Future<CommonModel> updateSchedule(UpdateScheduleRequest request) async {
     const endPoint = EndPoints.addEmployeeScheduleDetailPOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
@@ -81,9 +80,53 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<CommonModel> addScheduleDetail(
-    ScheduleDetailRequest request,
-  ) async {
+  Future<CommonModel> cancelSchedule(UpdateScheduleRequest request) async {
+    const endPoint = EndPoints.cancelScheduleDetailPOST;
+    try {
+      final response = await client.post(endPoint, data: request.toJson());
+      return CommonModel.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CommonModel> updateAuthorizeSchedule(AuthorizeRequest request) async {
+    const endPoint = EndPoints.authorizeSchedulePOST;
+    try {
+      final response = await client.post(endPoint, data: request.toJson());
+      return CommonModel.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CommonModel> addScheduleDetail(ScheduleDetailRequest request) async {
     const endPoint = EndPoints.addEmployeeScheduleDetailPOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());

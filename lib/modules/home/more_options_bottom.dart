@@ -50,15 +50,21 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
               child: ListView.builder(
                 itemCount: ["Logout", "Change Password"].length,
                 itemBuilder: (context, index) {
-                  final list = ["Logout", "Change Password"];
+                  final list = [
+                    "Manage Schedules",
+                    "Change Password",
+                    "Logout",
+                  ];
                   final model = list[index];
                   return InkWell(
                     borderRadius: BorderRadius.circular(8.0),
                     onTap: () {
                       if (index == 0) {
-                        controller.logout();
-                      } else {
+                        Get.toNamed(Routes.manager);
+                      } else if (index == 1) {
                         Get.toNamed(Routes.passwordUpdate);
+                      } else {
+                        controller.logout();
                       }
                     },
                     child: Container(

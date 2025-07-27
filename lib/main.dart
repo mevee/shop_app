@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).primaryTextTheme,
         ),
       ),
-      initialRoute: Routes.splash,
+      initialRoute: Routes.manager,
       getPages: AppPages.routes,
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,

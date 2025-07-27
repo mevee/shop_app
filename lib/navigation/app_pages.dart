@@ -13,6 +13,8 @@ import 'package:shop_app/modules/shop_master/add_shop_screen.dart';
 import 'package:shop_app/modules/shop_master/binding/schedule_binding.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 
+import '../modules/manager/binding/manager_binding.dart';
+import '../modules/manager/manager_screen.dart';
 import '../modules/splash/views/splash_view.dart';
 
 part 'app_routes.dart';
@@ -68,11 +70,12 @@ class AppPages {
       page: () => AddShopMasterScreen(),
       binding: ShopMasterBinding(),
     ),
-    // GetPage(
-    //   name: _Paths.profile,
-    //   page: () => const ProfileView(),
-    //   binding: ProfileBinding(),
-    // ),
+
+    GetPage(
+      name: _Paths.manager,
+      page: () => const ManagerScreen(),
+      binding: ManagerBinding(),
+    ),
     // GetPage(
     //   name: _Paths.onboarding,
     //   page: () => const OnboardingView(),

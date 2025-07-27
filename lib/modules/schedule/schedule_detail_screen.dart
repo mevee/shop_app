@@ -190,7 +190,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   // Remarks MultiText Box
                   TextFormField(
                     controller: controller.remarksController,
-                    maxLines: 4, // Allows for multiple lines of input
+                    maxLines: 4,
+                    // Allows for multiple lines of input
                     keyboardType: TextInputType.multiline,
                     onTapOutside: (event) => FocusScope.of(context).unfocus(),
                     decoration: InputDecoration(
@@ -220,14 +221,56 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                           controller.schedule.value.isVisitDone == 0,
                       child: buttonWithLoader(
                         disable:
-                            (controller.past.value && controller.visited.value ||
-                            controller.today.value && controller.visited.value ||
+                            (controller.past.value &&
+                                controller.visited.value ||
+                            controller.today.value &&
+                                controller.visited.value ||
                             controller.updateScheduleLoading.value),
                         label: 'Start Meeting',
                         color: AppColors.primary,
                         textColor: Colors.white,
                         progressColor: Colors.white,
-                        onPressed: () => showConfirmDialog(context),
+                        onPressed: () => showConfirmDialog(
+                          context,
+                          'Are you sure you want to start meeting?',
+                          () {
+                            controller.startCountdown();
+                          },
+                        ),
+
+                        isLoading:
+                            (controller.updateScheduleLoading.value ||
+                            controller.isLoading.value),
+                        context: context,
+                      ),
+                    ),
+                  ),
+                  Obx(
+                    () => Visibility(
+                      visible:
+                          (controller.meetingStatus.value ==
+                              MeetingStatus.IDEAL) &&
+                          controller.schedule.value.isVisitDone == 0,
+                      child: buttonWithLoader(
+                        disable:
+                            (controller.past.value &&
+                                controller.visited.value ||
+                            controller.today.value &&
+                                controller.visited.value ||
+                            controller.updateScheduleLoading.value),
+                        label: 'Cancel',
+                        color: AppColors.primary,
+                        textColor: Colors.white,
+                        progressColor: Colors.white,
+                        onPressed: () => showConfirmDialog(
+                          context,
+                          'Are you sure you want to cancel meeting?',
+                          () {
+                            controller.cancelMeeting((){
+                              Get.back();
+                            });
+                          },
+                        ),
                         isLoading:
                             (controller.updateScheduleLoading.value ||
                             controller.isLoading.value),
@@ -246,17 +289,19 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   }
 
   // Function to show date picker
-  Future<void> showConfirmDialog(BuildContext context) async {
+  Future<void> showConfirmDialog(
+    BuildContext context,
+    String message,
+    Function() onConfirm,
+  ) async {
     showCustomDialog(
       context: context,
-      title: 'Confirmation',
-      message: 'Are you sure you want to start meeting?',
+      title: '',
+      message: message,
       primaryButtonText: 'Yes',
       secondaryButtonText: 'No',
       isDestructiveAction: true,
-      onPrimaryPressed: () {
-        controller.startCountdown();
-      },
+      onPrimaryPressed: () => onConfirm,
       onSecondaryPressed: () {},
     );
   }

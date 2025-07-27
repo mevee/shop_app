@@ -24,7 +24,7 @@ import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/update_schedule_request.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-enum MeetingStatus { IDEAL, STARTED, END }
+enum MeetingStatus { IDEAL, STARTED, END, CANCELLED }
 
 class ScheduleController extends BaseController {
   final SessionPref _userManager = Get.find();
@@ -197,9 +197,15 @@ class ScheduleController extends BaseController {
       past.value = false;
       visited.value = false;
       getScheduleDetails(schedule.value.id);
+      if (schedule.value.isVisitDone == 2) {
+        meetingStatus.value = MeetingStatus.CANCELLED;
+      }
     } else if (data?.containsKey('date') == true) {
       scheduleDate = data?['date']!;
       getTodaysScheduleList(scheduleDate);
+      if (schedule.value.isVisitDone == 2) {
+        meetingStatus.value = MeetingStatus.CANCELLED;
+      }
     }
     loadUserData();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -510,6 +516,58 @@ class ScheduleController extends BaseController {
         );
       } else {
         closeTime();
+        onDone();
+        AppToast.showToast(message: 'Schedule update successfully!');
+      }
+    } on DioException catch (e) {
+      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
+      // AppToast.showToast(message: errorMessage);
+    } on SocketException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+    } on ServerException catch (e) {
+      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+    } catch (e) {
+      // AppToast.showToast();
+    } finally {
+      updateScheduleLoading.value = false;
+    }
+  }
+
+  Future<void> cancelMeeting(Function() onDone) async {
+    updateScheduleLoading.value = true;
+    final shop = selectedShop;
+    final meetingDetail = MeetingDetails();
+    final imageList = <MeetingImagesList>[];
+    final quantityList = <QuantityDetailsList>[];
+    final request = UpdateScheduleRequest(
+      meetingDetails: meetingDetail,
+      meetingImagesList: imageList,
+      quantityDetailsList: quantityList,
+    );
+    meetingDetail.scheduleId = schedule.value.id;
+    meetingDetail.shopId = shop?.id;
+    meetingDetail.shopName = shop?.unitName;
+    meetingDetail.meetingPersonName = shop?.ownerName;
+    meetingDetail.meetingPersonContactNumber = shop?.mobileNumber;
+
+    meetingDetail.meetingStartDateTime =
+        '${dateController.text}T${timeController.text}'; //todo
+    meetingDetail.meetingEndDateTime = DateFormatter.getCurrentDateTimeString();
+    meetingDetail.meetingRemarks = remarksController.text;
+    final mNewQtyList = skListQtyInput.filter((n) => n.editable).toList();
+    quantityList.addAll(mNewQtyList);
+    selectedImageCtr.getImagesBase64().forEach((image) {
+      final imageMeeting = MeetingImagesList(images: image, type: "shop-front");
+      imageList.add(imageMeeting);
+    });
+
+    try {
+      final response = await scheduleService.cancelSchedule(request);
+      if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
+        AppToast.showToast(
+          message: response.responseMessage ?? 'Failed to add schedule.',
+        );
+      } else {
         onDone();
         AppToast.showToast(message: 'Schedule update successfully!');
       }

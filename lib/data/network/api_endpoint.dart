@@ -29,12 +29,15 @@ abstract class EndPoints {
   static const addEmployeeSchedulePOST = 'crm/employee/v1/add-employee-schedule';
   static const updateEmployeeSchedulePOST = 'crm/employee/v1/update-employee-schedule';
   static const addEmployeeScheduleDetailPOST = 'crm/employee/v1/add-employee-schedule-details';
-     
+  static const cancelScheduleDetailPOST = 'crm/employee/v1/cancel-employee-schedule-details';
+
+  static const authorizeSchedulePOST = 'crm/employee/v1/authorized-employee-schedule';
   //Shop master
   // {{url}}/crm/shop/v1/get-shop-list-by-name?shopName=
   static const shopListGET = 'crm/shop/v1/get-shop-list';
   //  get-shop-list-by-name?shopName=star&pageNumber=0&pageSize=10
   static const shopListSearchGET = 'crm/shop/v1/get-shop-list-by-name?shopName={shopName}&pageNumber={pageNumber}&pageSize={pageSize}';
+  static const shopWholeSaleListSearchGET = 'crm/whole-seller/v1/get-whole-seller-list-by-name?wholeSellerName={shopName}&pageNumber={pageNumber}&pageSize={pageSize}';
   static const addSShopPOST = '/crm/shop/v1/add-shop';
 
 

@@ -148,3 +148,25 @@ class QuantityDetailsList {
     return data;
   }
 }
+
+class AuthorizeRequest {
+  int? id;
+  String? isAuthorized;
+  String? authorizedRemarks;
+
+  AuthorizeRequest({this.isAuthorized, this.authorizedRemarks,this.id});
+
+  AuthorizeRequest.fromJson(Map<String, dynamic> json) {
+    isAuthorized = json['images'];
+    authorizedRemarks = json['authorizedRemarks'];
+    id = json['id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['images'] = isAuthorized;
+    data['authorizedRemarks'] = authorizedRemarks;
+    data['id'] = id;
+    return data;
+  }
+}

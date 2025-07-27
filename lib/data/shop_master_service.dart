@@ -12,6 +12,8 @@ abstract class ShopMasterServiceProtocol {
   Future<ProductMasterListResponse> getSkuList(); //d
   Future<List<ShopMasterModel>> getShopList(); //d
   Future<ShopMasterListResponse> getShopByName(String query);
+
+  Future<ShopMasterListResponse> getWholeSellerName(String query);
 }
 
 class ShopMasterService extends BaseNetworkClient
@@ -100,6 +102,38 @@ class ShopMasterService extends BaseNetworkClient
     endPoint = endPoint.replaceAll("{pageSize}", "100");
     endPoint = endPoint.replaceAll("{pageNumber}", "0");
 
+    try {
+      final response = await client.get(endPoint);
+      // final List<ShopMasterResponse> shopList = [];
+      // if (response.data is List) {
+      //   response.data.forEach((element) {
+      //     shopList.add(ShopMasterResponse.fromJson(element));
+      //   });
+      // }
+      return ShopMasterListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ShopMasterListResponse> getWholeSellerName(String query) async {
+    var endPoint = EndPoints.shopWholeSaleListSearchGET;
+    endPoint = endPoint.replaceAll("{shopName}", query);
+    endPoint = endPoint.replaceAll("{pageSize}", "100");
+    endPoint = endPoint.replaceAll("{pageNumber}", "0");
     try {
       final response = await client.get(endPoint);
       // final List<ShopMasterResponse> shopList = [];
