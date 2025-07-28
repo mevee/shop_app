@@ -84,6 +84,12 @@ class ScheduleListView extends GetView<ScheduleController> {
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
                         color: AppColors.white,
+                        decoration: log.isVisitDone == 2
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: Colors.black, // Line color
+                          decorationThickness: 2.0, // Line thickness
+                          decorationStyle: TextDecorationStyle.dashed,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,

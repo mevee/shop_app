@@ -48,14 +48,9 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: ["Logout", "Change Password"].length,
+                itemCount:controller.moreOtions.length,
                 itemBuilder: (context, index) {
-                  final list = [
-                    "Manage Schedules",
-                    "Change Password",
-                    "Logout",
-                  ];
-                  final model = list[index];
+                  final model = controller.moreOtions[index];
                   return InkWell(
                     borderRadius: BorderRadius.circular(8.0),
                     onTap: () {
@@ -86,13 +81,13 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
                       child: Row(
                         children: [
                           Icon(
-                            index == 0 ? Icons.logout : Icons.password,
+                            model.iconData,
                             color: Colors.blueAccent,
                           ),
                           horizontalSpacing(8),
                           Text(
                             maxLines: 1,
-                            model,
+                            model.label,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,

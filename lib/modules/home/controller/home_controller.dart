@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
@@ -21,6 +22,11 @@ import 'package:shop_app/navigation/app_pages.dart';
 import '../../../common/app_log_util.dart';
 
 enum UserState { IDEAL, WORKING, NOT_WORKING }
+class OptionModel{
+  String label;
+  IconData iconData;
+  OptionModel({required this.label,required this.iconData});  
+}
 
 class HomeController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
@@ -30,6 +36,12 @@ class HomeController extends BaseController {
   final FlutterBgService locationService = FlutterBgService();
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
+  
+   final moreOtions = [
+    OptionModel(label:"Manage Schedules",iconData:  Icons.manage_accounts),
+    OptionModel(label:"Change Password",iconData:  Icons.manage_accounts),
+    OptionModel(label:"Logout",iconData:  Icons.logout_outlined),
+                ];
 
   final RxBool isObscureNewPassword = true.obs;
   RxBool isTodaysLoding = false.obs;

@@ -33,8 +33,10 @@ class HomeScreen extends GetView<HomeController> {
                       child: Obx(
                         () => buttonWithLoader(
                           disable:
-                              (controller.userState.value == UserState.WORKING ||
-                              controller.userState.value == UserState.NOT_WORKING ||
+                              (controller.userState.value ==
+                                      UserState.WORKING ||
+                                  controller.userState.value ==
+                                      UserState.NOT_WORKING ||
                                   controller.isPunchInProgress.value)
                               ? true
                               : false,
@@ -56,7 +58,8 @@ class HomeScreen extends GetView<HomeController> {
                         () => buttonWithLoader(
                           disable:
                               (controller.userState.value == UserState.IDEAL ||
-                              controller.userState.value == UserState.NOT_WORKING ||
+                                  controller.userState.value ==
+                                      UserState.NOT_WORKING ||
                                   controller.isPunchOutProgress.value)
                               ? true
                               : false,
@@ -155,6 +158,12 @@ class HomeScreen extends GetView<HomeController> {
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
                           color: AppColors.white,
+                          decoration: log.isVisitDone == 2
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: Colors.black, // Line color
+                          decorationThickness: 2.0, // Line thickness
+                          decorationStyle: TextDecorationStyle.dashed,
                         ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
@@ -223,7 +232,11 @@ class HomeScreen extends GetView<HomeController> {
                           ),
                         ),
                         horizontalSpace(8),
-                        Obx(() => circleDot(controller.userState.value == UserState.WORKING)),
+                        Obx(
+                          () => circleDot(
+                            controller.userState.value == UserState.WORKING,
+                          ),
+                        ),
                       ],
                     ),
                     Row(
@@ -266,8 +279,9 @@ class HomeScreen extends GetView<HomeController> {
                         Obx(
                           () => Flexible(
                             child: Text(
-                              controller.userData.value.login?.managerName ?? "",
-                              overflow:TextOverflow.clip ,
+                              controller.userData.value.login?.managerName ??
+                                  "",
+                              overflow: TextOverflow.clip,
                               softWrap: true,
                               style: GoogleFonts.poppins(
                                 fontSize: 14,

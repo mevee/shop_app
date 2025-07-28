@@ -76,10 +76,35 @@ class SelectShopBottomSheet extends StatelessWidget {
                 },
               ),
             ),
+
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Retail Only",
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w400),
+                  ),
+                  horizontalSpacing(4),
+                  Obx(
+                    () => Checkbox(
+                      value: controller.isRetail.value,
+                      onChanged: (value) {
+                        controller.isRetail.value = value ?? true;
+                        controller.getShopList(controller.searchCtr.text);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Obx(() => prgressAndNoDatFound(controller.isSearchLoading.value)),
             Obx(
               () => Expanded(
                 child: ListView.builder(
+                  shrinkWrap: true,
                   itemCount: controller.shopDetailsOptions.length,
                   itemBuilder: (context, index) {
                     final shop = controller.shopDetailsOptions[index];
@@ -103,19 +128,21 @@ class SelectShopBottomSheet extends StatelessWidget {
                               width: 0.7,
                             ),
                           ),
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.store, color: Colors.black),
+                            Icon(Icons.store, color: AppColors.primary),
                             horizontalSpacing(8),
-                            Text(
-                              maxLines: 3,
-                              "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                            Flexible(
+                              child: Text(
+                                // maxLines: 3,
+                                "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ),
                           ],
@@ -150,7 +177,7 @@ class SelectShopBottomSheet extends StatelessWidget {
       return Expanded(
         child: Center(
           child: Text(
-            "No Shops Found",
+            "No ${controller.isRetail.value?'Retail':'Whole Sale'} Shops Found",
             style: TextStyle(color: AppColors.neutral400),
           ),
         ),

@@ -20,7 +20,8 @@ void main() async {
     ),
   );
   // Start background service
-  // await initializeBackgroundService();
+
+  // await FlutterBgService().initializeService();
   runApp(const MyApp());
 }
 
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).primaryTextTheme,
         ),
       ),
-      initialRoute: Routes.manager,
+      initialRoute: Routes.splash,
       getPages: AppPages.routes,
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,

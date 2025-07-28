@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
@@ -36,6 +37,7 @@ class ScheduleController extends BaseController {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
+  RxBool isRetail = true.obs;
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -117,6 +119,9 @@ class ScheduleController extends BaseController {
     } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
       isButtonEnabled.value = false;
       meetingStatus.value = MeetingStatus.END;
+    }
+    if (schedule.value.isVisitDone == 2) {
+      meetingStatus.value = MeetingStatus.CANCELLED;
     }
   }
 
@@ -203,9 +208,6 @@ class ScheduleController extends BaseController {
     } else if (data?.containsKey('date') == true) {
       scheduleDate = data?['date']!;
       getTodaysScheduleList(scheduleDate);
-      if (schedule.value.isVisitDone == 2) {
-        meetingStatus.value = MeetingStatus.CANCELLED;
-      }
     }
     loadUserData();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -295,19 +297,29 @@ class ScheduleController extends BaseController {
     completer = Completer();
     isSearchLoading.value = true;
     try {
-      final future = masterService.getShopByName(query);
+      final future = isRetail.value
+          ? masterService.getShopByName(query)
+          : masterService.getWholeSellerName(query);
       completer?.complete(future);
       final response = await completer!.future;
       shopDetailsOptions.value = response.results ?? [];
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
+      shopDetailsOptions.value = [];
+      shopDetailsOptions.refresh();
     } on SocketException catch (e) {
       // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      shopDetailsOptions.value = [];
+      shopDetailsOptions.refresh();
     } on ServerException catch (e) {
       // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      shopDetailsOptions.value = [];
+      shopDetailsOptions.refresh();
     } catch (e) {
       // AppToast.showToast();
+      shopDetailsOptions.value = [];
+      shopDetailsOptions.refresh();
     } finally {
       isSearchLoading.value = false;
     }
@@ -533,7 +545,7 @@ class ScheduleController extends BaseController {
     }
   }
 
-  Future<void> cancelMeeting(Function() onDone) async {
+  Future<void> cancelMeeting() async {
     updateScheduleLoading.value = true;
     final shop = selectedShop;
     final meetingDetail = MeetingDetails();
@@ -568,16 +580,17 @@ class ScheduleController extends BaseController {
           message: response.responseMessage ?? 'Failed to add schedule.',
         );
       } else {
-        onDone();
-        AppToast.showToast(message: 'Schedule update successfully!');
+        Get.back(canPop: true);
+        AppToast.showToast(message: 'Schedule cancelled successfully!');
       }
+      aLog("cancelSchedule${response.responseMessage}");
     } on DioException catch (e) {
-      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
-      // AppToast.showToast(message: errorMessage);
+      final errorMessage = e.response?.data['error'] ?? "Failed to cancelled";
+      AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      AppToast.showToast(message: e.message ?? "Failed to cancelled");
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      AppToast.showToast(message: e.message ?? "Failed to cancelled");
     } catch (e) {
       // AppToast.showToast();
     } finally {

@@ -11,6 +11,7 @@ import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/modules/shop_master/add_product_bottom.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/screens/calendar/shop_select_bottom.dart';
+import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class ScheduleDetailView extends GetView<ScheduleController> {
@@ -187,6 +188,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
 
                   const SizedBox(height: 15),
+
                   // Remarks MultiText Box
                   TextFormField(
                     controller: controller.remarksController,
@@ -213,70 +215,75 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Obx(
-                    () => Visibility(
-                      visible:
-                          (controller.meetingStatus.value ==
-                              MeetingStatus.IDEAL) &&
-                          controller.schedule.value.isVisitDone == 0,
-                      child: buttonWithLoader(
-                        disable:
-                            (controller.past.value &&
-                                controller.visited.value ||
-                            controller.today.value &&
-                                controller.visited.value ||
-                            controller.updateScheduleLoading.value),
-                        label: 'Start Meeting',
-                        color: AppColors.primary,
-                        textColor: Colors.white,
-                        progressColor: Colors.white,
-                        onPressed: () => showConfirmDialog(
-                          context,
-                          'Are you sure you want to start meeting?',
-                          () {
-                            controller.startCountdown();
-                          },
-                        ),
 
-                        isLoading:
-                            (controller.updateScheduleLoading.value ||
-                            controller.isLoading.value),
-                        context: context,
-                      ),
-                    ),
-                  ),
-                  Obx(
-                    () => Visibility(
-                      visible:
-                          (controller.meetingStatus.value ==
-                              MeetingStatus.IDEAL) &&
-                          controller.schedule.value.isVisitDone == 0,
-                      child: buttonWithLoader(
-                        disable:
-                            (controller.past.value &&
-                                controller.visited.value ||
-                            controller.today.value &&
-                                controller.visited.value ||
-                            controller.updateScheduleLoading.value),
-                        label: 'Cancel',
-                        color: AppColors.primary,
-                        textColor: Colors.white,
-                        progressColor: Colors.white,
-                        onPressed: () => showConfirmDialog(
-                          context,
-                          'Are you sure you want to cancel meeting?',
-                          () {
-                            controller.cancelMeeting((){
-                              Get.back();
-                            });
-                          },
+                  Row(
+                    children: [
+                      Obx(
+                        () => Visibility(
+                          visible:
+                              (controller.meetingStatus.value !=
+                                  MeetingStatus.CANCELLED),
+                          child: Expanded(
+                            child: buttonWithLoader(
+                              disable:
+                                  (controller.meetingStatus.value ==
+                                    MeetingStatus.CANCELLED ||
+                                  controller.updateScheduleLoading.value),
+                              label: 'Cancel',
+                              color: AppColors.lightGrey,
+                              textColor: Colors.black,
+                              progressColor: Colors.black,
+                              onPressed: () => showConfirmDialog(
+                                context,
+                                'Are you sure you want to cancel meeting?',
+                                () {
+                                  controller.cancelMeeting();
+                                },
+                              ),
+                              isLoading:
+                                  (controller.updateScheduleLoading.value ||
+                                  controller.isLoading.value),
+                              context: context,
+                            ),
+                          ),
                         ),
-                        isLoading:
-                            (controller.updateScheduleLoading.value ||
-                            controller.isLoading.value),
-                        context: context,
                       ),
-                    ),
+                      horizontalSpacing(16),
+                      Obx(
+                        () => Visibility(
+                          visible:
+                              (controller.meetingStatus.value ==
+                                  MeetingStatus.IDEAL) &&
+                              controller.schedule.value.isVisitDone == 0,
+                          child: Expanded(
+                            child: buttonWithLoader(
+                              disable:
+                                  (controller.past.value &&
+                                      controller.visited.value ||
+                                  controller.today.value &&
+                                      controller.visited.value ||
+                                  controller.updateScheduleLoading.value),
+                              label: 'Start Meeting',
+                              color: AppColors.primary,
+                              textColor: Colors.white,
+                              progressColor: Colors.white,
+                              onPressed: () => showConfirmDialog(
+                                context,
+                                'Are you sure you want to start meeting?',
+                                () {
+                                  controller.startCountdown();
+                                },
+                              ),
+                          
+                              isLoading:
+                                  (controller.updateScheduleLoading.value ||
+                                  controller.isLoading.value),
+                              context: context,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -296,12 +303,12 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   ) async {
     showCustomDialog(
       context: context,
-      title: '',
+      title: 'Confirm',
       message: message,
       primaryButtonText: 'Yes',
       secondaryButtonText: 'No',
       isDestructiveAction: true,
-      onPrimaryPressed: () => onConfirm,
+      onPrimaryPressed: onConfirm,
       onSecondaryPressed: () {},
     );
   }

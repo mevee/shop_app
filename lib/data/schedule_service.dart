@@ -86,7 +86,7 @@ class ScheduleService extends BaseNetworkClient
       final response = await client.post(endPoint, data: request.toJson());
       return CommonModel.fromJson(response.data);
     } on DioException catch (e) {
-      // Handle Dio-specific errors
+      // Handle Dio-specific errorsr
       if (e.response != null) {
         // You can throw a custom exception or return an error response
         throw ServerException(

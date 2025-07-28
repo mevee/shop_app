@@ -97,7 +97,14 @@ class CalendarScreen extends GetView<CallenderController> {
                         ),
                         child: Text(
                           item.shopName ?? 'No Data',
-                          style: TextStyle(fontSize: 9.0, color: Colors.white),
+                          style: TextStyle(fontSize: 9.0, color: Colors.white,
+                           decoration: item.isVisitDone == 2
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: Colors.black, // Line color
+                          decorationThickness: 2.0, // Line thickness
+                          decorationStyle: TextDecorationStyle.dashed,
+                          ),
                           overflow: TextOverflow.clip, // Truncate long text
                           maxLines: 1,
                         ),
