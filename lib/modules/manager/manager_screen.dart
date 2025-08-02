@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
-import 'package:shop_app/modules/manager/view/manger_action_bottom_view.dart';
+import 'package:shop_app/models/agent_list_response.dart';
+import 'package:shop_app/models/schedule_list_response.dart';
+import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/helper.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
 import 'controller/manager_controller.dart';
 
@@ -24,87 +28,87 @@ class ManagerScreen extends GetView<ManagerController> {
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
         child: Column(
           children: [
-            // Obx(
-            //   () => TextField(
-            //     controller: controller.searchCtr,
-            //     onTapOutside: (event) => FocusScope.of(context).unfocus(),
-            //     decoration: InputDecoration(
-            //       hintText: "Search Shop",
-            //       prefixIcon: Icon(Icons.search, color: AppColors.neutral400),
-            //       border: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(8.0),
-            //         borderSide: BorderSide(color: AppColors.lightGrey),
-            //       ),
-            //       suffix: controller.isLoading.value
-            //           ? SizedBox(
-            //               width: 20,
-            //               height: 20,
-            //               child: CircularProgressIndicator(
-            //                 color: AppColors.primaryAccent,
-            //               ),
-            //             )
-            //           : null,
-            //     ),
-            //     onChanged: (value) {
-            //       if (value.isNotEmpty) {
-            //         controller.searchShopList(value);
-            //       }
-            //     },
-            //   ),
-            // ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 12,
+                bottom: 8,
+                left: 16,
+                right: 16,
+              ),
+              child: Obx(
+                () => SizedBox(
+                  width: double.maxFinite,
+                  child: GenericDropdown<AgentModel>(
+                    options: controller.agentList.value,
+                    selectedOption: controller.agent,
+                    hintText: "Select User",
+                    onChanged: (value) {
+                      controller.agent = value;
+                      controller.selectedAgent.value = value?.userName ?? "";
+                      controller.getTodaysScheduleList();
+                    },
+                  ),
+                ),
+              ),
+            ),
             Obx(() => progressAndNoDatFound(controller.isLoading.value)),
+            Obx(
+              () => Visibility(
+                visible: controller.isActionLoading.value,
+                child: Center(
+                  child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+            ),
             Obx(
               () => Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: controller.scheduleList.length,
                   itemBuilder: (context, index) {
-                    final schedule = controller.scheduleList[index];
+                    final model = controller.scheduleList[index];
                     return InkWell(
                       borderRadius: BorderRadius.circular(8.0),
-                      onTap: () {
-                        Get.bottomSheet(
-                          ManagerActionScheduleView(schedule),
-                          isScrollControlled: true,
-                          backgroundColor: Colors.white,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                               Radius.circular(8.0),
-                            ),
-                          ),
-                        );
-                      },
+
                       child: Container(
                         margin: const EdgeInsets.all(6.0),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 8.0,
+                        padding: const EdgeInsets.only(
+                          top: 8.0,
+                          bottom: 5.0,
+                          left: 8.0,
+                          right: 8.0,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black87.withOpacity(.5),
-                              width: 0.7,
-                            ),
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
+                          color: AppColors.neutral200,
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
-                        child: Row(
+                        child: Column(
                           children: [
-                            Icon(Icons.book_online_rounded, color: AppColors.primary,size: 24,),
-                            horizontalSpacing(8),
-                            Expanded(
-                              child: Text(
-                                // maxLines: 6,
-                                "${schedule.shopName ?? 'Unknown Schedule'}\nDate:${schedule.scheduleDateTime}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.book_online_rounded,
+                                  color: AppColors.primary,
+                                  size: 24,
                                 ),
-                              ),
+                                horizontalSpacing(8),
+                                Expanded(
+                                  child: Text(
+                                    "SHOP: ${model.shopName ?? 'Unknown Schedule'}\nScheduled Date: ${model.scheduleDateTime}\nStatus: ${model.status}\nIs Authorize: ${model.isAuthorized}",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            actionBtns(model, context),
                           ],
                         ),
                       ),
@@ -117,6 +121,96 @@ class ManagerScreen extends GetView<ManagerController> {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget actionBtns(ScheduleDateTimeModel model, BuildContext context) {
+    if (model.isAuthorized == "Pending" && model.isVisitDone == 0) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            buttonWithLoader(
+              disable: false,
+              isLoading: false,
+              context: context,
+              label: "Reject",
+              textColor: AppColors.blackText,
+              color: AppColors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              onPressed: () {
+                controller.submitForm(model, "Reject", false);
+              },
+            ),
+            horizontalSpacing(16),
+            buttonWithLoader(
+              disable: false,
+              isLoading: false,
+              context: context,
+              label: "Approve",
+              textColor: AppColors.white,
+              color: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              onPressed: () {
+                controller.submitForm(model, "Ok", true);
+              },
+            ),
+          ],
+        ),
+      );
+    }
+    //  else if (model.isAuthorized == "Pending" && model.isVisitDone == 1) {
+    //   //view only completed by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Pending" && model.isVisitDone == 2) {
+    //   //view only canceled by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Authorized" && model.isVisitDone == 0) {
+    //   //view only completed by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Authorized" && model.isVisitDone == 1) {
+    //   //view only canceled by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Authorized" && model.isVisitDone == 2) {
+    //   //view only completed by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 0) {
+    //   //view only canceled by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 1) {
+    //   //view only canceled by agent
+    //   return viewScheduleButton(model, context);
+    // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 2) {
+    //   //view only canceled by agent
+    //   return viewScheduleButton(model, context);
+    // } 
+    else {
+     return SizedBox.shrink();
+    }
+  }
+
+  Widget viewScheduleButton(ScheduleDateTimeModel model, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          buttonWithLoader(
+            disable: false,
+            isLoading: false,
+            context: context,
+            label: "View",
+            textColor: AppColors.blackText,
+            color: AppColors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            onPressed: () {
+              final payoad = {"id": model};
+              Get.toNamed(Routes.scheduleDetail, arguments: payoad);
+            },
+          ),
+        ],
       ),
     );
   }

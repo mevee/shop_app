@@ -208,4 +208,5 @@ class AttandanceModel {
     data['createdBy'] = createdBy;
     return data;
   }
+
 }

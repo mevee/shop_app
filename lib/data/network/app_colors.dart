@@ -27,6 +27,7 @@ abstract class AppColors {
   static const Color lightGrey200 = Color.fromRGBO(176, 176, 176, 1);
   static const Color headingGrey = Color.fromRGBO(136, 136, 136, 1);
   static const Color neon = Color.fromRGBO(238, 231, 27, 1);
+  static const Color yellow = Color.fromRGBO(152, 148, 23, 1);
   static const Color brown = Color.fromRGBO(108, 77, 23, 1);
   static const Color white = Color.fromRGBO(255, 255, 255, 1);
   static const Color darkWhite = Color.fromRGBO(250, 250, 250, 1);
@@ -40,6 +41,7 @@ abstract class AppColors {
 
   static const Color black01 = Color(0xFF2D2D2D);
   static const Color lightBlack = Color(0xFF6D6D6D);
+  static const Color cherryRed = Color(0xFFCC252C);
 
   // * Secondary Colors
 

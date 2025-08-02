@@ -48,15 +48,15 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount:controller.moreOtions.length,
+                itemCount:controller.getMoreOptionList().length,
                 itemBuilder: (context, index) {
-                  final model = controller.moreOtions[index];
+                  final model = controller.getMoreOptionList()[index];
                   return InkWell(
                     borderRadius: BorderRadius.circular(8.0),
                     onTap: () {
-                      if (index == 0) {
+                      if (model.label == "Manage Schedules") {
                         Get.toNamed(Routes.manager);
-                      } else if (index == 1) {
+                      } else if (model.label == "Change Password") {
                         Get.toNamed(Routes.passwordUpdate);
                       } else {
                         controller.logout();

@@ -97,4 +97,26 @@ class DateFormatter {
       return "";
     }
   }
+
+  static String getTimeDifference(String? isoTimeString,String? logouteTime) {
+    if (isoTimeString == null) return "0h 0m";
+    if (logouteTime == null) return "0h 0m";
+    try {
+      final givenTime = DateTime.parse(isoTimeString);
+      final currentTime = DateTime.parse(logouteTime);
+      // final currentTime = DateTime.now();
+      final difference = currentTime
+          .difference(givenTime)
+          .abs(); // Ensure positive duration
+
+      final hours = difference.inHours;
+      final minutes = difference.inMinutes.remainder(
+        60,
+      ); // Remaining minutes after full hours
+
+      return "${hours}h ${minutes}m";
+    } catch (e) {
+      return "0h 0m"; // Fallback if parsing fails
+    }
+  }
 }

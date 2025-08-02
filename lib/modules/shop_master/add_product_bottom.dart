@@ -49,73 +49,57 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
                 ],
               ),
             ),
-            Obx(() => showProductView(context, controller.product.value)),
-            const Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
-              child: Divider(color: AppColors.lightGrey),
-            ),
-            Spacer(),
-            Obx(
-              () => buttonWithLoader(
-                label: "Submit",
-                color: Colors.deepPurpleAccent,
-                textColor: Colors.white,
-                onPressed: () {
-                  if (controller.product.value.eQtyController.text.isEmpty) {
-                    AppToast.showToast(message: "Exiting Qty rquired.");
-                  } else if (controller
-                      .product
-                      .value
-                      .eQtyController
-                      .text
-                      .isEmpty) {
-                    AppToast.showToast(message: "New Qty rquired.");
-                  } else if (controller.product.value.id == null) {
-                    AppToast.showToast(message: "No product selected");
-                  } else {
-                    onItemselect?.call(controller.product.value);
-                    Get.back();
-                  }
-                },
-                disable: controller.product.value.category != null
-                    ? false
-                    : true,
-                isLoading: false,
-                context: context,
+            Expanded(
+              child: Column(
+                children: [
+                  Obx(() => showProductView(context, controller.product.value)),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                    child: Divider(color: AppColors.lightGrey),
+                  ),
+                  Spacer(),
+                  Obx(
+                    () => buttonWithLoader(
+                      label: "Submit",
+                      color: Colors.deepPurpleAccent,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        if (controller
+                            .product
+                            .value
+                            .eQtyController
+                            .text
+                            .isEmpty) {
+                          AppToast.showToast(message: "Exiting Qty rquired.");
+                        } else if (controller
+                            .product
+                            .value
+                            .eQtyController
+                            .text
+                            .isEmpty) {
+                          AppToast.showToast(message: "Current Qty rquired.");
+                        } else if (controller.product.value.id == null) {
+                          AppToast.showToast(message: "No product selected");
+                        } else {
+                          onItemselect?.call(controller.product.value);
+                          Get.back();
+                        }
+                      },
+                      disable: controller.product.value.category != null
+                          ? false
+                          : true,
+                      isLoading: false,
+                      context: context,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Expanded(child: ,),
-            const SizedBox(height: 16),
           ],
         ),
       ),
       // ),
     );
-  }
-
-  Widget prgressAndNoDatFound(bool value) {
-    if (value) {
-      return Expanded(
-        child: Center(
-          child: SizedBox(
-            width: 50,
-            height: 50,
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    } else if (controller.skuListApi.isEmpty) {
-      return Expanded(
-        child: Center(
-          child: Text(
-            "No product Found",
-            style: TextStyle(color: AppColors.neutral400),
-          ),
-        ),
-      );
-    } else {
-      return SizedBox.shrink();
-    }
   }
 
   Widget showProductView(BuildContext context, ProductMaster data) {
@@ -174,6 +158,8 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
           TextFormField(
             controller: data.eQtyController,
             keyboardType: TextInputType.number,
+            onTapOutside: (event) => FocusScope.of(context).unfocus(),
+
             decoration: InputDecoration(
               labelText: 'Existing Quantity',
               hintText: 'Enter existing quantity',
@@ -192,9 +178,30 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
           TextFormField(
             controller: data.nQtyController,
             keyboardType: TextInputType.number,
+            onTapOutside: (event) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
-              labelText: 'New Quantity',
-              hintText: 'Enter new quantity',
+              labelText: 'Current Quantity',
+              hintText: 'Enter current quantity',
+              prefixIcon: const Icon(Icons.inventory),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.grey.shade400),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+          TextFormField(
+            controller: data.stockQtyController,
+            keyboardType: TextInputType.number,
+            onTapOutside: (event) => FocusScope.of(context).unfocus(),
+
+            decoration: InputDecoration(
+              labelText: 'Stock In',
+              hintText: 'Enter stock',
               prefixIcon: const Icon(Icons.inventory),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),

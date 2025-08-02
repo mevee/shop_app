@@ -40,6 +40,7 @@ class AuthController extends GetxController {
   final RxBool isObscureNewPassword = true.obs;
   RxBool isLoginActive = false.obs;
   RxBool isLoginButtonLoading = false.obs;
+  RxBool passVisible = false.obs;
 
   RxBool otpSendView = true.obs;
 

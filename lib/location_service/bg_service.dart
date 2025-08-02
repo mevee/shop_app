@@ -6,13 +6,9 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/common/date_util.dart';
-import 'package:shop_app/location_service/tracking_service.dart';
 
-import '../data/employee_service.dart';
 import '../data/network/api_endpoint.dart';
-import '../data/preference.dart';
 import '../data/session_pref_impl.dart';
 import '../models/employee_response.dart';
 import '../utils/constants.dart';
@@ -113,11 +109,14 @@ void onStart(ServiceInstance service) async {
       ),
     );
     // syncService.startRecording(position);
-    print('Lat: ${position.latitude}, Lng: ${position.longitude}');
+    print('Backgournd Lat: ${position.latitude}, Lng: ${position.longitude}');
     // Save to SharedPreferences or send to server
-    await _syncLocationsWithServer(position);
-    // Delay between updates (minimum 1 second)
-    await Future.delayed(Duration(seconds: 20));
+    if (kProfileMode | kReleaseMode) {
+      await _syncLocationsWithServer(position);
+      await Future.delayed(Duration(seconds: 20));
+    } else {
+      await Future.delayed(Duration(minutes: 2));
+    }
   }
 }
 
@@ -145,7 +144,7 @@ Future<void> _syncLocationsWithServer(Position position) async {
         userName: userName,
         lat: position.latitude,
         lng: position.longitude,
-        loginTime: DateFormatter.getCurrentDateTimeString()
+        loginTime: DateFormatter.getCurrentDateTimeString(),
       ),
     ];
     sendLogToServer(token, request);
@@ -163,14 +162,16 @@ void sendLogToServer(String? token, List<UserDateLatRequest> request) async {
     print('request: ${request.map((item) => item.toJson()).toList()}');
   }
   try {
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': '$token', // Add token here
-      },
-      body: json.encode(request.map((item) => item.toJson()).toList()),
-    ).timeout(const Duration(seconds: 20));
+    final response = await http
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': '$token', // Add token here
+          },
+          body: json.encode(request.map((item) => item.toJson()).toList()),
+        )
+        .timeout(const Duration(seconds: 20));
     if (response.statusCode == 200) {
       if (kDebugMode) {
         print('Success: ${response.body}');

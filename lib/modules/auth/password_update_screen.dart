@@ -47,6 +47,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
                   prefixIcon: Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(height: 16),
+                
                 CommonWidgets.text(
                   controller: controller.oldPasswordCtr,
                   labelText: 'Old Password',

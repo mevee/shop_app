@@ -51,6 +51,7 @@ class UserData {
   String? updatedBy;
   String? updatedDate;
   String? managerName;
+  String? employeeId;
   UserData({
     id,
     userName,
@@ -70,6 +71,7 @@ class UserData {
     updatedBy,
     updatedDate,
     managerName,
+    employeeId,
   });
 
   UserData.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class UserData {
     updatedBy = json['updatedBy'];
     updatedDate = json['updatedDate'];
     managerName = json['managerName'];
+    employeeId = json['employeeId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -113,6 +116,7 @@ class UserData {
     data['updatedBy'] = updatedBy;
     data['updatedDate'] = updatedDate;
     data['managerName'] = managerName; 
+    data['employeeId'] = employeeId; 
     return data;
   }
 }

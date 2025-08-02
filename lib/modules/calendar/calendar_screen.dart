@@ -89,10 +89,12 @@ class CalendarScreen extends GetView<CallenderController> {
                           vertical: 2.0,
                         ),
                         decoration: BoxDecoration(
-                          color: item.isVisitDone == 1
-                              ? AppColors.green
-                              : AppColors
-                                    .red, // Light blue background for text items
+                                            color: item.isVisitDone == 2 ? AppColors.yellow :item.isVisitDone == 1?AppColors.green: AppColors.red,
+
+                          // color: item.isVisitDone == 1
+                          //     ? AppColors.green
+                          //     : AppColors
+                          //           .red, // Light blue background for text items
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                         child: Text(

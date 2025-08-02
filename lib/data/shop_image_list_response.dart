@@ -1,4 +1,4 @@
-class ScheduleListResponse {
+class ShopImageLisResposne {
   String? action;
   int? responseStatus;
   String? responseCode;
@@ -7,11 +7,11 @@ class ScheduleListResponse {
   int? totalPages;
   int? currentPage;
   int? currentSize;
-  List<ScheduleDateTimeModel>? results;
+  List<ShopImage>? results;
   String? invoiceUrl;
   bool? lastPage;
 
-  ScheduleListResponse({
+  ShopImageLisResposne({
     this.action,
     this.responseStatus,
     this.responseCode,
@@ -25,7 +25,7 @@ class ScheduleListResponse {
     this.lastPage,
   });
 
-  ScheduleListResponse.fromJson(Map<String, dynamic> json) {
+  ShopImageLisResposne.fromJson(Map<String, dynamic> json) {
     action = json['action'];
     responseStatus = json['responseStatus'];
     responseCode = json['responseCode'];
@@ -35,9 +35,9 @@ class ScheduleListResponse {
     currentPage = json['currentPage'];
     currentSize = json['currentSize'];
     if (json['results'] != null) {
-      results = <ScheduleDateTimeModel>[];
+      results = <ShopImage>[];
       json['results'].forEach((v) {
-        results!.add(ScheduleDateTimeModel.fromJson(v));
+        results!.add(ShopImage.fromJson(v));
       });
     }
     invoiceUrl = json['invoiceUrl'];
@@ -63,68 +63,56 @@ class ScheduleListResponse {
   }
 }
 
-class ScheduleDateTimeModel {
+class ShopImage {
   int? id;
-  String? userName;
-  String? scheduleDateTime;
-  String? shopId;
-  String? status;
+  int? shopId;
+  int? isShop;
+  String? image;
+  int? isActive;
   String? createdBy;
   String? createdDate;
   String? updatedBy;
   String? updatedDate;
-  String? shopName;
-  String? day;
-  int? isVisitDone;
-  String? isAuthorized;
+  String? documentName;
 
-  ScheduleDateTimeModel({
+  ShopImage({
     this.id,
-    this.userName,
-    this.scheduleDateTime,
     this.shopId,
-    this.status,
+    this.isShop,
+    this.image,
+    this.isActive,
     this.createdBy,
     this.createdDate,
     this.updatedBy,
     this.updatedDate,
-    this.shopName,
-    this.day,
-    this.isVisitDone,
-    this.isAuthorized,
+    this.documentName,
   });
 
-  ScheduleDateTimeModel.fromJson(Map<String, dynamic> json) {
+  ShopImage.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    userName = json['userName'];
-    scheduleDateTime = json['scheduleDateTime'];
     shopId = json['shopId'];
-    status = json['status'];
+    isShop = json['isShop'];
+    image = json['image'];
+    isActive = json['isActive'];
     createdBy = json['createdBy'];
     createdDate = json['createdDate'];
     updatedBy = json['updatedBy'];
     updatedDate = json['updatedDate'];
-    shopName = json['shopName'];
-    day = json['day'];
-    isVisitDone = json['isVisitDone'];
-    isAuthorized = json['isAuthorized'];
+    documentName = json['documentName'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['userName'] = userName;
-    data['scheduleDateTime'] = scheduleDateTime;
     data['shopId'] = shopId;
-    data['status'] = status;
+    data['isShop'] = isShop;
+    data['image'] = image;
+    data['isActive'] = isActive;
     data['createdBy'] = createdBy;
     data['createdDate'] = createdDate;
     data['updatedBy'] = updatedBy;
     data['updatedDate'] = updatedDate;
-    data['shopName'] = shopName;
-    data['day'] = day;
-    data['isVisitDone'] = isVisitDone;
-    data['isAuthorized'] = isAuthorized;
+    data['documentName'] = documentName;
     return data;
   }
 }

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/date_util.dart';
+import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/home_controller.dart';
 import 'package:shop_app/modules/home/more_options_bottom.dart';
+import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
+import 'package:shop_app/modules/schedule/schedule_item_view.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
@@ -45,9 +49,19 @@ class HomeScreen extends GetView<HomeController> {
                           color: Colors.green,
                           textColor: Colors.white,
                           progressColor: Colors.white,
-                          label: "Clock IN",
+                          label: "Checkin",
                           onPressed: () {
-                            controller.getInLocation();
+                            showCustomDialog(
+                              context: context,
+                              message: "Do you want to checkin?",
+                              title: "Confirm",
+                              barrierDismissible: true,
+                              primaryButtonText: "Yes",
+                              secondaryButtonText: "No",
+                              onPrimaryPressed: () {
+                                controller.getInLocation();
+                              },
+                            );
                           },
                         ),
                       ),
@@ -68,9 +82,19 @@ class HomeScreen extends GetView<HomeController> {
                           color: Colors.red,
                           textColor: Colors.white,
                           progressColor: Colors.white,
-                          label: "Clock OUT",
+                          label: "Checkout",
                           onPressed: () {
-                            controller.getOutLocation();
+                            showCustomDialog(
+                              context: context,
+                              message: "Do you want to Checkout?",
+                              title: "Confirm",
+                              barrierDismissible: true,
+                              primaryButtonText: "Yes",
+                              secondaryButtonText: "No",
+                              onPrimaryPressed: () {
+                                controller.getOutLocation();
+                              },
+                            );
                           },
                         ),
                       ),
@@ -90,7 +114,10 @@ class HomeScreen extends GetView<HomeController> {
                       ),
                     ),
                     InkWell(
-                      onTap: () => controller.getTodaysSchedules(),
+                      onTap: () {
+                        controller.getTodaysSchedules();
+                        controller.getEmployeeAttandance();
+                      },
                       child: Icon(Icons.refresh),
                     ),
                   ],
@@ -133,53 +160,17 @@ class HomeScreen extends GetView<HomeController> {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             final log = list[index];
-            return InkWell(
-              onTap: () {
-                Get.toNamed(Routes.scheduleDetail, arguments: {"id": log});
+            return scheduleItemView(
+              model: log,
+              onClick: () {
+                final payoad = {"id": log};
+                Get.toNamed(Routes.scheduleDetail, arguments: payoad);
+                print("scheduleItemView $payoad");
+                // final ctr = Get.put(ScheduleController());
+                // if (ctr.isOnInitRan == false) {
+                  // ctr.setManualArguments(payoad);
+                // }
               },
-              borderRadius: BorderRadius.circular(8.0),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 3.0,
-                  horizontal: 10.0,
-                ),
-                decoration: BoxDecoration(
-                  color: log.isVisitDone == 1 ? AppColors.green : AppColors.red,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Shop: ${log.shopName}\nScheduled Time: ${log.scheduleDateTime}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: AppColors.white,
-                          decoration: log.isVisitDone == 2
-                              ? TextDecoration.lineThrough
-                              : null,
-                          decorationColor: Colors.black, // Line color
-                          decorationThickness: 2.0, // Line thickness
-                          decorationStyle: TextDecorationStyle.dashed,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-
-                    // if (log.isVisitDone == 1)
-                    //   Image(
-                    //     image: AssetImages.eye,
-                    //     height: 24,
-                    //     width: 24,
-                    //     color: AppColors.green,
-                    //   ),
-                  ],
-                ),
-              ),
             );
           },
         ),
@@ -342,7 +333,7 @@ class HomeScreen extends GetView<HomeController> {
               ),
               Obx(
                 () => Text(
-                  controller.userData.value.login?.id?.toString() ?? "",
+                  controller.userData.value.login?.employeeId ?? "",
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.normal,
@@ -355,18 +346,21 @@ class HomeScreen extends GetView<HomeController> {
           verticalSpace(4.0),
           lableValue(label: Icons.phone_android, value: data?.contactNo ?? ""),
           verticalSpace(4.0),
-          lableValue(
-            label: Icons.calendar_month,
-            value: DateTime.now().toLocal().toString().split(' ')[0],
+          Obx(
+            () => lableValue(
+              label: Icons.calendar_month,
+              value: controller.attandanceObj.value.loginTime,
+            ),
           ),
           verticalSpace(4.0),
-          lableValue(
-            label: Icons.av_timer,
-            value: DateTime.now()
-                .toLocal()
-                .toString()
-                .split(' ')[1]
-                .substring(0, 5),
+          Obx(
+            () => lableValue(
+              label: Icons.av_timer,
+              value: DateFormatter.getTimeDifference(
+                controller.attandanceObj.value.loginTime,
+                controller.attandanceObj.value.logoutTime,
+              ),
+            ),
           ),
           verticalSpace(4.0),
           lableValue(label: Icons.location_on, value: data?.address ?? ""),

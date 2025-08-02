@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/helper.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class ShopMasterScreen extends GetView<ShopMasterController> {
   const ShopMasterScreen({super.key});
@@ -19,15 +22,55 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
         backgroundColor: AppColors.primaryAccent,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.toNamed(Routes.createShop);
-        },
-        backgroundColor: Colors.red,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Obx(
+        () => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (controller.isExpanded.value)
+              FloatingActionButton(
+                onPressed: () {
+                  controller.resetAddShopDetail();
+                  Get.toNamed(Routes.createShop);
+                  controller.isExpanded.value = !controller.isExpanded.value;
+                },
+                backgroundColor: AppColors.primary,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+
+            // if (controller.isExpanded.value) SizedBox(height: 16),
+            // if (controller.isExpanded.value)
+            //   FloatingActionButton(
+            //     heroTag: 'option2',
+            //     onPressed: () {
+            //       // setState(() => isExpanded = false);
+            //       // Handle option 2
+            //       controller.resetLocationUpdateDetail();
+            //       Get.toNamed(Routes.updateLocation);
+            //       controller.isExpanded.value = !controller.isExpanded.value;
+            //     },
+            //     // mini: true,
+            //     backgroundColor: AppColors.primary,
+            //     child: Icon(Icons.location_on, color: AppColors.white),
+            //   ),
+            SizedBox(height: 16),
+            FloatingActionButton(
+              heroTag: 'main',
+              onPressed: () {
+                controller.isExpanded.value = !controller.isExpanded.value;
+              },
+              backgroundColor: AppColors.primaryAccent,
+              // mini:true,
+              child: Icon(
+                controller.isExpanded.value ? Icons.close : Icons.touch_app,
+                color: AppColors.white,
+              ),
+            ),
+          ],
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical:  8.0,horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
         child: Column(
           children: [
             Obx(
@@ -35,7 +78,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                 controller: controller.searchCtr,
                 onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
-                  hintText: "Search Shop",
+                  hintText: "Search shop here",
                   prefixIcon: Icon(Icons.search, color: AppColors.neutral400),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
@@ -52,10 +95,28 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                       : null,
                 ),
                 onChanged: (value) {
-                  if(value.isNotEmpty){
-                  controller.searchShopList(value);
+                  if (value.isNotEmpty) {
+                    controller.getShopList(controller.searchCtr.text);
                   }
                 },
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
+              child: Obx(
+                () => SizedBox(
+                  width: double.maxFinite,
+                  child: GenericDropdown<String>(
+                    options: controller.dropDownOptions,
+                    selectedOption: controller.selected.value,
+                    hintText: "Select",
+                    onChanged: (String? value) async {
+                      controller.selected.value = value ?? "Retail";
+                      await controller.getShopList(controller.searchCtr.text);
+                    },
+                  ),
+                ),
               ),
             ),
             Obx(() => prgressAndNoDatFound(controller.isLoding.value)),
@@ -82,21 +143,27 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                         ),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.store, color: Colors.purpleAccent),
-                          horizontalSpacing(8),
-                          Expanded(
-                            child: Text(
-                              // maxLines: 6,
-                              "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}\nDistric:${shop.districtName}\nOwner:${shop.ownerName}\nAddress:${shop.premisesAddress}\nMob:${shop.mobileNumber}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
+                          Row(
+                            children: [
+                              Icon(Icons.store, color: AppColors.primary),
+                              horizontalSpacing(8),
+                              Expanded(
+                                child: Text(
+                                  // maxLines: 6,
+                                  "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}\nDistric:${shop.districtName}\nOwner:${shop.ownerName}\nAddress:${shop.premisesAddress}\nMob:${shop.mobileNumber}",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
+                          actionBtns(shop, context),
                         ],
                       ),
                     );
@@ -108,6 +175,50 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget actionBtns(ShopMasterModel shop, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          buttonWithImage(
+            disable: false,
+            context: context,
+            horiontal: 8,
+            vertical: 8,
+            label: "Images",
+            fontSize: 12,
+            textColor: AppColors.white,
+            color: AppColors.primary,
+            leftIcon: Icon(Icons.add, color: Colors.white),
+            onPressed: () {
+              controller.setShopData(shop);
+              controller.getAllImagesOfShop(shop);
+              Get.toNamed(Routes.createShop);
+            },
+          ),
+          horizontalSpacing(16),
+          buttonWithImage(
+            disable: false,
+            context: context,
+            label: "Location",
+            fontSize: 12,
+            horiontal: 8,
+            vertical: 8,
+            textColor: AppColors.white,
+            color: AppColors.primaryAccent,
+            leftIcon: Icon(Icons.location_on, color: Colors.white),
+            onPressed: () {
+              controller.resetLocationUpdateDetail();
+              controller.setShopData(shop);
+              Get.toNamed(Routes.updateLocation);
+            },
+          ),
+        ],
       ),
     );
   }

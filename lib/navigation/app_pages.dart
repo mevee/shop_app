@@ -12,6 +12,7 @@ import 'package:shop_app/modules/schedule/schedule_list_screen.dart';
 import 'package:shop_app/modules/shop_master/add_shop_screen.dart';
 import 'package:shop_app/modules/shop_master/binding/schedule_binding.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
+import 'package:shop_app/modules/shop_master/update_shop_location_view.dart';
 
 import '../modules/manager/binding/manager_binding.dart';
 import '../modules/manager/manager_screen.dart';
@@ -68,6 +69,11 @@ class AppPages {
     GetPage(
       name: _Paths.createShop,
       page: () => AddShopMasterScreen(),
+      binding: ShopMasterBinding(),
+    ),
+    GetPage(
+      name: _Paths.updateLocation,
+      page: () => UpdateShopLoctionView(),
       binding: ShopMasterBinding(),
     ),
 

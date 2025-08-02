@@ -56,6 +56,7 @@ class SelectSkuBottomSheet extends GetView<ShopMasterController> {
                       borderRadius: BorderRadius.circular(8.0),
                       onTap: () {
                         controller.onProducSelected(shop);
+                        
                         Get.back();
                       },
                       child: Container(
@@ -90,17 +91,29 @@ class SelectSkuBottomSheet extends GetView<ShopMasterController> {
                                 ), 
                               ),
                             ),
-                            Spacer(),
+                            horizontalSpacing(8),
                             Expanded(
                               flex: 1,
-                              child: Text(
-                                maxLines: 1,
-                                "Price: ${shop.unitPrice}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Price: ",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                      color: AppColors.blackText,
+                                    ),
+                                  ),
+                                  Text(
+                                    maxLines: 1,
+                                    "${shop.unitPrice}",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.blackText,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

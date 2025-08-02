@@ -17,6 +17,7 @@ class CommonWidgets {
     double fontSize = 12.0,
     double border = 12.0,
     String? errorMessage,
+    Function(String value)? onChange,
   }) {
     return TextFormField(
       controller: controller,
@@ -46,7 +47,7 @@ class CommonWidgets {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(border),
-          borderSide: BorderSide(color: errorColor ?? Colors.redAccent),
+          borderSide: BorderSide(color: errorColor),
         ),
         errorStyle: TextStyle(
           color: textColor,
@@ -55,6 +56,7 @@ class CommonWidgets {
         ),
       ),
       obscureText: isPassword,
+      onChanged: onChange,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return errorMessage ?? 'Field is required';

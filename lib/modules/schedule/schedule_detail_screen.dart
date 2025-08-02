@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/common/string_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
-import 'package:shop_app/models/update_schedule_request.dart';
+import 'package:shop_app/models/schedule_request.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/modules/shop_master/add_product_bottom.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
@@ -40,7 +41,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  timeWidgetAndSubmitButton(context),
+                  // timeWidgetAndSubmitButton(context),
                   const SizedBox(height: 15),
                   IgnorePointer(
                     ignoring: true,
@@ -152,7 +153,23 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                             context: context,
                             textColor: Colors.white,
                             onPressed: () {
-                              _showSelectProductDialog(context, null);
+                              print("${controller.profileImage.isEmpty.value}");
+                              if (controller.userManager.getIsWorking() ==
+                                  false) {
+                                AppToast.showToast(
+                                  message:
+                                      "Before starting the meeting please checkin from home screen.",
+                                );
+                              } else if (controller
+                                  .profileImage
+                                  .isEmpty
+                                  .value) {
+                                AppToast.showToast(
+                                  message: "Please slect a profile image first",
+                                );
+                              } else {
+                                _showSelectProductDialog(context, null);
+                              }
                             },
                             label: 'Add',
                             color: AppColors.primary,
@@ -173,23 +190,48 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                   // New Order Quantity (represented as a text field, but in real app could be a GridView/DataTable)
                   const SizedBox(height: 20),
-                  Text(
-                    "Photos",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      // color: Colors.blue,
+
+                  Visibility(
+                    visible: !controller.detailWasAdded.value,
+                    child: Text(
+                      "Select Profile Image*",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        // color: Colors.blue,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Visibility(
+                    visible: !controller.detailWasAdded.value,
+                    child: UploadImageWidget(
+                      controller: controller.profileImage,
+                      enabled: (!controller.detailWasAdded.value),
+                    ),
+                  ),
+                  Visibility(
+                    visible: !controller.detailWasAdded.value,
+                    child: const SizedBox(height: 15),
+                  ),
 
-                  UploadImageWidget(
-                    controller: controller.selectedImageCtr,
-                    enabled: (!controller.detailWasAdded.value),
+                  Text(
+                    "Add meeting images",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+
+                  Obx(
+                    () => UploadImageWidget(
+                      controller: controller.selectedImageCtr,
+                      enabled:
+                          (!controller.detailWasAdded.value ||
+                          !controller.profileImage.isEmpty.value),
+                    ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  // Remarks MultiText Box
                   TextFormField(
                     controller: controller.remarksController,
                     maxLines: 4,
@@ -215,76 +257,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      Obx(
-                        () => Visibility(
-                          visible:
-                              (controller.meetingStatus.value !=
-                                  MeetingStatus.CANCELLED),
-                          child: Expanded(
-                            child: buttonWithLoader(
-                              disable:
-                                  (controller.meetingStatus.value ==
-                                    MeetingStatus.CANCELLED ||
-                                  controller.updateScheduleLoading.value),
-                              label: 'Cancel',
-                              color: AppColors.lightGrey,
-                              textColor: Colors.black,
-                              progressColor: Colors.black,
-                              onPressed: () => showConfirmDialog(
-                                context,
-                                'Are you sure you want to cancel meeting?',
-                                () {
-                                  controller.cancelMeeting();
-                                },
-                              ),
-                              isLoading:
-                                  (controller.updateScheduleLoading.value ||
-                                  controller.isLoading.value),
-                              context: context,
-                            ),
-                          ),
-                        ),
-                      ),
-                      horizontalSpacing(16),
-                      Obx(
-                        () => Visibility(
-                          visible:
-                              (controller.meetingStatus.value ==
-                                  MeetingStatus.IDEAL) &&
-                              controller.schedule.value.isVisitDone == 0,
-                          child: Expanded(
-                            child: buttonWithLoader(
-                              disable:
-                                  (controller.past.value &&
-                                      controller.visited.value ||
-                                  controller.today.value &&
-                                      controller.visited.value ||
-                                  controller.updateScheduleLoading.value),
-                              label: 'Start Meeting',
-                              color: AppColors.primary,
-                              textColor: Colors.white,
-                              progressColor: Colors.white,
-                              onPressed: () => showConfirmDialog(
-                                context,
-                                'Are you sure you want to start meeting?',
-                                () {
-                                  controller.startCountdown();
-                                },
-                              ),
-                          
-                              isLoading:
-                                  (controller.updateScheduleLoading.value ||
-                                  controller.isLoading.value),
-                              context: context,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  actionButtonsBottomView(context),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -292,6 +265,96 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           ),
         ),
       ),
+    );
+  }
+
+  Row actionButtonsBottomView(BuildContext context) {
+    print(
+      "not cancelled ${controller.meetingStatus.value != MeetingStatus.CANCELLED}",
+    );
+    print("visit Done ${controller.schedule.value.isVisitDone}");
+    // print("visit Done ${controller.schedule.value.isVisitDone}");
+    return Row(
+      children: [
+        Obx(
+          () => Visibility(
+            visible:
+                (controller.meetingStatus.value != MeetingStatus.CANCELLED) ||
+                controller.schedule.value.isVisitDone == 0,
+            child: Expanded(
+              child: buttonWithLoader(
+                disable:
+                    (controller.meetingStatus.value ==
+                        MeetingStatus.CANCELLED ||
+                    controller.updateScheduleLoading.value),
+                label: 'Cancel',
+                color: AppColors.lightGrey,
+                textColor: Colors.black,
+                progressColor: Colors.black,
+                onPressed: () => showConfirmDialog(
+                  context,
+                  'Are you sure you want to cancel meeting?',
+                  () {
+                    controller.cancelMeeting();
+                  },
+                ),
+                isLoading:
+                    (controller.updateScheduleLoading.value ||
+                    controller.isLoading.value),
+                context: context,
+              ),
+            ),
+          ),
+        ),
+        horizontalSpacing(16),
+        Obx(
+          () => Visibility(
+            visible:
+                (controller.meetingStatus.value != MeetingStatus.CANCELLED) ||
+                controller.schedule.value.isVisitDone == 0,
+            child: Expanded(
+              child: buttonWithLoader(
+                disable:
+                    (controller.past.value && controller.visited.value ||
+                    controller.today.value && controller.visited.value ||
+                    controller.updateScheduleLoading.value),
+                label: 'Submit',
+                color: AppColors.primary,
+                textColor: Colors.white,
+                progressColor: Colors.white,
+                onPressed: () {
+                  if (controller.userManager.getIsWorking() == false) {
+                    AppToast.showToast(
+                      message:
+                          "Before starting the meeting please checkin from home screen.",
+                    );
+                  } else if (controller.profileImage.isEmpty.value) {
+                    AppToast.showToast(
+                      message: "Please slect a profile image first",
+                    );
+                  } else {
+                    showConfirmDialog(
+                      context,
+                      'Are you sure you want complete metting?',
+                      () {
+                        // controller.startCountdown();
+                        controller.submitForm();
+                        // controller.startCountdown();
+                        //
+                      },
+                    );
+                  }
+                },
+
+                isLoading:
+                    (controller.updateScheduleLoading.value ||
+                    controller.isLoading.value),
+                context: context,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -348,13 +411,14 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
   void _showSelectProductDialog(
     BuildContext context,
-    QuantityDetailsList? editProduct,
+    QuantityDetailsReq? editProduct,
   ) {
     ShopMasterController ctr = Get.find<ShopMasterController>();
-    print("${ctr.hashCode}");
+    // print("${ctr.hashCode}");
+    ctr.scheduleId = controller.schedule.value.id.toString();
+    print("ctr.scheduleId${ctr.scheduleId}");
 
     if (editProduct != null) {
-      print("prduct != null");
       final prod = ProductMaster(
         id: editProduct.productId,
         productName: editProduct.prodName,
@@ -364,7 +428,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       );
       prod.eQtyController.text =
           editProduct.existingQuantity?.toString() ?? "0";
-      prod.nQtyController.text = editProduct.newQuantity?.toString() ?? "0";
+      prod.nQtyController.text = editProduct.currentQuantity?.toString() ?? "0";
       ctr.product.value = prod;
     } else {
       ctr.product.value = ProductMaster();
@@ -374,24 +438,29 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       AddProductBottomSheet((product) {
         var eQty = int.parse(product.eQtyController.text);
         var nQty = int.parse(product.nQtyController.text);
+        var stockQty = int.parse(
+          product.stockQtyController.text.isEmpty
+              ? "0"
+              : product.stockQtyController.text,
+        );
         var unitPrice = double.parse(product.unitPrice ?? "0.0");
         if (editProduct != null) {
           editProduct.existingQuantity = eQty;
-          editProduct.newQuantity = nQty;
+          editProduct.currentQuantity = nQty;
+          editProduct.stockIn = stockQty;
           editProduct.productId = product.id;
           editProduct.totalPrice = unitPrice;
-          editProduct.totalQuantity = nQty;
           editProduct.sku = product.sku;
           editProduct.category = product.category;
           editProduct.prodName = "${product.productName}(${product.sku})";
         } else {
           controller.skListQtyInput.add(
-            QuantityDetailsList(
+            QuantityDetailsReq(
               existingQuantity: eQty,
-              newQuantity: nQty,
+              currentQuantity: nQty,
+              stockIn: stockQty,
               productId: product.id,
               totalPrice: unitPrice,
-              totalQuantity: nQty,
               sku: product.sku,
               category: product.category,
               prodName: "${product.productName}(${product.sku})",
@@ -425,7 +494,6 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   }
 
   Widget listViewOfQtyView(BuildContext context) {
-    print("LLLL${controller.skListQtyInput.length}");
     return Obx(
       () => Column(
         children: [
@@ -461,9 +529,10 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     ),
                   ),
                 ),
+
                 Expanded(
                   child: Text(
-                    "New QTY",
+                    "Current QTY",
                     textAlign: TextAlign.center,
 
                     style: TextStyle(
@@ -475,7 +544,19 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 Expanded(
                   child: Text(
-                    "Unit Price",
+                    "Stock IN",
+                    textAlign: TextAlign.center,
+
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    "Sales",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14.0,
@@ -484,6 +565,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     ),
                   ),
                 ),
+                if (controller.detailWasAdded.value == false)
+                  SizedBox(width: 20, height: 16),
               ],
             ),
           ),
@@ -532,9 +615,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       ),
                       Expanded(
                         child: Text(
-                          "${model.newQuantity}",
+                          "${model.currentQuantity}",
                           textAlign: TextAlign.center,
-
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.black,
@@ -544,9 +626,19 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       ),
                       Expanded(
                         child: Text(
-                          "${model.totalPrice}",
+                          "${model.stockIn}",
                           textAlign: TextAlign.center,
-
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "${((model.existingQuantity ?? 0) + (model.stockIn ?? 0)) - (model.currentQuantity ?? 0)}",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.black,
@@ -593,20 +685,49 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 Expanded(
                   child: Text(
-                    "${controller.totalNewQty}",
+                    "${controller.currentQty}",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14.0),
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    "${controller.totalPrice}",
+                    "${controller.stockQty}",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14.0),
                   ),
                 ),
-                if (controller.detailWasAdded.value)
+                Expanded(
+                  child: Text(
+                    "${controller.totalSale.value}",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                ),
+                if (controller.detailWasAdded.value == false)
                   SizedBox(width: 20, height: 16),
+              ],
+            ),
+          ),
+          Container(
+            height: 2,
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+            decoration: BoxDecoration(color: AppColors.grey),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Total Amount",
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                ),
+                horizontalSpacing(16),
+                Text(
+                  "${controller.total.value}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+                ),
               ],
             ),
           ),
@@ -646,18 +767,22 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     ),
                     child: buttonWithLoader(
                       disable:
-                          (
-                          // controller.past.value && controller.visted.value ||
-                          controller.visited.value ||
+                          (controller.visited.value ||
                           controller.updateScheduleLoading.value ||
                           controller.remainingSeconds.value != 0),
                       label: 'Submit',
                       color: AppColors.primary,
                       textColor: Colors.white,
                       progressColor: Colors.white,
-                      onPressed: () => controller.submitForm(() {
-                        Get.back();
-                      }),
+                      onPressed: () {
+                        if (controller.profileImage.isEmpty.value) {
+                          AppToast.showToast(
+                            message: "Please slect a profile image first",
+                          );
+                        } else {
+                          controller.submitForm();
+                        }
+                      },
                       isLoading:
                           (controller.updateScheduleLoading.value ||
                           controller.isLoading.value),

@@ -10,19 +10,20 @@ import 'package:shop_app/models/schedule_image_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/schedule_qty_response.dart';
 import 'package:shop_app/models/shop_prodlisr_response.dart';
-import 'package:shop_app/models/update_schedule_request.dart';
+import 'package:shop_app/models/schedule_request.dart';
 
 abstract class ScheduleServiceProtocol {
   Future<CommonModel> addSchedule(AddScheduleRequest request); //d
   Future<CommonModel> updateSchedule(UpdateScheduleRequest request); //d
   Future<CommonModel> cancelSchedule(UpdateScheduleRequest request); //d
-  Future<CommonModel> addScheduleDetail(ScheduleDetailRequest request); //d
+  Future<CommonModel> addScheduleDetail(UpdateScheduleRequest request); //d
+  Future<CommonModel> checkUserAtShopLocation(
+    CheckUserAtShopRequest request,
+  ); //d
 
   Future<ScheduleListResponse> getScheduleByMonth(String? month);
 
   Future<ScheduleListResponse> getScheduleByDate(String? date);
-
-  Future<CommonModel> updateAuthorizeSchedule(AuthorizeRequest request);
 
   Future<ShopProductResponse> getProductDetails(); //d
 
@@ -103,30 +104,7 @@ class ScheduleService extends BaseNetworkClient
   }
 
   @override
-  Future<CommonModel> updateAuthorizeSchedule(AuthorizeRequest request) async {
-    const endPoint = EndPoints.authorizeSchedulePOST;
-    try {
-      final response = await client.post(endPoint, data: request.toJson());
-      return CommonModel.fromJson(response.data);
-    } on DioException catch (e) {
-      // Handle Dio-specific errors
-      if (e.response != null) {
-        // You can throw a custom exception or return an error response
-        throw ServerException(
-          message: e.response?.data['error'] ?? 'Internal Server Error',
-          statusCode: e.response?.statusCode ?? 500,
-        );
-      } else {
-        // Other Dio errors (network, timeout, etc.)
-        throw NetworkException(message: e.message ?? 'Network error occurred');
-      }
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<CommonModel> addScheduleDetail(ScheduleDetailRequest request) async {
+  Future<CommonModel> addScheduleDetail(UpdateScheduleRequest request) async {
     const endPoint = EndPoints.addEmployeeScheduleDetailPOST;
     try {
       final response = await client.post(endPoint, data: request.toJson());
@@ -198,7 +176,7 @@ class ScheduleService extends BaseNetworkClient
 
   @override
   Future<ShopProductResponse> getProductDetails() async {
-    var endPoint = EndPoints.productListGET;
+    var endPoint = EndPoints.productListByScheduleGET;
     try {
       final response = await client.get(endPoint);
       return ShopProductResponse.fromJson(response.data);
@@ -275,6 +253,37 @@ class ScheduleService extends BaseNetworkClient
     try {
       final response = await client.get(endPoint);
       return ScheduleImageResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CommonModel> checkUserAtShopLocation(
+    CheckUserAtShopRequest request,
+  ) async {
+    var endPoint = EndPoints.checkEmployeeAtShopLocationGET;
+    endPoint = endPoint.replaceAll(
+      "{scheduleId}",
+      request.scheduleId?.toString() ?? "",
+    );
+    endPoint = endPoint.replaceAll("{lat}", request.lat ?? "");
+    endPoint = endPoint.replaceAll("{long}", request.long ?? "");
+    try {
+      final response = await client.get(endPoint);
+      return CommonModel.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {

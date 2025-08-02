@@ -43,3 +43,26 @@ class AddShopRequest {
     return data;
   }
 }
+
+class AddShopImageRequest {
+  int? shopId;
+  int? isShop;
+  String? image;
+  String? documentName;
+
+  AddShopImageRequest({
+    this.shopId,
+    this.isShop,
+    this.image,
+    this.documentName,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['shopId'] = shopId;
+    data['isShop'] = isShop;
+    data['image'] = image;
+    data['documentName'] = documentName;
+    return data;
+  }
+}

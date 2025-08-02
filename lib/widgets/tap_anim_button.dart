@@ -131,15 +131,16 @@ Widget buttonWithLoader({
   required String label,
   Color color = AppColors.lightGrey,
   Color textColor = AppColors.textGrey,
-  Color progressColor = Colors.deepPurpleAccent,
+  Color progressColor = AppColors.primary,
   required Function() onPressed,
+  padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
 }) {
   return TapAnimationButton(
     disabled: disable,
     onTap: disable ? () {} : onPressed,
     child: Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: padding,
       decoration: BoxDecoration(
         color: disable ? color.withValues(alpha: 0.3) : color,
         borderRadius: const BorderRadius.all(Radius.circular(8.0)),
@@ -178,6 +179,7 @@ Widget buttonWithImage({
   required Widget leftIcon,
   double horiontal = 20,
   double vertical = 12,
+  double fontSize = 16,
   Color color = AppColors.lightGrey,
   Color textColor = AppColors.textGrey,
   Color progressColor = Colors.deepPurpleAccent,
@@ -200,7 +202,7 @@ Widget buttonWithImage({
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 16,
+              fontSize: fontSize,
               fontWeight: FontWeight.w600,
               color: disable ? Colors.white : textColor,
             ),

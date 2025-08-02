@@ -46,13 +46,29 @@ class LoginScreen extends GetView<AuthController> {
                             prefixIcon: Icon(Icons.person, color: Colors.white),
                           ),
                           const SizedBox(height: 16),
-                          CommonWidgets.text(
-                            controller: controller.loginPasswordCtr,
-                            labelText: 'Enter Password',
-                            errorMessage: 'Please enter your password',
-                            fontSize: 14.0,
-                            isPassword: true,
-                            prefixIcon: Icon(Icons.lock, color: Colors.white),
+                          Obx(
+                            () => CommonWidgets.text(
+                              controller: controller.loginPasswordCtr,
+                              labelText: 'Enter Password',
+                              errorMessage: 'Please enter your password',
+                              fontSize: 14.0,
+                              isPassword: controller.passVisible.value
+                                  ? false
+                                  : true,
+                              prefixIcon: Icon(Icons.lock, color: Colors.white),
+                              tailfixIcon: InkWell(
+                                onTap: () {
+                                  controller.passVisible.value =
+                                      !controller.passVisible.value;
+                                },
+                                child: Icon(
+                                  controller.passVisible.value
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                           forgotPasswordBtn(() {
                             controller.forgetPasswordView();

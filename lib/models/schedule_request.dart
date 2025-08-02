@@ -1,10 +1,9 @@
-import 'package:fpdart/fpdart.dart';
-import 'package:shop_app/models/product_master_response.dart';
+
 
 class UpdateScheduleRequest {
   MeetingDetails? meetingDetails;
   List<MeetingImagesList>? meetingImagesList;
-  List<QuantityDetailsList>? quantityDetailsList;
+  List<QuantityDetailsReq>? quantityDetailsList;
 
   UpdateScheduleRequest({
     this.meetingDetails,
@@ -96,35 +95,36 @@ class MeetingImagesList {
   }
 }
 
-class QuantityDetailsList {
+class QuantityDetailsReq {
   int? existingQuantity;
-  int? newQuantity;
-  int? totalQuantity;
-  int? quantityDifference;
+  int? currentQuantity;
+  int? stockIn;
+  int? sales;
   double? totalPrice;
+
   int? productId;
   bool editable = true;
   String? prodName = "";
   String? sku = "";
   String? category = "";
-  QuantityDetailsList({
+  QuantityDetailsReq({
     this.existingQuantity,
-    this.newQuantity,
-    this.totalQuantity,
-    this.quantityDifference,
+    this.currentQuantity,
+    this.stockIn,
+    this.sales,
     this.totalPrice,
     this.productId,
-    this.editable=true,
+    this.editable = true,
     this.prodName,
     this.sku,
     this.category,
   });
 
-  QuantityDetailsList.fromJson(Map<String, dynamic> json) {
+  QuantityDetailsReq.fromJson(Map<String, dynamic> json) {
     existingQuantity = json['existingQuantity'];
-    newQuantity = json['newQuantity'];
-    totalQuantity = json['totalQuantity'];
-    quantityDifference = json['quantityDifference'];
+    currentQuantity = json['currentQuantity'];
+    stockIn = json['stockIn'];
+    sales = json['sales'];
     totalPrice = json['totalPrice'];
     productId = json['productId'];
   }
@@ -140,9 +140,9 @@ class QuantityDetailsList {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['existingQuantity'] = existingQuantity;
-    data['newQuantity'] = newQuantity;
-    data['totalQuantity'] = totalQuantity;
-    data['quantityDifference'] = quantityDifference;
+    data['currentQuantity'] = currentQuantity;
+    data['stockIn'] = stockIn;
+    data['sales'] = sales;
     data['totalPrice'] = totalPrice;
     data['productId'] = productId;
     return data;
@@ -154,19 +154,40 @@ class AuthorizeRequest {
   String? isAuthorized;
   String? authorizedRemarks;
 
-  AuthorizeRequest({this.isAuthorized, this.authorizedRemarks,this.id});
+  AuthorizeRequest({this.isAuthorized, this.authorizedRemarks, this.id});
 
   AuthorizeRequest.fromJson(Map<String, dynamic> json) {
-    isAuthorized = json['images'];
+    isAuthorized = json['isAuthorized'];
     authorizedRemarks = json['authorizedRemarks'];
     id = json['id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['images'] = isAuthorized;
+    data['isAuthorized'] = isAuthorized;
     data['authorizedRemarks'] = authorizedRemarks;
     data['id'] = id;
+    return data;
+  }
+}
+
+class UpdateShopLatLongRequestst {
+  String? id;
+  String? lat;
+  String? lng;
+  UpdateShopLatLongRequestst({this.id, this.lat, this.lng});
+
+  UpdateShopLatLongRequestst.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    lat = json['lat'];
+    lng = json['lng'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['id'] = id;
+    data['lat'] = lat;
+    data['lng'] = lng;
     return data;
   }
 }

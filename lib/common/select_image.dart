@@ -21,7 +21,12 @@ class ImgData {
   RxBool isLoading = false.obs;
   bool canEdit = true;
   bool isbase64 = false;
-  ImgData({required this.imagePath, this.url, this.canEdit = true,this.isbase64=false});
+  ImgData({
+    required this.imagePath,
+    this.url,
+    this.canEdit = true,
+    this.isbase64 = false,
+  });
 }
 
 class UploadImageController extends BaseController {
@@ -46,10 +51,11 @@ class UploadImageController extends BaseController {
       return;
     }
     _photoURLs.value = imageList;
+    isEmpty.value = _photoURLs.isEmpty;
     _photoURLs.refresh();
   }
 
-  void setUploadedImages(List<String>? imageList) {
+  void _setUploadedImages(List<String>? imageList) {
     if (imageList == null) {
       return;
     }
@@ -119,7 +125,7 @@ class UploadImageController extends BaseController {
     photo = await picker.pickImage(
       source: ImageSource.camera,
       preferredCameraDevice: CameraDevice.rear,
-      imageQuality: 50,
+      imageQuality: 40,
     );
     if (photo != null && photo?.path != '') {
       final image = ImgData(imagePath: photo?.path ?? "");
@@ -153,7 +159,7 @@ class UploadImageController extends BaseController {
 
   List<String> getImagesBase64() {
     return _photoURLs.value
-        .map((e) => imageToBase64(e.imagePath) ?? "")
+        .map((e) => imageToBase64(e.imagePath))
         .toList();
   }
 
@@ -366,11 +372,7 @@ class UploadImageWidget extends StatelessWidget {
               ),
             ),
           if (model.isbase64)
-            const Icon(
-              Icons.check,
-              size: 16,
-              color: AppColors.green,
-            ),
+            const Icon(Icons.check, size: 16, color: AppColors.green),
           if (model.canEdit)
             InkWell(
               onTap: () {

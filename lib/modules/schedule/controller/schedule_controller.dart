@@ -11,33 +11,36 @@ import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/data/meeting_model.dart';
-import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/data/shop_master_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/add_schedule_request.dart';
 import 'package:shop_app/models/login_response.dart';
+import 'package:shop_app/models/schedule_detail_request.dart'
+    hide QuantityDetailsList, MeetingDetails, MeetingImagesList;
 import 'package:shop_app/models/schedule_detail_response.dart';
 import 'package:shop_app/models/schedule_image_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/schedule_qty_response.dart';
+import 'package:shop_app/models/schedule_request.dart';
 import 'package:shop_app/models/shop_master_response.dart';
-import 'package:shop_app/models/update_schedule_request.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-enum MeetingStatus { IDEAL, STARTED, END, CANCELLED }
+enum MeetingStatus { IDEAL, STARTED, USER_AT_SHOP, CANCELLED }
 
 class ScheduleController extends BaseController {
-  final SessionPref _userManager = Get.find();
   final ScheduleServiceProtocol scheduleService = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
   UploadImageController selectedImageCtr = UploadImageController(maxCount: 5);
+  UploadImageController profileImage = UploadImageController(maxCount: 1);
 
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
   RxBool isRetail = true.obs;
+  final dropDownOptions = ["Retail", "Whole Sale"];
+  RxString selected = "Retail".obs;
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -58,21 +61,34 @@ class ScheduleController extends BaseController {
   Rx<LoginResponse> userData = LoginResponse().obs;
 
   RxList<ShopMasterModel> shopDetailsOptions = <ShopMasterModel>[].obs;
-  RxList<QuantityDetailsList> skListQtyInput = <QuantityDetailsList>[].obs;
+  RxList<QuantityDetailsReq> skListQtyInput = <QuantityDetailsReq>[].obs;
   RxInt totalExtQty = 0.obs;
-  RxInt totalNewQty = 0.obs;
+  RxInt currentQty = 0.obs;
+  RxInt stockQty = 0.obs;
   RxDouble totalPrice = (0.0).obs;
+  RxDouble totalSale = (0.0).obs;
+  RxDouble total = (0.0).obs;
 
   void calculateTotal() {
     totalExtQty.value = 0;
-    totalNewQty.value = 0;
+    currentQty.value = 0;
     totalPrice.value = 0.0;
+    stockQty.value = 0;
+    totalSale.value = 0;
+    total.value = 0;
 
     for (var e in skListQtyInput) {
       totalExtQty += (e.existingQuantity ?? 0);
-      totalNewQty += (e.newQuantity ?? 0);
+      currentQty += (e.currentQuantity ?? 0);
+      stockQty += (e.stockIn ?? 0);
       totalPrice.value += (e.totalPrice ?? 0.0);
+      final saleQty =
+          ((e.existingQuantity ?? 0) + (e.stockIn ?? 0)) -
+          (e.currentQuantity ?? 0);
+      totalSale.value += saleQty;
+      total.value += (e.currentQuantity ?? 0) * (e.totalPrice ?? 0.0);
     }
+    total.value = total.value.round().toDouble();
   }
 
   final TextEditingController shopController = TextEditingController();
@@ -86,6 +102,7 @@ class ScheduleController extends BaseController {
   bool isOnInitRan = false;
 
   void resetUi() {
+    print("resetUi()");
     calculateTotal();
     schedule.value = ScheduleDateTimeModel();
     isButtonEnabled.value = false;
@@ -93,7 +110,10 @@ class ScheduleController extends BaseController {
     meetingStarted.value = false;
     detailWasAdded.value = false;
     remarksController.text = "";
+    skListQtyInput.value = [];
     skuListInput.value = [];
+    profileImage.setUploadedImages64([]);
+    selectedImageCtr.setUploadedImages64([]);
     skuListInput.refresh();
     closeTime();
   }
@@ -106,23 +126,23 @@ class ScheduleController extends BaseController {
   Timer? _timer;
 
   void checkIfMeetingWasStarted() {
-    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
-    if (meet1 != null && meet1.timeRemainingSeconds > 0) {
-      final status = meet1.getMeetingStatusInSeconds();
-      if (status['is20MinCompleted']) {
-        isButtonEnabled.value = false;
-        meetingStatus.value = MeetingStatus.END;
-      } else {
-        meet1.timeRemainingSeconds = status['remainingSeconds'];
-        startCountdown(remaingTime: meet1.timeRemainingSeconds);
-      }
-    } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
-      isButtonEnabled.value = false;
-      meetingStatus.value = MeetingStatus.END;
-    }
-    if (schedule.value.isVisitDone == 2) {
-      meetingStatus.value = MeetingStatus.CANCELLED;
-    }
+    // final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
+    // if (meet1 != null && meet1.timeRemainingSeconds > 0) {
+    //   final status = meet1.getMeetingStatusInSeconds();
+    //   if (status['is20MinCompleted']) {
+    //     isButtonEnabled.value = false;
+    //     meetingStatus.value = MeetingStatus.END;
+    //   } else {
+    //     meet1.timeRemainingSeconds = status['remainingSeconds'];
+    //     // startCountdown(remaingTime: meet1.timeRemainingSeconds);
+    //   }
+    // } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
+    //   isButtonEnabled.value = false;
+    //   meetingStatus.value = MeetingStatus.END;
+    // }
+    // if (schedule.value.isVisitDone == 2) {
+    //   meetingStatus.value = MeetingStatus.CANCELLED;
+    // }
   }
 
   void saveMeetingTimeLocal() {
@@ -140,27 +160,27 @@ class ScheduleController extends BaseController {
     }
   }
 
-  // Start a 20-minute countdown
-  void startCountdown({int remaingTime = 20 * 60}) {
-    meetingStarted.value = true;
-    isButtonEnabled.value = true;
-    remainingSeconds.value = remaingTime; // 20 minutes in seconds
-    meetingStatus.value = MeetingStatus.STARTED;
-    if (_timer != null) {
-      _timer?.cancel();
-    }
-    saveMeetingTimeLocal();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (remainingSeconds.value > 0) {
-        remainingSeconds.value--;
-      } else {
-        _timer?.cancel();
-        isButtonEnabled.value = false;
-        meetingStatus.value = MeetingStatus.END;
-      }
-      saveMeetingTimeLocal();
-    });
-  }
+  // // Start a 20-minute countdown
+  // void startCountdown({int remaingTime = 20 * 60}) {
+  //   meetingStarted.value = true;
+  //   isButtonEnabled.value = true;
+  //   remainingSeconds.value = remaingTime; // 20 minutes in seconds
+  //   meetingStatus.value = MeetingStatus.STARTED;
+  //   if (_timer != null) {
+  //     _timer?.cancel();
+  //   }
+  //   saveMeetingTimeLocal();
+  //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+  //     if (remainingSeconds.value > 0) {
+  //       remainingSeconds.value--;
+  //     } else {
+  //       _timer?.cancel();
+  //       isButtonEnabled.value = false;
+  //       meetingStatus.value = MeetingStatus.USER_AT_SHOP;
+  //     }
+  //     saveMeetingTimeLocal();
+  //   });
+  // }
 
   // Format seconds to MM:SS
   String get formattedTime {
@@ -189,7 +209,6 @@ class ScheduleController extends BaseController {
     final Map<String, dynamic>? data = Get.arguments;
     isOnInitRan = true;
     print("onInit()");
-
     _setInitialDate(data);
   }
 
@@ -247,6 +266,37 @@ class ScheduleController extends BaseController {
     }
   }
 
+  Future<void> checkUserInParameter(String? date) async {
+    print("getTodaysScheduleList($date)");
+    isDateWiseLoading.value = true;
+    try {
+      final request = CheckUserAtShopRequest(scheduleId: schedule.value.id);
+      final response = await scheduleService.checkUserAtShopLocation(request);
+
+      if (response.responseCode == "Fail") {
+        AppToast.showToast(message: "Failed to check user at shop location");
+      } else {
+        meetingStatus.value = MeetingStatus.USER_AT_SHOP;
+      }
+    } on DioException catch (e) {
+      final errorMessage =
+          e.response?.data['error'] ?? "Failed to check user at shop location";
+      AppToast.showToast(message: errorMessage);
+    } on SocketException catch (e) {
+      AppToast.showToast(
+        message: e.message ?? "Failed to check user at shop location",
+      );
+    } on ServerException catch (e) {
+      AppToast.showToast(
+        message: e.message ?? "Failed to check user at shop location",
+      );
+    } catch (e) {
+      AppToast.showToast();
+    } finally {
+      isDateWiseLoading.value = false;
+    }
+  }
+
   Future<void> getScheduleDetails(int? scheduleId) async {
     isLoading.value = true;
     try {
@@ -297,7 +347,7 @@ class ScheduleController extends BaseController {
     completer = Completer();
     isSearchLoading.value = true;
     try {
-      final future = isRetail.value
+      final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
           : masterService.getWholeSellerName(query);
       completer?.complete(future);
@@ -326,7 +376,6 @@ class ScheduleController extends BaseController {
   }
 
   Completer? loadImagesTask;
-
   Future<void> getImages(String scheduleId) async {
     if (loadImagesTask != null && !loadImagesTask!.isCompleted) {
       loadImagesTask!.complete();
@@ -383,17 +432,17 @@ class ScheduleController extends BaseController {
       loadQtyTask?.complete(future);
       final response = await loadQtyTask!.future;
       List<QtyResults> result = response.results ?? [];
-      final mShopList = <QuantityDetailsList>[];
+      final mShopList = <QuantityDetailsReq>[];
       for (var img in result) {
         mShopList.add(
-          QuantityDetailsList(
+          QuantityDetailsReq(
             prodName: img.productId?.toString() ?? "Id:${img.productId}",
             editable: false,
             existingQuantity: img.existingQuantity,
-            newQuantity: img.newQuantity,
+            currentQuantity: img.currentQuantity,
             productId: img.productId,
             totalPrice: img.totalPrice,
-            totalQuantity: img.totalQuantity,
+            stockIn: img.stockIn,
           ),
         );
       }
@@ -479,7 +528,12 @@ class ScheduleController extends BaseController {
     selectedTime = null;
   }
 
-  Future<void> submitForm(Function() onDone) async {
+  Future<void> submitForm() async {
+    if (profileImage.isEmpty.value) {
+      AppToast.showToast(message: 'Please select a profile photo.');
+      return;
+    }
+
     if (dateController.text.isEmpty) {
       AppToast.showToast(message: 'Please select a date.');
       return;
@@ -497,7 +551,7 @@ class ScheduleController extends BaseController {
     final shop = selectedShop;
     final meetingDetail = MeetingDetails();
     final imageList = <MeetingImagesList>[];
-    final quantityList = <QuantityDetailsList>[];
+    final quantityList = <QuantityDetailsReq>[];
     final request = UpdateScheduleRequest(
       meetingDetails: meetingDetail,
       meetingImagesList: imageList,
@@ -515,6 +569,13 @@ class ScheduleController extends BaseController {
     meetingDetail.meetingRemarks = remarksController.text;
     final mNewQtyList = skListQtyInput.filter((n) => n.editable).toList();
     quantityList.addAll(mNewQtyList);
+    profileImage.getImagesBase64().forEach((image) {
+      final imageMeeting = MeetingImagesList(
+        images: image,
+        type: "profle-image",
+      );
+      imageList.add(imageMeeting);
+    });
     selectedImageCtr.getImagesBase64().forEach((image) {
       final imageMeeting = MeetingImagesList(images: image, type: "shop-front");
       imageList.add(imageMeeting);
@@ -528,7 +589,7 @@ class ScheduleController extends BaseController {
         );
       } else {
         closeTime();
-        onDone();
+        Get.back();
         AppToast.showToast(message: 'Schedule update successfully!');
       }
     } on DioException catch (e) {
@@ -550,7 +611,7 @@ class ScheduleController extends BaseController {
     final shop = selectedShop;
     final meetingDetail = MeetingDetails();
     final imageList = <MeetingImagesList>[];
-    final quantityList = <QuantityDetailsList>[];
+    final quantityList = <QuantityDetailsReq>[];
     final request = UpdateScheduleRequest(
       meetingDetails: meetingDetail,
       meetingImagesList: imageList,
@@ -588,9 +649,9 @@ class ScheduleController extends BaseController {
       final errorMessage = e.response?.data['error'] ?? "Failed to cancelled";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to cancelled");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to cancelled");
+      AppToast.showToast(message: e.message);
     } catch (e) {
       // AppToast.showToast();
     } finally {
@@ -604,7 +665,6 @@ class ScheduleController extends BaseController {
     final mSchedule = schedule.value;
     mSchedule.createdBy = scheduleApi.createdBy;
     mSchedule.shopName = scheduleApi.shopName;
-    shopController.text = scheduleApi.shopName ?? "";
     selectedShop = ShopMasterModel(
       id: scheduleApi.shopId,
       mobileNumber: scheduleApi.meetingPersonContactNumber,

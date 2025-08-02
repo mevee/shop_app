@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/widgets/common_extension.dart';
@@ -78,26 +79,20 @@ class SelectShopBottomSheet extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.only(top: 4, bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "Retail Only",
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w400),
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
+              child: Obx(
+                () => SizedBox(
+                  width: double.maxFinite,
+                  child: GenericDropdown<String>(
+                    options: controller.dropDownOptions,
+                    selectedOption: controller.selected.value,
+                    hintText: "Select",
+                    onChanged: (value) {
+                      controller.selected.value = value ?? "Retail";
+                      controller.getShopList(controller.searchCtr.text);
+                    },
                   ),
-                  horizontalSpacing(4),
-                  Obx(
-                    () => Checkbox(
-                      value: controller.isRetail.value,
-                      onChanged: (value) {
-                        controller.isRetail.value = value ?? true;
-                        controller.getShopList(controller.searchCtr.text);
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             Obx(() => prgressAndNoDatFound(controller.isSearchLoading.value)),
@@ -177,7 +172,7 @@ class SelectShopBottomSheet extends StatelessWidget {
       return Expanded(
         child: Center(
           child: Text(
-            "No ${controller.isRetail.value?'Retail':'Whole Sale'} Shops Found",
+            "No ${controller.isRetail.value ? 'Retail' : 'Whole Sale'} Shops Found",
             style: TextStyle(color: AppColors.neutral400),
           ),
         ),

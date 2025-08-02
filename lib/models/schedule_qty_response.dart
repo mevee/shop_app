@@ -67,7 +67,8 @@ class QtyResults {
   int? id;
   int? productId;
   int? existingQuantity;
-  int? newQuantity;
+  int? currentQuantity;
+  int? stockIn;
   int? totalQuantity;
   double? totalPrice;
   int? scheduleId;
@@ -80,7 +81,8 @@ class QtyResults {
       {this.id,
       this.productId,
       this.existingQuantity,
-      this.newQuantity,
+      this.currentQuantity,
+      this.stockIn,
       this.totalQuantity,
       this.totalPrice,
       this.scheduleId,
@@ -93,7 +95,8 @@ class QtyResults {
     id = json['id'];
     productId = json['productId'];
     existingQuantity = json['existingQuantity'];
-    newQuantity = json['newQuantity'];
+    stockIn = json['stockIn'];
+    currentQuantity = json['currentQuantity'];
     totalQuantity = json['totalQuantity'];
     totalPrice = json['totalPrice'];
     scheduleId = json['scheduleId'];
@@ -108,7 +111,8 @@ class QtyResults {
     data['id'] = id;
     data['productId'] = productId;
     data['existingQuantity'] = existingQuantity;
-    data['newQuantity'] = newQuantity;
+    data['currentQuantity'] = currentQuantity;
+    data['stockIn'] = stockIn;
     data['totalQuantity'] = totalQuantity;
     data['totalPrice'] = totalPrice;
     data['scheduleId'] = scheduleId;

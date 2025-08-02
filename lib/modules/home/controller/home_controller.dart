@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
+import 'package:shop_app/common/location_util.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/schedule_service.dart';
@@ -22,10 +23,11 @@ import 'package:shop_app/navigation/app_pages.dart';
 import '../../../common/app_log_util.dart';
 
 enum UserState { IDEAL, WORKING, NOT_WORKING }
-class OptionModel{
+
+class OptionModel {
   String label;
   IconData iconData;
-  OptionModel({required this.label,required this.iconData});  
+  OptionModel({required this.label, required this.iconData});
 }
 
 class HomeController extends BaseController {
@@ -36,12 +38,6 @@ class HomeController extends BaseController {
   final FlutterBgService locationService = FlutterBgService();
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
-  
-   final moreOtions = [
-    OptionModel(label:"Manage Schedules",iconData:  Icons.manage_accounts),
-    OptionModel(label:"Change Password",iconData:  Icons.manage_accounts),
-    OptionModel(label:"Logout",iconData:  Icons.logout_outlined),
-                ];
 
   final RxBool isObscureNewPassword = true.obs;
   RxBool isTodaysLoding = false.obs;
@@ -67,13 +63,34 @@ class HomeController extends BaseController {
     startObs();
   }
 
+  List<OptionModel> getMoreOptionList() {
+    if (userData.value.login?.role == "manager" ||
+        userData.value.login?.role == "admin") {
+      return [
+        OptionModel(label: "Manage Schedules", iconData: Icons.manage_accounts),
+        OptionModel(label: "Change Password", iconData: Icons.manage_accounts),
+        OptionModel(label: "Logout", iconData: Icons.logout_outlined),
+      ];
+    } else {
+      return [
+        OptionModel(label: "Change Password", iconData: Icons.manage_accounts),
+        OptionModel(label: "Logout", iconData: Icons.logout_outlined),
+      ];
+    }
+  }
+
   void startObs() {
     if (_timer != null) {
       _timer?.cancel();
     }
     _timer = Timer.periodic(Duration(seconds: 15), (timer) {
       if (userManager.getIsWorking() == true) {
-        getEmployeeTravelDistance();
+        // if (!kDebugMode) {
+        //   getEmployeeTravelDistance();
+        // }
+        if (kProfileMode | kReleaseMode) {
+          getEmployeeTravelDistance();
+        }
       }
     });
   }
@@ -88,31 +105,18 @@ class HomeController extends BaseController {
     if (isPunchInProgress.isTrue) {
       return;
     }
-    refreshLocation().then((_) async {
-      if (currentPosition != null) {
-        inLocation = LocationLatLon(
-          lat: currentPosition!.latitude,
-          long: currentPosition!.longitude,
-        );
-        await _cLockIN();
-      } else {
-        AppToast.showToast(message: 'Failed to get in location');
-      }
+    LocationUtil.getLocation((location) async {
+      inLocation = location;
+      await _cLockIN();
+      isPunchInProgress.value = false;
     });
   }
 
   void getOutLocation() {
     isPunchOutProgress.value = true;
-    refreshLocation().then((_) {
-      if (currentPosition != null) {
-        outLocation = LocationLatLon(
-          lat: currentPosition!.latitude,
-          long: currentPosition!.longitude,
-        );
-        _clockOut();
-      } else {
-        AppToast.showToast(message: 'Failed to get in location');
-      }
+    LocationUtil.getLocation((location) async {
+      outLocation = location;
+      await _clockOut();
       isPunchOutProgress.value = false;
     });
   }
@@ -146,9 +150,9 @@ class HomeController extends BaseController {
       final errorMessage = e.response?.data['error'] ?? "Failed to Punch In";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to Punch In");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to Punch In");
+      AppToast.showToast(message: e.message);
     } catch (e) {
       AppToast.showToast();
     } finally {
@@ -173,6 +177,14 @@ class HomeController extends BaseController {
       if (response.responseCode?.toLowerCase() == "success") {
         AppToast.showToast(message: "Clock out");
         userManager.setIsWorking(false);
+        if (response.results != null && response.results!.isNotEmpty) {
+          attandanceObj.value = response.results!.first;
+          if (attandanceObj.value.isLoggedIn &&
+              attandanceObj.value.isLoggedOut) {
+            userState.value = UserState.NOT_WORKING;
+            _stopForgrundService();
+          }
+        }
       } else {
         AppToast.showToast(
           message: response.responseCode ?? "Failed to clock out",
@@ -182,9 +194,9 @@ class HomeController extends BaseController {
       final errorMessage = e.response?.data['error'] ?? "Failed to clock out";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to clock out");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to clock out");
+      AppToast.showToast(message: e.message);
     } catch (e) {
       AppToast.showToast();
     } finally {
@@ -367,5 +379,10 @@ class HomeController extends BaseController {
       // locationService.stopTracking();
       // _locationService.stopBackgroundLocation();
     }
+  }
+
+  void _stopForgrundService() {
+    print("_stopForgrundService()");
+    locationService.stopTracking();
   }
 }
