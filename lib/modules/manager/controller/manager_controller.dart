@@ -107,9 +107,9 @@ class ManagerController extends BaseController {
     AuthorizeRequest request = AuthorizeRequest(
       id: schedule.id,
       authorizedRemarks: approveMessage,
-      isAuthorized: accept? "Authorized":"Reject",
+      isAuthorized: accept? "Cancel Accepted":"Cancel Rejected",
     );
-    print('Form Data: $request');
+    // print('Form Data: $request');
     try {
       isActionLoading.value = true;
       final response = await _manageService.updateAuthorizeSchedule(request);

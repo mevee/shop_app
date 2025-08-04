@@ -7,15 +7,15 @@ import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 
-import 'utils/constants.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SPrefSessiomImpl().initPreferences();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
-      statusBarColor: AppColors.primaryAccent,
+      statusBarColor: AppColors.cherryRed,
       statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: AppColors.cherryRed,
+
     ),
   );
   // Start background service
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Shop App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppConstants.primaryColor),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.cherryRed),
         useMaterial3: true,
         textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
         primaryTextTheme: GoogleFonts.latoTextTheme(

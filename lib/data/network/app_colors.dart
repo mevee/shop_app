@@ -15,7 +15,7 @@ abstract class AppColors {
   static const Color neutral600 = Color.fromRGBO(93, 93, 93, 1);
   static const Color disabled = Color.fromRGBO(93, 93, 93, 1);
   static const Color primary = Color.fromRGBO(174, 17, 30, 1);
-  static const Color primaryAccent = Color.fromRGBO(142, 47, 94, 1);
+  static const Color primaryAccent = cherryRed;
   static const Color divider = Color.fromRGBO(93, 93, 93, 1);
   static const Color blackText = Color.fromRGBO(45, 45, 45, 1);
   static const Color greyText = Color.fromRGBO(79, 79, 79, 1);

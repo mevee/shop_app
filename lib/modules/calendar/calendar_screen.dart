@@ -89,7 +89,11 @@ class CalendarScreen extends GetView<CallenderController> {
                           vertical: 2.0,
                         ),
                         decoration: BoxDecoration(
-                                            color: item.isVisitDone == 2 ? AppColors.yellow :item.isVisitDone == 1?AppColors.green: AppColors.red,
+                          color: item.isVisitDone == 2
+                              ? AppColors.yellow
+                              : item.isVisitDone == 1
+                              ? AppColors.green
+                              : AppColors.red,
 
                           // color: item.isVisitDone == 1
                           //     ? AppColors.green
@@ -99,13 +103,15 @@ class CalendarScreen extends GetView<CallenderController> {
                         ),
                         child: Text(
                           item.shopName ?? 'No Data',
-                          style: TextStyle(fontSize: 9.0, color: Colors.white,
-                           decoration: item.isVisitDone == 2
-                              ? TextDecoration.lineThrough
-                              : null,
-                          decorationColor: Colors.black, // Line color
-                          decorationThickness: 2.0, // Line thickness
-                          decorationStyle: TextDecorationStyle.dashed,
+                          style: TextStyle(
+                            fontSize: 9.0,
+                            color: Colors.white,
+                            decoration: item.isVisitDone == 2
+                                ? TextDecoration.lineThrough
+                                : null,
+                            decorationColor: Colors.black, // Line color
+                            decorationThickness: 2.0, // Line thickness
+                            decorationStyle: TextDecorationStyle.dashed,
                           ),
                           overflow: TextOverflow.clip, // Truncate long text
                           maxLines: 1,
@@ -124,12 +130,13 @@ class CalendarScreen extends GetView<CallenderController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Calendar'),
-      //   centerTitle: true,
-      //   backgroundColor: Colors.deepPurple,
-      //   foregroundColor: Colors.white,
-      // ),
+      appBar: AppBar(
+        title: const Text('Planner',),
+        centerTitle: true,
+        backgroundColor: AppColors.cherryRed,
+        foregroundColor: Colors.white,
+      ),
+      
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showAddSheduleBottomSheet(context);

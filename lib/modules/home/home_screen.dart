@@ -9,7 +9,6 @@ import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/home_controller.dart';
 import 'package:shop_app/modules/home/more_options_bottom.dart';
-import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/modules/schedule/schedule_item_view.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
@@ -20,6 +19,12 @@ class HomeScreen extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+        title: const Text('Dasboard'),
+        centerTitle: true,
+        backgroundColor: AppColors.cherryRed,
+        foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: controller.getTodaysSchedules,
@@ -168,7 +173,7 @@ class HomeScreen extends GetView<HomeController> {
                 print("scheduleItemView $payoad");
                 // final ctr = Get.put(ScheduleController());
                 // if (ctr.isOnInitRan == false) {
-                  // ctr.setManualArguments(payoad);
+                // ctr.setManualArguments(payoad);
                 // }
               },
             );
@@ -199,7 +204,7 @@ class HomeScreen extends GetView<HomeController> {
                 child: Text(
                   "Hello, ",
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.normal,
                     color: Colors.white,
                   ),
@@ -315,7 +320,7 @@ class HomeScreen extends GetView<HomeController> {
             data?.fullName ?? "",
             textAlign: TextAlign.start,
             style: GoogleFonts.poppins(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -326,7 +331,7 @@ class HomeScreen extends GetView<HomeController> {
               Text(
                 "Employee ID: ",
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.normal,
                   color: Colors.white,
                 ),
@@ -335,7 +340,7 @@ class HomeScreen extends GetView<HomeController> {
                 () => Text(
                   controller.userData.value.login?.employeeId ?? "",
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: FontWeight.normal,
                     color: Colors.white,
                   ),
@@ -372,13 +377,13 @@ class HomeScreen extends GetView<HomeController> {
   Row lableValue({required IconData label, String? value}) {
     return Row(
       children: [
-        Icon(label, size: 18, color: Colors.white),
+        Icon(label, size: 14, color: Colors.white),
 
         horizontalSpace(8.0),
         Text(
           value ?? '',
           style: GoogleFonts.poppins(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.normal,
             color: Colors.white,
           ),

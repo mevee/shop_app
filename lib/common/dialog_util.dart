@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 
 /// Shows a customizable alert dialog
 /// 
@@ -52,6 +53,103 @@ Future<void> showCustomDialog({
             },
           ),
         ],
+      );
+    },
+  );
+}
+
+void showInputDialog({
+  required BuildContext context,
+  required Function(String) onSubmit,
+  String title = 'Input Required',
+  String submitLabel = 'OK',
+  String placeholder = 'Enter text here',
+  String errorText = 'This field is required',
+}) {
+  final TextEditingController controller = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  showDialog(
+    context: context,
+    barrierDismissible: true, // Prevent closing by tapping outside
+  // ,
+    builder: (BuildContext context) {
+      return AlertDialog(
+      insetPadding: EdgeInsets.all(0),
+      // contentPadding: EdgeInsets.all(0),
+    
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: placeholder,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return errorText;
+                  }
+                  return null;
+                },
+                autofocus: true,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(context).pop();
+                onSubmit(controller.text);
+              }
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: AppColors.cherryRed,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: Text(
+              submitLabel,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+        actionsPadding: const EdgeInsets.only(
+          right: 16,
+          bottom: 16,
+        ),
       );
     },
   );

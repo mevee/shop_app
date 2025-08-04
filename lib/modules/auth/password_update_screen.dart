@@ -15,20 +15,13 @@ class UpdatePasswordScreen extends GetView<AuthController> {
       appBar: AppBar(
         title: Text("Update Password"),
         centerTitle: true,
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.cherryRed,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       body: Container(
         height: double.maxFinite,
         width: double.maxFinite,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.primaryAccent],
-            stops: [0.0, 1.0],
-          ),
-        ),
+        decoration: const BoxDecoration(color: AppColors.cherryRed),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -47,7 +40,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
                   prefixIcon: Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(height: 16),
-                
+
                 CommonWidgets.text(
                   controller: controller.oldPasswordCtr,
                   labelText: 'Old Password',

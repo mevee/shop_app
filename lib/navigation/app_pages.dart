@@ -26,11 +26,11 @@ class AppPages {
   static const initial = Routes.passwordReset;
 
   static final routes = [
-    GetPage(
-      name: _Paths.home,
-      page: () => const HomeScreen(),
-      // binding: HomeBinding(),
-    ),
+    // GetPage(
+    //   name: _Paths.home,
+    //   page: () => const HomeScreen(),
+    //   // binding: HomeBinding(),
+    // ),
     GetPage(
       name: _Paths.scheduleList,
       page: () => const ScheduleListView(),

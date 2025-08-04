@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/agent_list_response.dart';
@@ -126,7 +127,7 @@ class ManagerScreen extends GetView<ManagerController> {
   }
 
   Widget actionBtns(ScheduleDateTimeModel model, BuildContext context) {
-    if (model.isAuthorized == "Pending" && model.isVisitDone == 0) {
+    if (model.isVisitDone == 0 && model.isAuthorized == "Request to Cancel") {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
         child: Row(
@@ -136,12 +137,21 @@ class ManagerScreen extends GetView<ManagerController> {
               disable: false,
               isLoading: false,
               context: context,
-              label: "Reject",
+              label: "Cancel Reject",
               textColor: AppColors.blackText,
               color: AppColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               onPressed: () {
-                controller.submitForm(model, "Reject", false);
+                showInputDialog(
+                  context: context,
+                  placeholder: "Pleaase enter remark",
+                  errorText: "Remark required",
+                  title: "Remark",
+                  submitLabel: "Reject",
+                  onSubmit: (input) {
+                    controller.submitForm(model, input, false);
+                  },
+                );
               },
             ),
             horizontalSpacing(16),
@@ -149,12 +159,21 @@ class ManagerScreen extends GetView<ManagerController> {
               disable: false,
               isLoading: false,
               context: context,
-              label: "Approve",
+              label: "Cancel Approve",
               textColor: AppColors.white,
               color: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               onPressed: () {
-                controller.submitForm(model, "Ok", true);
+                showInputDialog(
+                  context: context,
+                  placeholder: "Pleaase enter remark",
+                  errorText: "Remark required",
+                  title: "Remark Required",
+                  submitLabel: "Approve",
+                  onSubmit: (input) {
+                    controller.submitForm(model, input, true);
+                  },
+                );
               },
             ),
           ],
@@ -185,9 +204,9 @@ class ManagerScreen extends GetView<ManagerController> {
     // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 2) {
     //   //view only canceled by agent
     //   return viewScheduleButton(model, context);
-    // } 
+    // }
     else {
-     return SizedBox.shrink();
+      return SizedBox.shrink();
     }
   }
 
@@ -204,7 +223,7 @@ class ManagerScreen extends GetView<ManagerController> {
             label: "View",
             textColor: AppColors.blackText,
             color: AppColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             onPressed: () {
               final payoad = {"id": model};
               Get.toNamed(Routes.scheduleDetail, arguments: payoad);

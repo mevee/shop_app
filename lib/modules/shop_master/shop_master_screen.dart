@@ -19,55 +19,19 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
       appBar: AppBar(
         title: const Text('Shop Master'),
         centerTitle: true,
-        backgroundColor: AppColors.primaryAccent,
+        backgroundColor: AppColors.cherryRed,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
-      floatingActionButton: Obx(
-        () => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (controller.isExpanded.value)
-              FloatingActionButton(
-                onPressed: () {
-                  controller.resetAddShopDetail();
-                  Get.toNamed(Routes.createShop);
-                  controller.isExpanded.value = !controller.isExpanded.value;
-                },
-                backgroundColor: AppColors.primary,
-                child: const Icon(Icons.add, color: Colors.white),
-              ),
-
-            // if (controller.isExpanded.value) SizedBox(height: 16),
-            // if (controller.isExpanded.value)
-            //   FloatingActionButton(
-            //     heroTag: 'option2',
-            //     onPressed: () {
-            //       // setState(() => isExpanded = false);
-            //       // Handle option 2
-            //       controller.resetLocationUpdateDetail();
-            //       Get.toNamed(Routes.updateLocation);
-            //       controller.isExpanded.value = !controller.isExpanded.value;
-            //     },
-            //     // mini: true,
-            //     backgroundColor: AppColors.primary,
-            //     child: Icon(Icons.location_on, color: AppColors.white),
-            //   ),
-            SizedBox(height: 16),
-            FloatingActionButton(
-              heroTag: 'main',
-              onPressed: () {
-                controller.isExpanded.value = !controller.isExpanded.value;
-              },
-              backgroundColor: AppColors.primaryAccent,
-              // mini:true,
-              child: Icon(
-                controller.isExpanded.value ? Icons.close : Icons.touch_app,
-                color: AppColors.white,
-              ),
-            ),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          controller.resetAddShopDetail();
+          Get.toNamed(Routes.createShop);
+          controller.isExpanded.value = !controller.isExpanded.value;
+        },
+        backgroundColor: AppColors.cherryRed,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),

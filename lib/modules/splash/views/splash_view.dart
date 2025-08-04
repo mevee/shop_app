@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/preference.dart';
-import 'package:shop_app/data/session_getstorage_impl.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
-import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/app_images.dart';
 
@@ -24,12 +21,12 @@ class _SplashViewState extends State<SplashView> {
     super.initState();
   }
 
-  void completeSplashUser() async{
-     final SessionPref userManager = Get.put(SPrefSessiomImpl());
-     await userManager.initPreferences();
-     final loginData = userManager.getUserData();
+  void completeSplashUser() async {
+    final SessionPref userManager = Get.put(SPrefSessiomImpl());
+    await userManager.initPreferences();
+    final loginData = userManager.getUserData();
     Future.delayed(const Duration(seconds: 2), (() {
-      if (loginData!= null) {
+      if (loginData != null) {
         Get.offAllNamed(Routes.bottomNavigation);
       } else {
         Get.offAllNamed(Routes.login);
@@ -56,7 +53,7 @@ class _SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.blackText,
+      color: AppColors.white,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

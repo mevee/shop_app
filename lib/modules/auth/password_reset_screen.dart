@@ -15,19 +15,12 @@ class PasswordResetScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primaryAccent,
+        backgroundColor: AppColors.cherryRed,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       body: Container(
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.primaryAccent],
-            stops: [0.0, 1.0],
-          ),
-        ),
+        decoration: const BoxDecoration(color: AppColors.cherryRed),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(

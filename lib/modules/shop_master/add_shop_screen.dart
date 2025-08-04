@@ -18,7 +18,7 @@ class AddShopMasterScreen extends GetView<ShopMasterController> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Add Shop Master'),
+        title: const Text('Add Shop'),
         centerTitle: true,
         backgroundColor: AppColors.primaryAccent,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),

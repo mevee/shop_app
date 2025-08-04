@@ -10,6 +10,7 @@ import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/data/manager_service.dart';
 import 'package:shop_app/data/meeting_model.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/data/shop_master_service.dart';
@@ -26,11 +27,20 @@ import 'package:shop_app/models/schedule_request.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-enum MeetingStatus { IDEAL, STARTED, USER_AT_SHOP, CANCELLED }
+enum MeetingStatus {
+  IDEAL,
+  STARTED,
+  COMPLETED,
+  USER_AT_SHOP,
+  CANCELLED,
+  CANCEL_REJECTED,
+}
 
 class ScheduleController extends BaseController {
   final ScheduleServiceProtocol scheduleService = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
+  final ManagerServiceProtocol _manageSchedule = Get.find();
+
   UploadImageController selectedImageCtr = UploadImageController(maxCount: 5);
   UploadImageController profileImage = UploadImageController(maxCount: 1);
 
@@ -220,9 +230,23 @@ class ScheduleController extends BaseController {
       scheduleDetailAdded.value = false;
       past.value = false;
       visited.value = false;
+      print("(arg${data?['id']})");
       getScheduleDetails(schedule.value.id);
       if (schedule.value.isVisitDone == 2) {
         meetingStatus.value = MeetingStatus.CANCELLED;
+      } else if (schedule.value.isVisitDone == 1) {
+        meetingStatus.value = MeetingStatus.COMPLETED;
+      } else if (schedule.value.isVisitDone == 0 &&
+          schedule.value.isAuthorized == "Authorized") {
+        meetingStatus.value = MeetingStatus.IDEAL;
+      } else if (schedule.value.isVisitDone == 0 &&
+          schedule.value.isAuthorized == "Cancel Rejected") {
+        meetingStatus.value = MeetingStatus.CANCELLED;
+      } else if (schedule.value.isVisitDone == 0 &&
+          schedule.value.isAuthorized == "Cancel Accepted") {
+        meetingStatus.value = MeetingStatus.COMPLETED;
+      } else {
+        meetingStatus.value = MeetingStatus.COMPLETED;
       }
     } else if (data?.containsKey('date') == true) {
       scheduleDate = data?['date']!;
@@ -608,41 +632,21 @@ class ScheduleController extends BaseController {
 
   Future<void> cancelMeeting() async {
     updateScheduleLoading.value = true;
-    final shop = selectedShop;
-    final meetingDetail = MeetingDetails();
-    final imageList = <MeetingImagesList>[];
-    final quantityList = <QuantityDetailsReq>[];
-    final request = UpdateScheduleRequest(
-      meetingDetails: meetingDetail,
-      meetingImagesList: imageList,
-      quantityDetailsList: quantityList,
+    AuthorizeRequest request = AuthorizeRequest(
+      id: schedule.value.id,
+      authorizedRemarks: remarksController.text,
+      isAuthorized: "Request to Cancel",
     );
-    meetingDetail.scheduleId = schedule.value.id;
-    meetingDetail.shopId = shop?.id;
-    meetingDetail.shopName = shop?.unitName;
-    meetingDetail.meetingPersonName = shop?.ownerName;
-    meetingDetail.meetingPersonContactNumber = shop?.mobileNumber;
-
-    meetingDetail.meetingStartDateTime =
-        '${dateController.text}T${timeController.text}'; //todo
-    meetingDetail.meetingEndDateTime = DateFormatter.getCurrentDateTimeString();
-    meetingDetail.meetingRemarks = remarksController.text;
-    final mNewQtyList = skListQtyInput.filter((n) => n.editable).toList();
-    quantityList.addAll(mNewQtyList);
-    selectedImageCtr.getImagesBase64().forEach((image) {
-      final imageMeeting = MeetingImagesList(images: image, type: "shop-front");
-      imageList.add(imageMeeting);
-    });
-
     try {
-      final response = await scheduleService.cancelSchedule(request);
+      final response = await _manageSchedule.updateAuthorizeSchedule(request);
       if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
         AppToast.showToast(
           message: response.responseMessage ?? 'Failed to add schedule.',
         );
       } else {
         Get.back(canPop: true);
-        AppToast.showToast(message: 'Schedule cancelled successfully!');
+        schedule.value.isAuthorized = "Request to Cancel";
+        AppToast.showToast(message: 'Cancel request sent');
       }
       aLog("cancelSchedule${response.responseMessage}");
     } on DioException catch (e) {

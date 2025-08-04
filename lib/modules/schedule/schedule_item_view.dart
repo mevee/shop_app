@@ -64,13 +64,7 @@ Widget scheduleItemView({
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
-                    model.isVisitDone == 0
-                        ? 'NOT VISITED'
-                        : model.isVisitDone == 1
-                        ? 'VISITED'
-                        : model.isAuthorized == "Pending"
-                        ? "PENDING"
-                        : 'CANCELLED',
+                    _stausString(model),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
@@ -86,4 +80,25 @@ Widget scheduleItemView({
       ),
     ),
   );
+}
+
+String _stausString(ScheduleDateTimeModel model) {
+  if (model.isVisitDone == 0 && model.isAuthorized == "Authorized") {
+    return "NOT VISITED";
+  } else if (model.isVisitDone == 0 &&
+      model.isAuthorized == "Request to Cancel") {
+    return "PENDING";
+  }
+  // Cancel Rejected other wise Cancel Accepted
+  else if (model.isVisitDone == 0 && model.isAuthorized == "Cancel Rejected") {
+    // return "CANCEL NOT ALLOWED";
+    return "NOT VISITED";
+  } else if (model.isVisitDone == 0 &&
+      model.isAuthorized == "Cancel Accepted") {
+    return "CANCELLED";
+  } else if (model.isVisitDone == 2) {
+    return "CANCELLED";
+  } else {
+    return 'VISITED';
+  }
 }

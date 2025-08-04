@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
-import 'package:shop_app/common/string_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
 import 'package:shop_app/models/schedule_request.dart';
@@ -149,7 +148,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                               Icons.add,
                               color: Colors.white,
                             ),
-                            disable: controller.detailWasAdded.value,
+                            disable: !_isEditable(),
                             context: context,
                             textColor: Colors.white,
                             onPressed: () {
@@ -172,7 +171,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                               }
                             },
                             label: 'Add',
-                            color: AppColors.primary,
+                            color: AppColors.cherryRed,
                             horiontal: 12,
                             vertical: 8,
                           ),
@@ -269,18 +268,13 @@ class ScheduleDetailView extends GetView<ScheduleController> {
   }
 
   Row actionButtonsBottomView(BuildContext context) {
-    print(
-      "not cancelled ${controller.meetingStatus.value != MeetingStatus.CANCELLED}",
-    );
-    print("visit Done ${controller.schedule.value.isVisitDone}");
+    print("visit Done ${controller.meetingStatus.value}");
     // print("visit Done ${controller.schedule.value.isVisitDone}");
     return Row(
       children: [
         Obx(
           () => Visibility(
-            visible:
-                (controller.meetingStatus.value != MeetingStatus.CANCELLED) ||
-                controller.schedule.value.isVisitDone == 0,
+            visible: (controller.meetingStatus.value == MeetingStatus.IDEAL),
             child: Expanded(
               child: buttonWithLoader(
                 disable:
@@ -310,8 +304,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
         Obx(
           () => Visibility(
             visible:
-                (controller.meetingStatus.value != MeetingStatus.CANCELLED) ||
-                controller.schedule.value.isVisitDone == 0,
+                (controller.meetingStatus.value == MeetingStatus.IDEAL) ||
+                (controller.meetingStatus.value ==
+                    MeetingStatus.CANCEL_REJECTED),
             child: Expanded(
               child: buttonWithLoader(
                 disable:
@@ -319,7 +314,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     controller.today.value && controller.visited.value ||
                     controller.updateScheduleLoading.value),
                 label: 'Submit',
-                color: AppColors.primary,
+                color: AppColors.cherryRed,
                 textColor: Colors.white,
                 progressColor: Colors.white,
                 onPressed: () {
@@ -736,72 +731,79 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     );
   }
 
-  Widget timeWidgetAndSubmitButton(BuildContext context) {
-    return Obx(
-      () =>
-          (controller.meetingStatus.value == MeetingStatus.IDEAL ||
-              controller.schedule.value.isVisitDone == 1)
-          ? SizedBox.shrink()
-          : Container(
-              margin: EdgeInsets.symmetric(vertical: 12),
-              // padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.red[100],
-                border: BoxBorder.all(color: AppColors.green, width: 2),
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 15),
-                  Text(
-                    "Meeting Started and time remaining ${formatSecondsToMinSec(controller.remainingSeconds.value)}",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14.0),
-                  ),
-                  const SizedBox(height: 15),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8.0,
-                      horizontal: 5.0,
-                    ),
-                    child: buttonWithLoader(
-                      disable:
-                          (controller.visited.value ||
-                          controller.updateScheduleLoading.value ||
-                          controller.remainingSeconds.value != 0),
-                      label: 'Submit',
-                      color: AppColors.primary,
-                      textColor: Colors.white,
-                      progressColor: Colors.white,
-                      onPressed: () {
-                        if (controller.profileImage.isEmpty.value) {
-                          AppToast.showToast(
-                            message: "Please slect a profile image first",
-                          );
-                        } else {
-                          controller.submitForm();
-                        }
-                      },
-                      isLoading:
-                          (controller.updateScheduleLoading.value ||
-                          controller.isLoading.value),
-                      context: context,
-                    ),
-                  ),
-                  // buttonWithLoader(
-                  //   disable: false,
-                  //   label: 'Reset',
-                  //   color: AppColors.primary,
-                  //   textColor: Colors.white,
-                  //   progressColor: Colors.white,
-                  //   onPressed: () => controller.closeTime(),
-                  //   isLoading: false,
-                  //   context: context,
-                  // ),
-                ],
-              ),
-            ),
-    );
+  bool _isEditable() {
+    final editAllowed =
+        (controller.meetingStatus.value == MeetingStatus.IDEAL) ||
+        (controller.meetingStatus.value == MeetingStatus.CANCEL_REJECTED);
+    return editAllowed;
   }
+
+  // Widget timeWidgetAndSubmitButton(BuildContext context) {
+  //   return Obx(
+  //     () =>
+  //         (controller.meetingStatus.value == MeetingStatus.IDEAL ||
+  //             controller.schedule.value.isVisitDone == 1)
+  //         ? SizedBox.shrink()
+  //         : Container(
+  //             margin: EdgeInsets.symmetric(vertical: 12),
+  //             // padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+  //             decoration: BoxDecoration(
+  //               color: Colors.red[100],
+  //               border: BoxBorder.all(color: AppColors.green, width: 2),
+  //               borderRadius: BorderRadius.all(Radius.circular(8)),
+  //             ),
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.start,
+  //               children: [
+  //                 const SizedBox(height: 15),
+  //                 Text(
+  //                   "Meeting Started and time remaining ${formatSecondsToMinSec(controller.remainingSeconds.value)}",
+  //                   textAlign: TextAlign.center,
+  //                   style: TextStyle(fontSize: 14.0),
+  //                 ),
+  //                 const SizedBox(height: 15),
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(
+  //                     vertical: 8.0,
+  //                     horizontal: 5.0,
+  //                   ),
+  //                   child: buttonWithLoader(
+  //                     disable:
+  //                         (controller.visited.value ||
+  //                         controller.updateScheduleLoading.value ||
+  //                         controller.remainingSeconds.value != 0),
+  //                     label: 'Submit',
+  //                     color: AppColors.cherryRed,
+  //                     textColor: Colors.white,
+  //                     progressColor: Colors.white,
+  //                     onPressed: () {
+  //                       if (controller.profileImage.isEmpty.value) {
+  //                         AppToast.showToast(
+  //                           message: "Please slect a profile image first",
+  //                         );
+  //                       } else {
+  //                         controller.submitForm();
+  //                       }
+  //                     },
+  //                     isLoading:
+  //                         (controller.updateScheduleLoading.value ||
+  //                         controller.isLoading.value),
+  //                     context: context,
+  //                   ),
+  //                 ),
+  //                 // buttonWithLoader(
+  //                 //   disable: false,
+  //                 //   label: 'Reset',
+  //                 //   color: AppColors.primary,
+  //                 //   textColor: Colors.white,
+  //                 //   progressColor: Colors.white,
+  //                 //   onPressed: () => controller.closeTime(),
+  //                 //   isLoading: false,
+  //                 //   context: context,
+  //                 // ),
+  //               ],
+  //             ),
+  //           ),
+  //   );
+  // }
 }

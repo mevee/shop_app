@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/login_service.dart';
+import 'package:shop_app/data/manager_service.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
@@ -23,6 +24,7 @@ class BottomNavBinding extends Bindings {
     Get.lazyPut<LoginServiceProtocol>(() => LoginService());
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
     Get.lazyPut<HomeController>(() => HomeController());
+    Get.lazyPut<ManagerServiceProtocol>(() => ManagerService());
     Get.lazyPut<ScheduleController>(() => ScheduleController());
     Get.lazyPut<CallenderController>(() => CallenderController());
     Get.lazyPut<ShopMasterController>(() => ShopMasterController());

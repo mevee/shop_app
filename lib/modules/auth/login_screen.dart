@@ -16,12 +16,7 @@ class LoginScreen extends GetView<AuthController> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primary, AppColors.primaryAccent],
-            stops: [0.0, 1.0],
-          ),
+          color: AppColors.cherryRed,
         ),
         child: SafeArea(
           child: Center(
