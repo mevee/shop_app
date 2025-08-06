@@ -204,7 +204,7 @@ Widget buttonWithImage({
             style: GoogleFonts.inter(
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
-              color: disable ? Colors.white : textColor,
+              color: disable ? textColor.withOpacity(.5) : textColor,
             ),
           ),
         ],

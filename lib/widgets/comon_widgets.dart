@@ -17,11 +17,14 @@ class CommonWidgets {
     double fontSize = 12.0,
     double border = 12.0,
     String? errorMessage,
+    TextInputType? inpputType,
     Function(String value)? onChange,
   }) {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
+      keyboardType: inpputType,
+
       style: TextStyle(
         color: isError ? errorColor : textColor,
         fontSize: fontSize,

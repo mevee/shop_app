@@ -1,45 +1,37 @@
 class AddShopRequest {
-  String? district;
+  String? districtName;
   String? entityType;
-  String? licenseType;
+  String? licenceType;
   String? shopType;
   String? unitName;
   String? premisesAddress;
   String? licenseName;
-  String? mobileNo;
+  String? mobileNumber;
+  String? ownerName;
 
   AddShopRequest({
-    this.district,
+    this.districtName,
     this.entityType,
-    this.licenseType,
+    this.licenceType,
     this.shopType,
     this.unitName,
     this.premisesAddress,
     this.licenseName,
-    this.mobileNo,
+    this.mobileNumber,
+    this.ownerName,
   });
-
-  AddShopRequest.fromJson(Map<String, dynamic> json) {
-    district = json['district'];
-    entityType = json['entityType'];
-    licenseType = json['licenseType'];
-    shopType = json['shopType'];
-    unitName = json['unitName'];
-    premisesAddress = json['premisesAddress'];
-    licenseName = json['licenseName'];
-    mobileNo = json['mobileNo'];
-  }
-
+ 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['district'] = district;
+    data['districtName'] = districtName;
     data['entityType'] = entityType;
-    data['licenseType'] = licenseType;
+    data['licenceType'] = licenceType;
     data['shopType'] = shopType;
     data['unitName'] = unitName;
     data['premisesAddress'] = premisesAddress;
     data['licenseName'] = licenseName;
-    data['mobileNo'] = mobileNo;
+    data['mobileNumber'] = mobileNumber;
+    data['ownerName'] = ownerName;
     return data;
   }
 }

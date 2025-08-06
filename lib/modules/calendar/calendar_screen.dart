@@ -7,6 +7,7 @@ import 'package:shop_app/modules/calendar/controller/calender_controller.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/screens/calendar/add_shchedule_bottom.dart';
+import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class CalendarScreen extends GetView<CallenderController> {
   const CalendarScreen({super.key});
@@ -131,19 +132,34 @@ class CalendarScreen extends GetView<CallenderController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Planner',),
+        title: const Text('Planner'),
         centerTitle: true,
         backgroundColor: AppColors.cherryRed,
         foregroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: SizedBox(
+              height: 36,
+              child: buttonWithImage(
+                disable: false,
+                context: context,
+                label: 'Add Plan',
+                leftIcon: const Icon(Icons.add, color: AppColors.red),
+                color: AppColors.white,
+                textColor: AppColors.red,
+                fontSize: 12,
+                horiontal: 8,
+                vertical: 2,
+                onPressed: () {
+                  showAddSheduleBottomSheet(context);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
-      
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showAddSheduleBottomSheet(context);
-        },
-        backgroundColor: Colors.red,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+ 
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0),

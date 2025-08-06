@@ -21,17 +21,34 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
         centerTitle: true,
         backgroundColor: AppColors.cherryRed,
         foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller.resetAddShopDetail();
-          Get.toNamed(Routes.createShop);
-          controller.isExpanded.value = !controller.isExpanded.value;
-        },
-        backgroundColor: AppColors.cherryRed,
-        child: const Icon(Icons.add, color: Colors.white),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: SizedBox(
+              height: 36,
+              child: buttonWithImage(
+                disable: false,
+                context: context,
+                label: 'Add Shop',
+                leftIcon: const Icon(Icons.add, color: AppColors.red),
+                color: AppColors.white,
+                textColor: AppColors.red,
+                fontSize: 12,
+                horiontal: 8,
+                vertical: 2,
+                onPressed: () {
+                  controller.resetAddShopDetail();
+                  Get.toNamed(Routes.createShop);
+                  controller.isExpanded.value = !controller.isExpanded.value;
+                },
+                
+              ),
+            ),
+          ),
+        ],
       ),
 
+      // floatingActionButton: ,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),

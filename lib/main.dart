@@ -15,7 +15,6 @@ void main() async {
       statusBarColor: AppColors.cherryRed,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.cherryRed,
-
     ),
   );
   // Start background service

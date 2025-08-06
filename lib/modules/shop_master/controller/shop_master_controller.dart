@@ -33,6 +33,7 @@ class ShopMasterController extends BaseController {
   final TextEditingController licenseNameCtr = TextEditingController();
   final TextEditingController createdByCtr = TextEditingController();
   final TextEditingController mobileNoCtr = TextEditingController();
+  final TextEditingController ownerNameCtr = TextEditingController();
   final TextEditingController latLongCtr = TextEditingController();
 
   UploadImageController selectedImageCtr = UploadImageController(maxCount: 1);
@@ -257,14 +258,15 @@ class ShopMasterController extends BaseController {
     isAddShopLoding.value = true;
     try {
       final request = AddShopRequest(
-        district: districtCtr.text,
+        districtName: districtCtr.text,
         entityType: entityTypeCtr.text,
-        licenseType: licenseTypeCtr.text,
+        licenceType: licenseTypeCtr.text,
         licenseName: licenseNameCtr.text,
         shopType: shopTypeCtr.text,
         unitName: unitNameCtr.text,
         premisesAddress: premisesAddressCtr.text,
-        mobileNo: mobileNoCtr.text,
+        mobileNumber: mobileNoCtr.text,
+        ownerName: ownerNameCtr.text,
       );
       final future = masterService.addShop(request);
       completer?.complete(future);
@@ -347,6 +349,7 @@ class ShopMasterController extends BaseController {
     shopTypeCtr.text = "";
     unitNameCtr.text = "";
     premisesAddressCtr.text = "";
+    ownerNameCtr.text = "";
     licenseNameCtr.text = "";
     createdByCtr.text = "";
     mobileNoCtr.text = "";
@@ -456,6 +459,7 @@ class ShopMasterController extends BaseController {
     shopTypeCtr.text = shop.shopType ?? "";
     unitNameCtr.text = shop.unitName ?? "";
     premisesAddressCtr.text = shop.premisesAddress ?? "";
+    ownerNameCtr.text = shop.ownerName ?? "";
     licenseNameCtr.text = shop.licenceType ?? "";
     createdByCtr.text = shop.createdBy ?? "";
     mobileNoCtr.text = shop.mobileNumber ?? "";

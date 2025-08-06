@@ -201,10 +201,11 @@ class ManagerScreen extends GetView<ManagerController> {
     // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 1) {
     //   //view only canceled by agent
     //   return viewScheduleButton(model, context);
-    // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 2) {
-    //   //view only canceled by agent
-    //   return viewScheduleButton(model, context);
-    // }
+    // } 
+    else if (model.isVisitDone == 2) {
+      //view only canceled by agent
+      return viewScheduleButton(model, context);
+    }
     else {
       return SizedBox.shrink();
     }

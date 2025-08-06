@@ -15,7 +15,10 @@ class LocationUtil {
       }
       // Get current position
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
+        locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 1   
+        )
       );
       onLocatiionFound(
         LocationLatLon(lat: position.latitude, long: position.longitude),

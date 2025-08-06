@@ -143,7 +143,20 @@ class AddShopMasterScreen extends GetView<ShopMasterController> {
               Opacity(
                 opacity: controller.photoMode.value == true ? 0.5 : 1.0,
                 child: CommonWidgets.text(
+                  controller: controller.ownerNameCtr,
+                  labelText: 'Enter Owner name',
+                  errorMessage: 'Please enter owner',
+                  fontSize: 14.0,
+                  textColor: Colors.black,
+                  readOnly: controller.photoMode.value,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Opacity(
+                opacity: controller.photoMode.value == true ? 0.5 : 1.0,
+                child: CommonWidgets.text(
                   controller: controller.mobileNoCtr,
+                  inpputType: TextInputType.number,
                   labelText: 'Enter Mobile number',
                   errorMessage: 'Please enter mobile number',
                   fontSize: 14.0,
