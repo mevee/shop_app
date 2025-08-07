@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
@@ -110,6 +111,17 @@ class HomeController extends BaseController {
       await _cLockIN();
       isPunchInProgress.value = false;
     });
+  }
+
+  bool isSchedulePending() {
+    if (scheduleList.isEmpty) {
+      return false;
+    } else {
+      final pendingList = scheduleList
+          .filter((s) => s.isVisitDone == 0 && s.isAuthorized == "Pending")
+          .toList();
+      return pendingList.isNotEmpty;
+    }
   }
 
   void getOutLocation() {

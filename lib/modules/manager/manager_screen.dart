@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/agent_list_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
+import 'package:shop_app/widgets/comon_widgets.dart';
 import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
@@ -30,26 +32,61 @@ class ManagerScreen extends GetView<ManagerController> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(
-                top: 12,
-                bottom: 8,
-                left: 16,
-                right: 16,
-              ),
-              child: Obx(
-                () => SizedBox(
-                  width: double.maxFinite,
-                  child: GenericDropdown<AgentModel>(
-                    options: controller.agentList.value,
-                    selectedOption: controller.agent,
-                    hintText: "Select User",
-                    onChanged: (value) {
-                      controller.agent = value;
-                      controller.selectedAgent.value = value?.userName ?? "";
-                      controller.getTodaysScheduleList();
-                    },
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Obx(
+                      () => SizedBox(
+                        width: double.maxFinite,
+                        child: GenericDropdown<AgentModel>(
+                          options: controller.agentList.value,
+                          selectedOption: controller.agent,
+                          hintText: "Select User",
+                          onChanged: (value) {
+                            controller.agent = value;
+                            controller.selectedAgent.value =
+                                value?.userName ?? "";
+                            controller.getScheduleList();
+                          },
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  horizontalSpacing(8),
+                  Expanded(
+                    flex: 2,
+                    child: InkWell(
+                      onTap: () {
+                        _selectDate(context);
+                      },
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: CommonWidgets.text(
+                          controller: controller.dateController,
+                          readOnly: true,
+                          textColor: AppColors.black01,
+                          labelText: 'Select Date',
+                          errorMessage: 'Date is required',
+                          fontSize: 14.0,
+                          isPassword: false,
+                          prefixIcon: Icon(
+                            Icons.calendar_month,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // verticalSpacing(16),
+            Obx(
+              () => Visibility(
+                visible: controller.agentAddress.value.isNotEmpty,
+                child: userAddress(),
               ),
             ),
             Obx(() => progressAndNoDatFound(controller.isLoading.value)),
@@ -201,12 +238,11 @@ class ManagerScreen extends GetView<ManagerController> {
     // } else if (model.isAuthorized == "Reject" && model.isVisitDone == 1) {
     //   //view only canceled by agent
     //   return viewScheduleButton(model, context);
-    // } 
+    // }
     else if (model.isVisitDone == 2) {
       //view only canceled by agent
       return viewScheduleButton(model, context);
-    }
-    else {
+    } else {
       return SizedBox.shrink();
     }
   }
@@ -235,6 +271,34 @@ class ManagerScreen extends GetView<ManagerController> {
     );
   }
 
+  Widget userAddress() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                "Last Location of Agent",
+                style: TextStyle(
+                  color: AppColors.blackText,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Icon(Icons.location_on),
+            ],
+          ),
+
+          Text(
+            controller.agentAddress.value,
+            style: TextStyle(color: AppColors.neutral400),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget progressAndNoDatFound(bool value) {
     if (controller.scheduleList.isEmpty) {
       return Expanded(
@@ -247,6 +311,34 @@ class ManagerScreen extends GetView<ManagerController> {
       );
     } else {
       return SizedBox.shrink();
+    }
+  }
+
+  // Function to show date picker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: controller.selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2025), // Minimum selectable date (today)
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != controller.selectedDate) {
+      controller.selectedDate = picked;
+      controller.dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+      controller.getScheduleList();
+    }
+  }
+
+  // Function to show time picker
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: controller.selectedTime ?? TimeOfDay.now(),
+    );
+    if (picked != null && picked != controller.selectedTime) {
+      controller.selectedTime = picked;
+      controller.timeController.text = controller.formatTime();
+      controller.getScheduleList();
     }
   }
 }

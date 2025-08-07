@@ -39,7 +39,7 @@ enum MeetingStatus {
 class ScheduleController extends BaseController {
   final ScheduleServiceProtocol scheduleService = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
-  final ManagerServiceProtocol _manageSchedule = Get.find();
+  final ManagerServiceProtocol _manageSchedule = Get.put(ManagerService());
 
   UploadImageController selectedImageCtr = UploadImageController(maxCount: 5);
   UploadImageController profileImage = UploadImageController(maxCount: 1);

@@ -113,7 +113,7 @@ void onStart(ServiceInstance service) async {
     // Save to SharedPreferences or send to server
     if (kProfileMode | kReleaseMode) {
       await _syncLocationsWithServer(position);
-      await Future.delayed(Duration(seconds: 20));
+      await Future.delayed(Duration(seconds: 10));
     } else {
       await Future.delayed(Duration(minutes: 2));
     }

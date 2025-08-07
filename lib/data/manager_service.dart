@@ -14,6 +14,8 @@ abstract class ManagerServiceProtocol {
     String? agentName,
     String? date,
   );
+    Future<AgentAddressResponse> getAgentLastLocation(String? agent,String? dateTime);
+
 }
 
 class ManagerService extends BaseNetworkClient
@@ -24,6 +26,31 @@ class ManagerService extends BaseNetworkClient
     try {
       final response = await client.get(endPoint);
       return AgentListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        // You can throw a custom exception or return an error response
+        throw ServerException(
+          message: e.response?.data['error'] ?? 'Internal Server Error',
+          statusCode: e.response?.statusCode ?? 500,
+        );
+      } else {
+        // Other Dio errors (network, timeout, etc.)
+        throw NetworkException(message: e.message ?? 'Network error occurred');
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+@override
+  Future<AgentAddressResponse> getAgentLastLocation(String? agent,String? dateTime) async {
+    var endPoint = EndPoints.getAgentAddressGET;
+    endPoint = endPoint.replaceAll("{agentId}", agent??"");
+    endPoint = endPoint.replaceAll("{dateTime}", dateTime??"");
+    try {
+      final response = await client.get(endPoint);
+      return AgentAddressResponse.fromJson(response.data);
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {

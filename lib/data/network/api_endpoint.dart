@@ -46,6 +46,8 @@ abstract class EndPoints {
   static const shopUpdateLatLongPOST = 'crm/shop/v1/update-lat-lng';
   static const shopWholeSaleUpdateLatLongPOST =
       'crm/whole-seller/v1/update-lat-lng';
+      ////get-agent-last-address?employeeId=admin%40hamster.com&dateTime=2025-08-04T15%3A30%3A00
+  static const getAgentAddressGET = 'crm/employee/v1/get-agent-last-address?employeeId={agentId}&dateTime={dateTime}';
 
   //---------------{{url}}/http://localhost:81/crm/shop/v1/add-shop-document
   static const addShopPOST = 'crm/shop/v1/add-shop-document';

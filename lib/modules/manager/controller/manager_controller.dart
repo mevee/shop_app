@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
-import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/manager_service.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/agent_list_response.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
-import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/models/schedule_request.dart';
+import 'package:shop_app/models/shop_master_response.dart';
 
 class ManagerController extends BaseController {
   final ScheduleServiceProtocol scheduleService = Get.find();
@@ -22,6 +22,12 @@ class ManagerController extends BaseController {
 
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
+
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
 
   RxBool isLoading = false.obs;
   RxBool isActionLoading = false.obs;
@@ -35,21 +41,53 @@ class ManagerController extends BaseController {
   AgentModel? agent;
   RxString selectedAgent = "Select Agent".obs;
   Rx<LoginResponse> user = LoginResponse().obs;
+  RxString agentAddress = "".obs;
 
   @override
   void onInit() {
     super.onInit();
     loadUserData();
+    selectedDate = DateTime.now();
+    selectedTime = TimeOfDay(hour: 0, minute: 0);
+    dateController.text = DateFormat('yyyy-MM-dd').format(selectedDate!);
+    timeController.text = formatTime();
     getAgentList();
   }
 
-  Future<void> getTodaysScheduleList() async {
+  String formatTime() {
+    if (selectedDate != null && selectedTime != null) {
+      DateTime now = selectedDate!;
+      DateTime dateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        selectedTime!.hour,
+        selectedTime!.minute,
+      );
+      return DateFormat('HH:mm:ss').format(dateTime);
+    } else {
+      TimeOfDay time = TimeOfDay.now(); // e.g., 14:30 (2:30 PM)
+      // Convert TimeOfDay to DateTime (using today's date)
+      DateTime now = DateTime.now();
+      DateTime dateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        time.hour,
+        time.minute,
+      );
+      return DateFormat('HH:mm:ss').format(dateTime);
+    }
+  }
+
+  Future<void> getScheduleList() async {
+    getAgentAddress();
     scheduleList.value = [];
     isDataLoading.value = true;
     try {
       final response = await _manageService.getScheduleByAgent(
         agent?.userName,
-        DateFormatter.currentDate,
+        dateController.text,
       );
       if (response.results != null && response.results!.isNotEmpty) {
         scheduleList.value = response.results!;
@@ -67,6 +105,23 @@ class ManagerController extends BaseController {
       // AppToast.showToast();
     } finally {
       isDataLoading.value = false;
+    }
+  }
+
+  Future<void> getAgentAddress() async {
+    agentAddress.value = "";
+    try {
+      final response = await _manageService.getAgentLastLocation(
+        agent?.userName,
+        "${dateController.text}T${timeController.text}",
+      );
+      if (response.results != null && response.results!.isNotEmpty) {
+        agentAddress.value = response.results!.first;
+      } else {
+        agentAddress.value = "";
+      }
+    } catch (e) {
+      // AppToast.showToast();
     }
   }
 
@@ -98,16 +153,15 @@ class ManagerController extends BaseController {
     user.value = userManager.getUserData() ?? LoginResponse();
   }
 
-  void submitForm(ScheduleDateTimeModel schedule, String approveMessage,bool accept) async {
-    // Basic validation
-    // if (remarksController.text.isEmpty) {
-    //   AppToast.showToast(message: 'Please fill all fields.');
-    //   return;
-    // }
+  void submitForm(
+    ScheduleDateTimeModel schedule,
+    String approveMessage,
+    bool accept,
+  ) async {
     AuthorizeRequest request = AuthorizeRequest(
       id: schedule.id,
       authorizedRemarks: approveMessage,
-      isAuthorized: accept? "Cancel Accepted":"Cancel Rejected",
+      isAuthorized: accept ? "Cancel Accepted" : "Cancel Rejected",
     );
     // print('Form Data: $request');
     try {
@@ -119,7 +173,7 @@ class ManagerController extends BaseController {
         );
       } else {
         AppToast.showToast(message: 'Schedule updated successfully!');
-        getTodaysScheduleList();
+        getScheduleList();
       }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to authorize";

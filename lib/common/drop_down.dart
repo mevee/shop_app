@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/data/network/app_colors.dart';
 
 class GenericDropdown<T> extends StatelessWidget {
   final List<T> options;
@@ -24,12 +25,13 @@ class GenericDropdown<T> extends StatelessWidget {
       items: options.map((T value) {
         return DropdownMenuItem<T>(
           value: value,
-          child: Text(value.toString()), // Convert to string
+          child: Text(value.toString(),style: TextStyle(fontSize: 14,color: AppColors.blackText),), // Convert to string
         );
       }).toList(),
       decoration: decoration ?? InputDecoration(
         border: OutlineInputBorder(),
         hintText: hintText ?? 'Select an option',
+        hintStyle:  TextStyle(fontSize: 14,color: AppColors.textGrey),
       ),
     );
   }

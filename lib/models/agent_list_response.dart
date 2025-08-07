@@ -163,3 +163,47 @@ class AgentModel {
   }
  
 }
+
+
+
+
+class AgentAddressResponse {
+  String? action;
+  int? responseStatus;
+  String? responseCode;
+  String? responseMessage;
+  int? totalSize;
+  int? totalPages;
+  int? currentPage;
+  int? currentSize;
+  List<String>? results;
+
+  AgentAddressResponse({
+    this.action,
+    this.responseStatus,
+    this.responseCode,
+    this.responseMessage,
+    this.totalSize,
+    this.totalPages,
+    this.currentPage,
+    this.currentSize,
+    this.results
+  });
+
+  AgentAddressResponse.fromJson(Map<String, dynamic> json) {
+    action = json['action'];
+    responseStatus = json['responseStatus'];
+    responseCode = json['responseCode'];
+    responseMessage = json['responseMessage'];
+    totalSize = json['totalSize'];
+    totalPages = json['totalPages'];
+    currentPage = json['currentPage'];
+    currentSize = json['currentSize'];
+    if (json['results'] != null) {
+      results = <String>[];
+      json['results'].forEach((v) {
+        results!.add(v);
+      });
+    }
+  }
+}

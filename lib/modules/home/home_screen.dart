@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/two_state_widget.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Dasboard'),
         centerTitle: true,
         backgroundColor: AppColors.cherryRed,
@@ -97,7 +98,14 @@ class HomeScreen extends GetView<HomeController> {
                               primaryButtonText: "Yes",
                               secondaryButtonText: "No",
                               onPrimaryPressed: () {
-                                controller.getOutLocation();
+                                if (controller.isSchedulePending()) {
+                                  AppToast.showToast(
+                                    message:
+                                        "Please complete schedule before checkout",
+                                  );
+                                } else {
+                                  // controller.getOutLocation();
+                                }
                               },
                             );
                           },
