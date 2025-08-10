@@ -1,21 +1,15 @@
-class LoginResponse { 
+class LoginResponse {
   String? token;
   String? message;
   String? status;
   UserData? login;
-  LoginResponse({
-    token,
-    message,
-    status, 
-    login,
-  });
+  LoginResponse({token, message, status, login});
 
   LoginResponse.fromJson(Map<String, dynamic> json) {
     token = json['token'];
     message = json['message'];
     status = json['status'];
-    login =
-        json['login'] != null ? UserData.fromJson(json['login']) : null;
+    login = json['login'] != null ? UserData.fromJson(json['login']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -23,17 +17,16 @@ class LoginResponse {
     data['token'] = token;
     data['message'] = message;
     data['status'] = status;
-  
+
     if (login != null) {
       data['login'] = login!.toJson();
     }
     return data;
   }
 }
- 
+
 class UserData {
- 
- int? id;
+  int? id;
   String? userName;
   String? password;
   String? organizationName;
@@ -115,8 +108,8 @@ class UserData {
     data['createdBy'] = createdBy;
     data['updatedBy'] = updatedBy;
     data['updatedDate'] = updatedDate;
-    data['managerName'] = managerName; 
-    data['employeeId'] = employeeId; 
+    data['managerName'] = managerName;
+    data['employeeId'] = employeeId;
     return data;
   }
 }
@@ -200,7 +193,6 @@ class ChangePasswordRequest {
     return data;
   }
 }
-
 
 class SignupRequest {
   String? message;

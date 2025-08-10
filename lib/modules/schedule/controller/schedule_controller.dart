@@ -76,7 +76,7 @@ class ScheduleController extends BaseController {
   RxInt currentQty = 0.obs;
   RxInt stockQty = 0.obs;
   RxDouble totalPrice = (0.0).obs;
-  RxDouble totalSale = (0.0).obs;
+  RxInt totalSale = (0).obs;
   RxDouble total = (0.0).obs;
 
   void calculateTotal() {
@@ -92,11 +92,8 @@ class ScheduleController extends BaseController {
       currentQty += (e.currentQuantity ?? 0);
       stockQty += (e.stockIn ?? 0);
       totalPrice.value += (e.totalPrice ?? 0.0);
-      final saleQty =
-          ((e.existingQuantity ?? 0) + (e.stockIn ?? 0)) -
-          (e.currentQuantity ?? 0);
-      totalSale.value += saleQty;
-      total.value += (e.currentQuantity ?? 0) * (e.totalPrice ?? 0.0);
+      totalSale.value += e.sales ?? 0;
+      total.value += (e.totalPrice ?? 0.0);
     }
     total.value = total.value.round().toDouble();
   }
@@ -241,7 +238,7 @@ class ScheduleController extends BaseController {
         meetingStatus.value = MeetingStatus.IDEAL;
       } else if (schedule.value.isVisitDone == 0 &&
           schedule.value.isAuthorized == "Cancel Rejected") {
-        meetingStatus.value = MeetingStatus.CANCELLED;
+        meetingStatus.value = MeetingStatus.CANCEL_REJECTED;
       } else if (schedule.value.isVisitDone == 0 &&
           schedule.value.isAuthorized == "Cancel Accepted") {
         meetingStatus.value = MeetingStatus.COMPLETED;
@@ -460,13 +457,14 @@ class ScheduleController extends BaseController {
       for (var img in result) {
         mShopList.add(
           QuantityDetailsReq(
-            prodName: img.productId?.toString() ?? "Id:${img.productId}",
+            prodName: img.productName ?? "Id:${img.productId}",
             editable: false,
             existingQuantity: img.existingQuantity,
             currentQuantity: img.currentQuantity,
             productId: img.productId,
             totalPrice: img.totalPrice,
             stockIn: img.stockIn,
+            sales: img.sales,
           ),
         );
       }

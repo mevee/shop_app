@@ -43,23 +43,6 @@ class ScheduleQtyResponse {
     lastPage = json['lastPage'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['action'] = action;
-    data['responseStatus'] = responseStatus;
-    data['responseCode'] = responseCode;
-    data['responseMessage'] = responseMessage;
-    data['totalSize'] = totalSize;
-    data['totalPages'] = totalPages;
-    data['currentPage'] = currentPage;
-    data['currentSize'] = currentSize;
-    if (results != null) {
-      data['results'] = results!.map((v) => v.toJson()).toList();
-    }
-    data['invoiceUrl'] = invoiceUrl;
-    data['lastPage'] = lastPage;
-    return data;
-  }
 }
 
 
@@ -69,6 +52,7 @@ class QtyResults {
   int? existingQuantity;
   int? currentQuantity;
   int? stockIn;
+  int? sales;
   int? totalQuantity;
   double? totalPrice;
   int? scheduleId;
@@ -76,6 +60,7 @@ class QtyResults {
   String? updatedBy;
   String? createdDate;
   String? updatedDate;
+  String? productName;
 
   QtyResults(
       {this.id,
@@ -85,11 +70,14 @@ class QtyResults {
       this.stockIn,
       this.totalQuantity,
       this.totalPrice,
+      this.sales,
       this.scheduleId,
       this.createdBy,
       this.updatedBy,
       this.createdDate,
-      this.updatedDate});
+      this.updatedDate,
+      this.productName,
+      });
 
   QtyResults.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -99,27 +87,13 @@ class QtyResults {
     currentQuantity = json['currentQuantity'];
     totalQuantity = json['totalQuantity'];
     totalPrice = json['totalPrice'];
+    sales = json['sales'];
     scheduleId = json['scheduleId'];
     createdBy = json['createdBy'];
     updatedBy = json['updatedBy'];
     createdDate = json['createdDate'];
     updatedDate = json['updatedDate'];
+    productName = json['productName'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['productId'] = productId;
-    data['existingQuantity'] = existingQuantity;
-    data['currentQuantity'] = currentQuantity;
-    data['stockIn'] = stockIn;
-    data['totalQuantity'] = totalQuantity;
-    data['totalPrice'] = totalPrice;
-    data['scheduleId'] = scheduleId;
-    data['createdBy'] = createdBy;
-    data['updatedBy'] = updatedBy;
-    data['createdDate'] = createdDate;
-    data['updatedDate'] = updatedDate;
-    return data;
-  }
 }

@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/manager_service.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/shop_master_service.dart';
@@ -11,7 +10,6 @@ import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 class ScheduleBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ApplicationState>(() => ApplicationState());
     Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
     
     Get.lazyPut<ManagerServiceProtocol>(() => ManagerService());

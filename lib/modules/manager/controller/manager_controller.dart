@@ -48,7 +48,7 @@ class ManagerController extends BaseController {
     super.onInit();
     loadUserData();
     selectedDate = DateTime.now();
-    selectedTime = TimeOfDay(hour: 0, minute: 0);
+    selectedTime = TimeOfDay.now();
     dateController.text = DateFormat('yyyy-MM-dd').format(selectedDate!);
     timeController.text = formatTime();
     getAgentList();

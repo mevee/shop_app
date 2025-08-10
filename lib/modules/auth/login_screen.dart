@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -15,9 +16,7 @@ class LoginScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.cherryRed,
-        ),
+        decoration: const BoxDecoration(color: AppColors.cherryRed),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -69,6 +68,51 @@ class LoginScreen extends GetView<AuthController> {
                             controller.forgetPasswordView();
                             Get.toNamed(Routes.passwordReset);
                           }),
+                          // const SizedBox(height: 8),
+                          Obx(
+                            () => Row(
+                              children: [
+                                CheckboxTheme(
+                                  data: CheckboxThemeData(
+                                    side: BorderSide(
+                                      color: Colors.white,
+                                    ), // Border color
+                                    // Other checkbox styling
+                                  ),
+
+                                  child: Checkbox(
+                                    value: controller.remember.value,
+                                    onChanged: (togle) {
+                                      controller.remember.value =
+                                          !controller.remember.value;
+                                    },
+                                    fillColor:
+                                        WidgetStateProperty.resolveWith<
+                                          Color
+                                        >((states) {
+                                          if (states.contains(
+                                            WidgetState.selected,
+                                          )) {
+                                            return Colors
+                                                .white; // Fill color when checked
+                                          }
+                                          return Colors
+                                              .transparent; // Fill color when unchecked
+                                        }),
+                                    checkColor: Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  'Remember',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.white,
+                                    // fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           Obx(
                             () => buttonWithLoader(

@@ -327,6 +327,10 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     AppToast.showToast(
                       message: "Please slect a profile image first",
                     );
+                  } else if (controller.skListQtyInput.isEmpty) {
+                    AppToast.showToast(
+                      message: "Please add atleat one order quantity",
+                    );
                   } else {
                     showConfirmDialog(
                       context,
@@ -423,7 +427,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       );
       prod.eQtyController.text =
           editProduct.existingQuantity?.toString() ?? "0";
-      prod.nQtyController.text = editProduct.currentQuantity?.toString() ?? "0";
+      prod.cQtyController.text = editProduct.currentQuantity?.toString() ?? "0";
       ctr.product.value = prod;
     } else {
       ctr.product.value = ProductMaster();
@@ -432,31 +436,34 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     Get.bottomSheet(
       AddProductBottomSheet((product) {
         var eQty = int.parse(product.eQtyController.text);
-        var nQty = int.parse(product.nQtyController.text);
+        var cQty = int.parse(product.cQtyController.text);
         var stockQty = int.parse(
           product.stockQtyController.text.isEmpty
               ? "0"
               : product.stockQtyController.text,
         );
-        var unitPrice = double.parse(product.unitPrice ?? "0.0");
+        var price = double.parse(product.price ?? "0.0");
+
         if (editProduct != null) {
           editProduct.existingQuantity = eQty;
-          editProduct.currentQuantity = nQty;
+          editProduct.currentQuantity = cQty;
           editProduct.stockIn = stockQty;
           editProduct.productId = product.id;
-          editProduct.totalPrice = unitPrice;
+          editProduct.totalPrice = cQty * price;
           editProduct.sku = product.sku;
+          editProduct.sales = (eQty + stockQty) - cQty;
           editProduct.category = product.category;
           editProduct.prodName = "${product.productName}(${product.sku})";
         } else {
           controller.skListQtyInput.add(
             QuantityDetailsReq(
               existingQuantity: eQty,
-              currentQuantity: nQty,
+              currentQuantity: cQty,
               stockIn: stockQty,
               productId: product.id,
-              totalPrice: unitPrice,
               sku: product.sku,
+              totalPrice: cQty * price,
+              sales: (eQty + stockQty) - cQty,
               category: product.category,
               prodName: "${product.productName}(${product.sku})",
             ),
@@ -502,6 +509,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
             child: Row(
               children: [
                 Expanded(
+                  flex: 2,
                   child: Text(
                     "Prod Name",
                     textAlign: TextAlign.center,
@@ -513,6 +521,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
+
                   child: Text(
                     "Exist QTY",
                     textAlign: TextAlign.center,
@@ -526,6 +536,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
 
                 Expanded(
+                  flex: 1,
+
                   child: Text(
                     "Current QTY",
                     textAlign: TextAlign.center,
@@ -538,6 +550,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
+
                   child: Text(
                     "Stock IN",
                     textAlign: TextAlign.center,
@@ -550,6 +564,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
                   child: Text(
                     "Sales",
                     textAlign: TextAlign.center,
@@ -586,6 +601,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   child: Row(
                     children: [
                       Expanded(
+                        flex: 2,
+
                         child: Text(
                           "${model.prodName}",
                           maxLines: 2,
@@ -598,6 +615,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         ),
                       ),
                       Expanded(
+                        flex: 1,
+
                         child: Text(
                           "${model.existingQuantity}",
                           textAlign: TextAlign.center,
@@ -609,6 +628,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         ),
                       ),
                       Expanded(
+                        flex: 1,
+
                         child: Text(
                           "${model.currentQuantity}",
                           textAlign: TextAlign.center,
@@ -620,6 +641,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         ),
                       ),
                       Expanded(
+                        flex: 1,
+
                         child: Text(
                           "${model.stockIn}",
                           textAlign: TextAlign.center,
@@ -631,8 +654,10 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         ),
                       ),
                       Expanded(
+                        flex: 1,
+
                         child: Text(
-                          "${((model.existingQuantity ?? 0) + (model.stockIn ?? 0)) - (model.currentQuantity ?? 0)}",
+                          "${model.sales}",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14.0,
@@ -656,7 +681,6 @@ class ScheduleDetailView extends GetView<ScheduleController> {
               );
             },
           ),
-
           Container(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
@@ -665,6 +689,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
             child: Row(
               children: [
                 Expanded(
+                  flex: 2,
+
                   child: Text(
                     "Total",
                     textAlign: TextAlign.center,
@@ -672,6 +698,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
+
                   child: Text(
                     "${controller.totalExtQty}",
                     textAlign: TextAlign.center,
@@ -679,6 +707,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
                   child: Text(
                     "${controller.currentQty}",
                     textAlign: TextAlign.center,
@@ -686,6 +715,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
                   child: Text(
                     "${controller.stockQty}",
                     textAlign: TextAlign.center,
@@ -693,6 +723,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   ),
                 ),
                 Expanded(
+                  flex: 1,
                   child: Text(
                     "${controller.totalSale.value}",
                     textAlign: TextAlign.center,
@@ -706,8 +737,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           ),
           Container(
             height: 2,
+            margin: EdgeInsets.only(top: 8),
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.grey),
+            decoration: BoxDecoration(color: AppColors.lightGrey),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -720,7 +752,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 ),
                 horizontalSpacing(16),
                 Text(
-                  "${controller.total.value}",
+                  "Rs ${controller.total.value}",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
                 ),
               ],
@@ -737,73 +769,4 @@ class ScheduleDetailView extends GetView<ScheduleController> {
         (controller.meetingStatus.value == MeetingStatus.CANCEL_REJECTED);
     return editAllowed;
   }
-
-  // Widget timeWidgetAndSubmitButton(BuildContext context) {
-  //   return Obx(
-  //     () =>
-  //         (controller.meetingStatus.value == MeetingStatus.IDEAL ||
-  //             controller.schedule.value.isVisitDone == 1)
-  //         ? SizedBox.shrink()
-  //         : Container(
-  //             margin: EdgeInsets.symmetric(vertical: 12),
-  //             // padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-  //             decoration: BoxDecoration(
-  //               color: Colors.red[100],
-  //               border: BoxBorder.all(color: AppColors.green, width: 2),
-  //               borderRadius: BorderRadius.all(Radius.circular(8)),
-  //             ),
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.start,
-  //               children: [
-  //                 const SizedBox(height: 15),
-  //                 Text(
-  //                   "Meeting Started and time remaining ${formatSecondsToMinSec(controller.remainingSeconds.value)}",
-  //                   textAlign: TextAlign.center,
-  //                   style: TextStyle(fontSize: 14.0),
-  //                 ),
-  //                 const SizedBox(height: 15),
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(
-  //                     vertical: 8.0,
-  //                     horizontal: 5.0,
-  //                   ),
-  //                   child: buttonWithLoader(
-  //                     disable:
-  //                         (controller.visited.value ||
-  //                         controller.updateScheduleLoading.value ||
-  //                         controller.remainingSeconds.value != 0),
-  //                     label: 'Submit',
-  //                     color: AppColors.cherryRed,
-  //                     textColor: Colors.white,
-  //                     progressColor: Colors.white,
-  //                     onPressed: () {
-  //                       if (controller.profileImage.isEmpty.value) {
-  //                         AppToast.showToast(
-  //                           message: "Please slect a profile image first",
-  //                         );
-  //                       } else {
-  //                         controller.submitForm();
-  //                       }
-  //                     },
-  //                     isLoading:
-  //                         (controller.updateScheduleLoading.value ||
-  //                         controller.isLoading.value),
-  //                     context: context,
-  //                   ),
-  //                 ),
-  //                 // buttonWithLoader(
-  //                 //   disable: false,
-  //                 //   label: 'Reset',
-  //                 //   color: AppColors.primary,
-  //                 //   textColor: Colors.white,
-  //                 //   progressColor: Colors.white,
-  //                 //   onPressed: () => controller.closeTime(),
-  //                 //   isLoading: false,
-  //                 //   context: context,
-  //                 // ),
-  //               ],
-  //             ),
-  //           ),
-  //   );
-  // }
 }

@@ -72,8 +72,9 @@ class ProductMaster {
   String? category;
   String? sku;
   String? unitPrice;
+  String? price;
   final TextEditingController eQtyController = TextEditingController();
-  final TextEditingController nQtyController = TextEditingController();
+  final TextEditingController cQtyController = TextEditingController();
   final TextEditingController stockQtyController = TextEditingController();
 
   ProductMaster({
@@ -83,6 +84,7 @@ class ProductMaster {
     this.category,
     this.sku,
     this.unitPrice,
+    this.price,
   });
 
   ProductMaster.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class ProductMaster {
     category = json['category'];
     sku = json['sku'];
     unitPrice = json['unitPrice'];
+    price = json['price'];
     existingQuantity = json['existingQuantity'];
     if(existingQuantity!=null){
       eQtyController.text = existingQuantity.toString();
@@ -104,6 +107,7 @@ class ProductMaster {
     data['category'] = category;
     data['sku'] = sku;
     data['unitPrice'] = unitPrice;
+    data['price'] = price;
     data['existingQuantity'] = existingQuantity;
     return data;
   }

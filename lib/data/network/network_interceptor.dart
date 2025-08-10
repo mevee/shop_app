@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get_core/src/get_main.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/preference.dart';
-import 'package:shop_app/data/session_getstorage_impl.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/dialog_helper.dart';
 // import '../core/utils/logger.dart';
@@ -31,9 +29,7 @@ class NetworkInterceptor extends InterceptorsWrapper {
     options.contentType = 'application/json';
     String? token = _userManager.getUserToken();
     if (token != null && token.isNotEmpty) {
-      options.headers.addAll({
-        'Authorization': token,
-      });
+      options.headers.addAll({'Authorization': token});
     }
   }
 
@@ -44,7 +40,7 @@ class NetworkInterceptor extends InterceptorsWrapper {
       if (!isPopUpVisible) {
         isPopUpVisible = true;
         DialogHelper.showLogoutPopup(() async {
-          await logoutUser();
+          // await logoutUser();
           isPopUpVisible = false;
         });
       }
@@ -59,7 +55,6 @@ class NetworkInterceptor extends InterceptorsWrapper {
 
   Future<void> logoutUser() async {
     _userManager.logOut();
-    ApplicationState().userLoggedOut();
     Get.offAllNamed(Routes.login);
   }
 }

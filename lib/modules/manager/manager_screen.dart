@@ -34,6 +34,7 @@ class ManagerScreen extends GetView<ManagerController> {
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 8),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 2,
@@ -54,35 +55,62 @@ class ManagerScreen extends GetView<ManagerController> {
                       ),
                     ),
                   ),
-                  horizontalSpacing(8),
-                  Expanded(
-                    flex: 2,
-                    child: InkWell(
-                      onTap: () {
-                        _selectDate(context);
-                      },
-                      child: IgnorePointer(
-                        ignoring: true,
-                        child: CommonWidgets.text(
-                          controller: controller.dateController,
-                          readOnly: true,
-                          textColor: AppColors.black01,
-                          labelText: 'Select Date',
-                          errorMessage: 'Date is required',
-                          fontSize: 14.0,
-                          isPassword: false,
-                          prefixIcon: Icon(
-                            Icons.calendar_month,
-                            color: Colors.black,
-                          ),
+                ],
+              ),
+            ),
+            verticalSpacing(8),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      _selectDate(context);
+                    },
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: CommonWidgets.text(
+                        controller: controller.dateController,
+                        readOnly: true,
+                        textColor: AppColors.black01,
+                        labelText: 'Select Date',
+                        errorMessage: 'Date is required',
+                        fontSize: 14.0,
+                        isPassword: false,
+                        prefixIcon: Icon(
+                          Icons.calendar_month,
+                          color: Colors.black,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                horizontalSpacing(8),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      _selectTime(context);
+                    },
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: CommonWidgets.text(
+                        controller: controller.timeController,
+                        readOnly: true,
+                        textColor: AppColors.black01,
+                        labelText: 'Select Time',
+                        errorMessage: 'Time is required',
+                        fontSize: 14.0,
+                        isPassword: false,
+                        prefixIcon: Icon(
+                          Icons.more_time_sharp,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            // verticalSpacing(16),
+            verticalSpacing(8),
             Obx(
               () => Visibility(
                 visible: controller.agentAddress.value.isNotEmpty,
@@ -155,7 +183,7 @@ class ManagerScreen extends GetView<ManagerController> {
                 ),
               ),
             ),
-            // Expanded(child: ,),
+
             const SizedBox(height: 16),
           ],
         ),
@@ -239,7 +267,7 @@ class ManagerScreen extends GetView<ManagerController> {
     //   //view only canceled by agent
     //   return viewScheduleButton(model, context);
     // }
-    else if (model.isVisitDone == 2) {
+    else if (model.isVisitDone == 1) {
       //view only canceled by agent
       return viewScheduleButton(model, context);
     } else {
@@ -249,7 +277,7 @@ class ManagerScreen extends GetView<ManagerController> {
 
   Widget viewScheduleButton(ScheduleDateTimeModel model, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

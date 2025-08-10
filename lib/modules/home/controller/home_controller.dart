@@ -65,8 +65,8 @@ class HomeController extends BaseController {
   }
 
   List<OptionModel> getMoreOptionList() {
-    if (userData.value.login?.role == "manager" ||
-        userData.value.login?.role == "admin") {
+    if (userData.value.login?.role?.toLowerCase() == "manager" ||
+        userData.value.login?.role?.toLowerCase() == "admin") {
       return [
         OptionModel(label: "Manage Schedules", iconData: Icons.manage_accounts),
         OptionModel(label: "Change Password", iconData: Icons.manage_accounts),
@@ -86,9 +86,6 @@ class HomeController extends BaseController {
     }
     _timer = Timer.periodic(Duration(seconds: 15), (timer) {
       if (userManager.getIsWorking() == true) {
-        // if (!kDebugMode) {
-        //   getEmployeeTravelDistance();
-        // }
         if (kProfileMode | kReleaseMode) {
           getEmployeeTravelDistance();
         }
@@ -100,6 +97,7 @@ class HomeController extends BaseController {
     await userManager.initPreferences();
     userData.value = userManager.getUserData() ?? LoginResponse();
     getEmployeeAttandance();
+    print('loadUserData()${userData.value.toJson()}');
   }
 
   void getInLocation() {
@@ -114,14 +112,14 @@ class HomeController extends BaseController {
   }
 
   bool isSchedulePending() {
-    if (scheduleList.isEmpty) {
-      return false;
-    } else {
-      final pendingList = scheduleList
-          .filter((s) => s.isVisitDone == 0 && s.isAuthorized == "Pending")
-          .toList();
-      return pendingList.isNotEmpty;
-    }
+    return scheduleList
+        .filter((s) => s.isVisitDone == 0 && s.isAuthorized == "Authorized")
+        .toList()
+        .isNotEmpty;
+
+    // return scheduleList.any((item) {
+    //   return item.isVisitDone == 0 && item.isAuthorized == "Authorized";
+    // });
   }
 
   void getOutLocation() {
@@ -281,7 +279,7 @@ class HomeController extends BaseController {
   Future<void> getEmployeeAttandance() async {
     isLoding.value = true;
     final request = GetDistanceRequest(
-      userName: userManager.getUserData()?.login?.userName,
+      userName: userData.value.login?.userName,
       date: DateFormatter.currentDate,
     );
     try {
@@ -385,7 +383,9 @@ class HomeController extends BaseController {
   void _startForgrundService() {
     print("_startForgrundService()");
     if (userManager.getIsWorking() == true) {
-      locationService.startTracking();
+      if (kProfileMode) {
+        locationService.startTracking();
+      }
       // _locationService.startBackgroundLocation();
     } else {
       // locationService.stopTracking();
@@ -395,6 +395,8 @@ class HomeController extends BaseController {
 
   void _stopForgrundService() {
     print("_stopForgrundService()");
-    locationService.stopTracking();
+    if (kProfileMode) {
+      locationService.stopTracking();
+    }
   }
 }

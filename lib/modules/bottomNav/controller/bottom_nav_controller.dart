@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/models/login_response.dart';
 
@@ -11,12 +10,6 @@ class BotomNavController extends GetxController {
 
   Rx<LoginResponse> userData = LoginResponse().obs;
 
-  @override
-  void onInit() {
-    final ApplicationState appState = Get.find();
-    super.onInit();
-    // loadUserData();
-  }
 
   void loadUserData() {
     userData.value = _userManager.getUserData() ?? LoginResponse();
@@ -48,7 +41,6 @@ class BotomNavController extends GetxController {
   //           _userManager.setUserData(r.response),
   //           _userManager.setUserToken(r.response.token),
   //           _userManager.setUserId(r.response.login?.id.toString()),
-  //           ApplicationState().userLoggedIn(),
   //           Get.offAllNamed(Routes.bottomNavigation),
   //         },
   //       );

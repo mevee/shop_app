@@ -16,6 +16,25 @@ class SPrefSessiomImpl with SessionPref {
   }
 
   @override
+  LoginRequest? getSavedCred() {
+    final userDataString = _prefs?.getString(UserManagerKeys.userCred.value);
+    try {
+      if (userDataString == null ||
+          userDataString == "" ||
+          userDataString.isEmpty ||
+          userDataString == "null" ||
+          userDataString == "Null") {
+        return null;
+      } else {
+        final Map<String, dynamic> userMap = jsonDecode(userDataString);
+        return LoginRequest.fromJson(userMap);
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   LoginResponse? getUserData() {
     final userDataString = _prefs?.getString(UserManagerKeys.userData.value);
     try {
@@ -55,8 +74,18 @@ class SPrefSessiomImpl with SessionPref {
   }
 
   @override
+  bool? isRememberOn() {
+    return _prefs?.getBool(UserManagerKeys.userCredRememeber.value);
+  }
+
+  @override
   void setClockedIn(bool? value) {
     _prefs?.setBool(UserManagerKeys.userClockedIn.value, value ?? false);
+  }
+
+  @override
+  void setRememberOn(bool? value) {
+    _prefs?.setBool(UserManagerKeys.userCredRememeber.value, value ?? false);
   }
 
   @override
@@ -75,6 +104,23 @@ class SPrefSessiomImpl with SessionPref {
       _prefs?.setString(UserManagerKeys.userData.value, jsonString);
     } on Exception catch (_) {
       _prefs?.setString(UserManagerKeys.userData.value, "");
+    }
+  }
+
+  @override
+  void saveUserCred(LoginRequest? data) {
+    if (data == null) {
+      _prefs?.setString(UserManagerKeys.userCred.value, "");
+      return;
+    }
+    try {
+      final String jsonString = jsonEncode(data);
+      _prefs?.setString(UserManagerKeys.userCred.value, jsonString);
+            // print("saveUserCred()$jsonString");
+
+    } on Exception catch (e) {
+      _prefs?.setString(UserManagerKeys.userCred.value, "");
+      print("saveUserCredErr:while saving cred$e");
     }
   }
 
@@ -182,14 +228,14 @@ class SPrefSessiomImpl with SessionPref {
   bool isMeetingCompletedMinDuration(String meetingId, int minDurationMinutes) {
     final MeetingData? meetingData = getMeetingSession(meetingId);
 
-    if (meetingData == null || meetingData.startTimeMillis == null) {
+    if (meetingData == null) {
       return false; // Meeting not found or start time not recorded
     }
 
     final int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
     final int requiredDurationMillis = minDurationMinutes * 60 * 1000;
 
-    final int elapsedMillis = currentTimeMillis - meetingData.startTimeMillis!;
+    final int elapsedMillis = currentTimeMillis - meetingData.startTimeMillis;
 
     return elapsedMillis >= requiredDurationMillis;
   }

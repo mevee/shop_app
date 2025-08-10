@@ -8,7 +8,6 @@
 //
 //   @override
 //   void onInit() {
-//     final ApplicationState appState = Get.find();
 //     completeSplash(appState);
 //     super.onInit();
 //   }

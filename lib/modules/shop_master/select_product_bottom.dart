@@ -106,7 +106,7 @@ class SelectSkuBottomSheet extends GetView<ShopMasterController> {
                                   ),
                                   Text(
                                     maxLines: 1,
-                                    "${shop.unitPrice}",
+                                    "${shop.price}",
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,

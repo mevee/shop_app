@@ -112,33 +112,33 @@ class ShopMasterController extends BaseController {
     }
   }
 
-  Completer? taskSkyList;
-  Future<void> getSkuList() async {
-    if (taskSkyList != null && !taskSkyList!.isCompleted) {
-      taskSkyList!.complete();
-      isSkuListLoding.value = false;
-    }
-    taskSkyList = Completer();
-    isSkuListLoding.value = true;
-    try {
-      final future = masterService.getSkuList();
-      taskSkyList?.complete(future);
-      final response = await taskSkyList!.future;
-      skuListApi.value = response.results ?? [];
-      skuListApi.refresh();
-    } on DioException catch (e) {
-      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
-      // AppToast.showToast(message: errorMessage);
-    } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
-    } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
-    } catch (e) {
-      // AppToast.showToast();
-    } finally {
-      isSkuListLoding.value = false;
-    }
-  }
+  // Completer? taskSkyList;
+  // Future<void> getSkuList() async {
+  //   if (taskSkyList != null && !taskSkyList!.isCompleted) {
+  //     taskSkyList!.complete();
+  //     isSkuListLoding.value = false;
+  //   }
+  //   taskSkyList = Completer();
+  //   isSkuListLoding.value = true;
+  //   try {
+  //     final future = masterService.getSkuList();
+  //     taskSkyList?.complete(future);
+  //     final response = await taskSkyList!.future;
+  //     skuListApi.value = response.results ?? [];
+  //     skuListApi.refresh();
+  //   } on DioException catch (e) {
+  //     // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
+  //     // AppToast.showToast(message: errorMessage);
+  //   } on SocketException catch (e) {
+  //     // AppToast.showToast(message: e.message ?? "Failed to update Password");
+  //   } on ServerException catch (e) {
+  //     // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+  //   } catch (e) {
+  //     // AppToast.showToast();
+  //   } finally {
+  //     isSkuListLoding.value = false;
+  //   }
+  // }
 
   Completer? taskSkuSchedule;
   Future<void> getScheduleSku() async {
@@ -164,6 +164,8 @@ class ShopMasterController extends BaseController {
           }
         }
       });
+      skuListApi.value = response.results ?? [];
+      skuListApi.refresh();
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
@@ -464,6 +466,5 @@ class ShopMasterController extends BaseController {
     createdByCtr.text = shop.createdBy ?? "";
     mobileNoCtr.text = shop.mobileNumber ?? "";
     selectedImageCtr.reset();
-
   }
 }

@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/manager_service.dart';
@@ -16,7 +15,6 @@ import 'package:shop_app/modules/shop_master/controller/shop_master_controller.d
 class BottomNavBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ApplicationState>(() => ApplicationState());
     Get.lazyPut<BotomNavController>(() => BotomNavController());
     Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
     Get.lazyPut<ScheduleServiceProtocol>(() => ScheduleService());

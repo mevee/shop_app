@@ -518,7 +518,6 @@
 //                       controller.deleteAccount().then((value) {
 //                         if (value == 200) {
 //                           controller.userManager.logOut();
-//                           ApplicationState().userLoggedOut();
 //                           Get.offAllNamed(Routes.login);
 //                         }
 //                       }),
@@ -576,7 +575,6 @@
 //                   onClick: () async => {
 //                         await GoogleSignIn().signOut(),
 //                         controller.userManager.logOut(),
-//                         ApplicationState().userLoggedOut(),
 //                         Get.offAllNamed(Routes.login),
 //                       });
 //             },

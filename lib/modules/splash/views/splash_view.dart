@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
@@ -25,27 +24,14 @@ class _SplashViewState extends State<SplashView> {
     final SessionPref userManager = Get.put(SPrefSessiomImpl());
     await userManager.initPreferences();
     final loginData = userManager.getUserData();
+    final savedCred = userManager.getSavedCred();
+    print("completeSplashUser::${loginData?.toJson()}");
+    print("completeSplashUser::${savedCred?.toJson()}");
     Future.delayed(const Duration(seconds: 2), (() {
       if (loginData != null) {
         Get.offAllNamed(Routes.bottomNavigation);
       } else {
         Get.offAllNamed(Routes.login);
-      }
-    }));
-  }
-
-  void completeSplash(ApplicationState appState) {
-    Future.delayed(const Duration(seconds: 2), (() {
-      switch (appState.getCurrentState) {
-        case 0:
-          {
-            Get.offAllNamed(Routes.bottomNavigation);
-          }
-        default:
-          {
-            Get.offAllNamed(Routes.login);
-            break;
-          }
       }
     }));
   }

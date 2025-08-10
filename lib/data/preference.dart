@@ -8,6 +8,8 @@ enum UserManagerKeys {
   userId("USER_ID"),
   working("WORKING"),
   meetingsData("MEETING_DATA"),
+  userCredRememeber("USER_CRED_REMEMBER"),
+  userCred("USER_CRED"),
   userData("USER_DATA");
 
   final String value;
@@ -18,6 +20,9 @@ mixin SessionPref {
   Future<void> initPreferences();
   dynamic isClockedIn();
   void setClockedIn(bool? value);
+
+  void saveUserCred(LoginRequest? data);
+  LoginRequest? getSavedCred();
 
   void setUserData(LoginResponse? data);
   LoginResponse? getUserData();
@@ -31,6 +36,9 @@ mixin SessionPref {
 
   bool? getIsWorking();
   void setIsWorking(bool? value);
+
+  bool? isRememberOn();
+  void setRememberOn(bool? value);
 
   Future<void> saveMeetingSession(String meetingId, MeetingData data);
   MeetingData? getMeetingSession(String meetingId);

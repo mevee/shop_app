@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/dialog_util.dart';
@@ -98,13 +99,16 @@ class HomeScreen extends GetView<HomeController> {
                               primaryButtonText: "Yes",
                               secondaryButtonText: "No",
                               onPrimaryPressed: () {
+                                aLog(
+                                  "isSchedulePending::${controller.isSchedulePending()}",
+                                );
                                 if (controller.isSchedulePending()) {
                                   AppToast.showToast(
                                     message:
                                         "Please complete schedule before checkout",
                                   );
                                 } else {
-                                  // controller.getOutLocation();
+                                  controller.getOutLocation();
                                 }
                               },
                             );
@@ -128,6 +132,9 @@ class HomeScreen extends GetView<HomeController> {
                     ),
                     InkWell(
                       onTap: () {
+                        print(
+                          'loadUserData()${controller.userManager.getUserData()?.toJson()}',
+                        );
                         controller.getTodaysSchedules();
                         controller.getEmployeeAttandance();
                       },

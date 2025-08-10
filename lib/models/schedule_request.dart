@@ -1,5 +1,3 @@
-
-
 class UpdateScheduleRequest {
   MeetingDetails? meetingDetails;
   List<MeetingImagesList>? meetingImagesList;
@@ -120,14 +118,6 @@ class QuantityDetailsReq {
     this.category,
   });
 
-  QuantityDetailsReq.fromJson(Map<String, dynamic> json) {
-    existingQuantity = json['existingQuantity'];
-    currentQuantity = json['currentQuantity'];
-    stockIn = json['stockIn'];
-    sales = json['sales'];
-    totalPrice = json['totalPrice'];
-    productId = json['productId'];
-  }
   double getPrice(String? mPrice) {
     double price = 0.0;
     try {

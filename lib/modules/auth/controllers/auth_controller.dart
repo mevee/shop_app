@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' as ConnectivityResult;
 import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
-import 'package:shop_app/data/app_state_manager.dart';
 import 'package:shop_app/data/common_api_response.dart';
 import 'package:shop_app/data/common_response.dart';
 import 'package:shop_app/data/login_service.dart';
@@ -30,10 +30,12 @@ class AuthController extends GetxController {
   final loginPasswordCtr = TextEditingController(text: "");
 
   final fpUserNameCtr = TextEditingController(text: "ddd");
-  final otpCtr = TextEditingController(text: "");
-  final newPasswordCtr = TextEditingController(text: "");
+  final fpOtpCtr = TextEditingController(text: "");
+  final fpNewPasswordCtr = TextEditingController(text: "");
 
-  final oldPasswordCtr = TextEditingController(text: "");
+  final uPaEmailCtr = TextEditingController(text: "");
+  final uPaOldPasswordCtr = TextEditingController(text: "");
+  final uPaNewPasswordCtr = TextEditingController(text: "");
 
   final RxString emailValue = "".obs;
   final RxString passwordValue = "".obs;
@@ -41,6 +43,7 @@ class AuthController extends GetxController {
   RxBool isLoginActive = false.obs;
   RxBool isLoginButtonLoading = false.obs;
   RxBool passVisible = false.obs;
+  RxBool remember = false.obs;
 
   RxBool otpSendView = true.obs;
 
@@ -57,15 +60,15 @@ class AuthController extends GetxController {
     isUpdatePasswordLoading.value = false;
     updatePasswordViewVisible.value = false;
     fpUserNameCtr.clear();
-    otpCtr.clear();
-    newPasswordCtr.clear();
+    fpOtpCtr.clear();
+    fpNewPasswordCtr.clear();
     uniqueKey = null;
   }
 
   @override
   void onInit() {
-    // final ApplicationState appState = Get.find();
     super.onInit();
+    checkIfIsRemeberOn();
   }
 
   void isLoginButtonActive() {
@@ -85,7 +88,7 @@ class AuthController extends GetxController {
       formKey.currentState?.validate();
       return;
     }
-
+    await _userManager.initPreferences();
     isLoginButtonLoading.value = true;
     final LoginRequest loginData = LoginRequest(
       userName: loginEmailCtr.text,
@@ -101,10 +104,23 @@ class AuthController extends GetxController {
             _userManager.setUserData(r.response);
             _userManager.setUserToken(r.response.token);
             _userManager.setUserId(r.response.login?.id.toString());
-            ApplicationState().userLoggedIn();
+            //---
+            _userManager.setRememberOn(remember.value);
+            if (remember.value) {
+              _userManager.saveUserCred(
+                LoginRequest(
+                  password: loginPasswordCtr.text,
+                  userName: loginEmailCtr.text,
+                ),
+              );
+            } else {
+              _userManager.saveUserCred(null);
+            }
+          //  print("${remember.value}::${r.response.token}");
+            // print("${_userManager.getSavedCred()?.toJson()}");
             Get.offAllNamed(Routes.bottomNavigation);
-          }else{
-            final message=r.response.message??"Failed Login try again."; 
+          } else {
+            final message = r.response.message ?? "Failed Login try again.";
             AppToast.showToast(message: message);
           }
           isLoginButtonLoading.value = false;
@@ -205,7 +221,7 @@ class AuthController extends GetxController {
       case 500:
         return "Server error. Please try again";
       default:
-        return exception.message ?? "Something went wrong";
+        return exception.message;
     }
   }
 
@@ -214,19 +230,19 @@ class AuthController extends GetxController {
       return;
     }
 
-    if (otpCtr.text.isEmpty) {
+    if (fpOtpCtr.text.isEmpty) {
       AppToast.showToast(message: "Please enter OTP");
       return;
     }
-    if (newPasswordCtr.text.isEmpty) {
+    if (fpNewPasswordCtr.text.isEmpty) {
       AppToast.showToast(message: "Please enter new password");
       return;
     }
     isUpdatePasswordLoading.value = true;
     final VerifyOtpAndNewPassowrdRequest loginData =
         VerifyOtpAndNewPassowrdRequest(
-          otp: otpCtr.text,
-          newPassword: newPasswordCtr.text,
+          otp: fpOtpCtr.text,
+          newPassword: fpNewPasswordCtr.text,
           uniqueId: uniqueKey,
         );
     try {
@@ -273,23 +289,23 @@ class AuthController extends GetxController {
       return;
     }
 
-    if (loginEmailCtr.text.isEmpty) {
+    if (uPaEmailCtr.text.isEmpty) {
       AppToast.showToast(message: "Please enter user name");
       return;
     }
-    if (oldPasswordCtr.text.isEmpty) {
+    if (uPaOldPasswordCtr.text.isEmpty) {
       AppToast.showToast(message: "Please enter old password");
       return;
     }
-    if (newPasswordCtr.text.isEmpty) {
+    if (uPaNewPasswordCtr.text.isEmpty) {
       AppToast.showToast(message: "Please enter new password");
       return;
     }
     isUpdatePasswordLoading.value = true;
     final ChangePasswordRequest loginData = ChangePasswordRequest(
       userName: _userManager.getUserData()?.login?.userName,
-      newPassword: newPasswordCtr.text,
-      oldPassword: oldPasswordCtr.text,
+      newPassword: uPaNewPasswordCtr.text,
+      oldPassword: uPaOldPasswordCtr.text,
     );
     try {
       CommonResponse response = await _authService.changePassword(loginData);
@@ -309,8 +325,9 @@ class AuthController extends GetxController {
           message: response.responseCode ?? "Password updated successfully",
         );
         forgetPasswordView();
-        loginEmailCtr.text = "";
-        loginPasswordCtr.text = "";
+        uPaEmailCtr.text = "";
+        uPaOldPasswordCtr.text = "";
+        uPaNewPasswordCtr.text = "";
         Get.offAllNamed(Routes.login);
       }
     } on DioException catch (e) {
@@ -330,5 +347,21 @@ class AuthController extends GetxController {
 
   void moveToNextScreen() {
     Get.offAllNamed(Routes.login);
+  }
+
+  void checkIfIsRemeberOn() async {
+    await _userManager.initPreferences();
+    final isRememberOn = _userManager.isRememberOn();
+    if (isRememberOn == true) {
+      remember.value = true;
+      final savedRed = _userManager.getSavedCred();
+      aLog("RemeberOn$isRememberOn::${savedRed?.toJson()}");
+      if (savedRed != null) {
+        loginEmailCtr.text = savedRed.userName ?? "";
+        loginPasswordCtr.text = savedRed.password ?? "";
+      }
+    } else {
+      remember.value = false;
+    }
   }
 }

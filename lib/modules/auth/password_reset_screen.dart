@@ -85,7 +85,7 @@ class PasswordResetScreen extends GetView<AuthController> {
     return Column(
       children: [
         CommonWidgets.text(
-          controller: controller.otpCtr,
+          controller: controller.fpOtpCtr,
           labelText: 'Enter OTP',
           errorMessage: 'Please enter OTP',
           fontSize: 14.0,
@@ -93,7 +93,7 @@ class PasswordResetScreen extends GetView<AuthController> {
         ),
         const SizedBox(height: 16),
         CommonWidgets.text(
-          controller: controller.newPasswordCtr,
+          controller: controller.fpNewPasswordCtr,
           labelText: 'Enter New Password',
           errorMessage: 'Please enter your new password',
           fontSize: 14.0,

@@ -176,7 +176,7 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
           ),
           const SizedBox(height: 15),
           TextFormField(
-            controller: data.nQtyController,
+            controller: data.cQtyController,
             keyboardType: TextInputType.number,
             onTapOutside: (event) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
@@ -219,7 +219,7 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
   }
 
   void _showSelectProductDialog(BuildContext context) {
-    controller.getSkuList();
+    controller.getScheduleSku();
     Get.bottomSheet(
       SelectSkuBottomSheet(),
       isScrollControlled: true,

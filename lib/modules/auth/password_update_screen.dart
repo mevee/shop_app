@@ -33,7 +33,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
               children: [
                 verticalSpacing(24),
                 CommonWidgets.text(
-                  controller: controller.loginEmailCtr,
+                  controller: controller.uPaEmailCtr,
                   labelText: 'Enter User',
                   errorMessage: 'Please enter your username',
                   fontSize: 14.0,
@@ -42,7 +42,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
                 const SizedBox(height: 16),
 
                 CommonWidgets.text(
-                  controller: controller.oldPasswordCtr,
+                  controller: controller.uPaOldPasswordCtr,
                   labelText: 'Old Password',
                   errorMessage: 'Please enter',
                   fontSize: 14.0,
@@ -50,7 +50,7 @@ class UpdatePasswordScreen extends GetView<AuthController> {
                 ),
                 const SizedBox(height: 16),
                 CommonWidgets.text(
-                  controller: controller.newPasswordCtr,
+                  controller: controller.uPaNewPasswordCtr,
                   labelText: 'Enter New Password',
                   errorMessage: 'Please enter your new password',
                   fontSize: 14.0,

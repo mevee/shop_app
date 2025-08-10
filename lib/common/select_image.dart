@@ -125,7 +125,9 @@ class UploadImageController extends BaseController {
     photo = await picker.pickImage(
       source: ImageSource.camera,
       preferredCameraDevice: CameraDevice.rear,
-      imageQuality: 40,
+      imageQuality: 30,
+      maxWidth: 1024, // Reduces resolution
+      maxHeight: 1024,
     );
     if (photo != null && photo?.path != '') {
       final image = ImgData(imagePath: photo?.path ?? "");
@@ -158,9 +160,7 @@ class UploadImageController extends BaseController {
   }
 
   List<String> getImagesBase64() {
-    return _photoURLs.value
-        .map((e) => imageToBase64(e.imagePath))
-        .toList();
+    return _photoURLs.value.map((e) => imageToBase64(e.imagePath)).toList();
   }
 
   void _isMaxSelected() {

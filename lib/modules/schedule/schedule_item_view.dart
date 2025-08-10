@@ -13,11 +13,7 @@ Widget scheduleItemView({
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 10.0),
       decoration: BoxDecoration(
-        color: model.isVisitDone == 2
-            ? AppColors.yellow
-            : model.isVisitDone == 1
-            ? AppColors.green
-            : AppColors.red,
+        color: stausColor(model),
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8.0),
       ),
@@ -29,12 +25,12 @@ Widget scheduleItemView({
               Expanded(
                 flex: 2,
                 child: Text(
-                  "${model.shopName} \nShceduled: ${model.scheduleDateTime}\nStatus: ${model.status}",
+                  "${model.shopName} \nShceduled: ${model.scheduleDateTime}\nStatus: ${model.isAuthorized}",
                   textAlign: TextAlign.start,
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.normal,
-                    color: AppColors.white,
+                    color: textColor(model),
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -46,7 +42,7 @@ Widget scheduleItemView({
                 margin: const EdgeInsets.symmetric(horizontal: 8.0),
                 // padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: textColor(model),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
@@ -60,7 +56,7 @@ Widget scheduleItemView({
                   ),
                   decoration: BoxDecoration(
                     // color: AppColors.white,
-                    border: Border.all(color: Colors.white),
+                    border: Border.all(color: textColor(model)),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
@@ -68,8 +64,8 @@ Widget scheduleItemView({
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                      color: textColor(model),
                     ),
                   ),
                 ),
@@ -100,5 +96,34 @@ String _stausString(ScheduleDateTimeModel model) {
     return "CANCELLED";
   } else {
     return 'VISITED';
+  }
+}
+
+Color stausColor(ScheduleDateTimeModel model) {
+  if (model.isVisitDone == 0 && model.isAuthorized == "Authorized") {
+    return AppColors.red;
+  } else if (model.isVisitDone == 0 &&
+      model.isAuthorized == "Request to Cancel") {
+    return AppColors.white;
+  } else if (model.isVisitDone == 0 &&
+      model.isAuthorized == "Cancel Rejected") {
+    return AppColors.red;
+  } else if (model.isVisitDone == 0 &&
+      model.isAuthorized == "Cancel Accepted") {
+    return const Color.fromARGB(255, 230, 208, 11);
+  } else if (model.isVisitDone == 2) {
+    return AppColors.yellow;
+  } else {
+    return AppColors.green;
+  }
+}
+
+Color textColor(ScheduleDateTimeModel model) {
+  if (model.isVisitDone == 0 && model.isAuthorized == "Cancel Accepted") {
+    return AppColors.blackText;
+  }if (model.isVisitDone == 0 && model.isAuthorized == "Request to Cancel") {
+    return AppColors.blackText;
+  } else {
+    return AppColors.white;
   }
 }
