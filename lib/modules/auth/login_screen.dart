@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -87,9 +86,9 @@ class LoginScreen extends GetView<AuthController> {
                                           !controller.remember.value;
                                     },
                                     fillColor:
-                                        WidgetStateProperty.resolveWith<
-                                          Color
-                                        >((states) {
+                                        WidgetStateProperty.resolveWith<Color>((
+                                          states,
+                                        ) {
                                           if (states.contains(
                                             WidgetState.selected,
                                           )) {

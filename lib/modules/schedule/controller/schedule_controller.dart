@@ -75,9 +75,14 @@ class ScheduleController extends BaseController {
   RxInt totalExtQty = 0.obs;
   RxInt currentQty = 0.obs;
   RxInt stockQty = 0.obs;
+
   RxDouble totalPrice = (0.0).obs;
   RxInt totalSale = (0).obs;
   RxDouble total = (0.0).obs;
+
+  void selectSeller() {
+    selected.value = dropDownOptions[1];
+  }
 
   void calculateTotal() {
     totalExtQty.value = 0;
@@ -112,15 +117,17 @@ class ScheduleController extends BaseController {
     print("resetUi()");
     calculateTotal();
     schedule.value = ScheduleDateTimeModel();
-    isButtonEnabled.value = false;
+    is20minCrossed.value = false;
     remainingSeconds.value = 0;
     meetingStarted.value = false;
     detailWasAdded.value = false;
     remarksController.text = "";
     skListQtyInput.value = [];
     skuListInput.value = [];
-    profileImage.setUploadedImages64([]);
-    selectedImageCtr.setUploadedImages64([]);
+    profileImage.reset();
+    selectedImageCtr.reset();
+    // profileImage.setUploadedImages64([]);
+    // selectedImageCtr.setUploadedImages64([]);
     skuListInput.refresh();
     closeTime();
   }
@@ -128,28 +135,34 @@ class ScheduleController extends BaseController {
   //----time related
   RxBool meetingStarted = false.obs;
   Rx<MeetingStatus> meetingStatus = MeetingStatus.IDEAL.obs;
-  RxBool isButtonEnabled = false.obs;
+  RxBool is20minCrossed = false.obs;
   RxInt remainingSeconds = 0.obs;
   Timer? _timer;
 
   void checkIfMeetingWasStarted() {
-    // final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
-    // if (meet1 != null && meet1.timeRemainingSeconds > 0) {
-    //   final status = meet1.getMeetingStatusInSeconds();
-    //   if (status['is20MinCompleted']) {
-    //     isButtonEnabled.value = false;
-    //     meetingStatus.value = MeetingStatus.END;
-    //   } else {
-    //     meet1.timeRemainingSeconds = status['remainingSeconds'];
-    //     // startCountdown(remaingTime: meet1.timeRemainingSeconds);
-    //   }
-    // } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
-    //   isButtonEnabled.value = false;
-    //   meetingStatus.value = MeetingStatus.END;
-    // }
-    // if (schedule.value.isVisitDone == 2) {
-    //   meetingStatus.value = MeetingStatus.CANCELLED;
-    // }
+    aLog("checkIfMeetingWasStarted()");
+    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
+    if (meet1 != null && meet1.timeRemainingSeconds > 0) {
+      final status = meet1.getMeetingStatusInSeconds();
+      if (status['is20MinCompleted']) {
+        is20minCrossed.value = true;
+      } else {
+        is20minCrossed.value = false;
+        meet1.timeRemainingSeconds = status['remainingSeconds'];
+        startCountdown(remaingTime: meet1.timeRemainingSeconds);
+      }
+    } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
+      is20minCrossed.value = true;
+    }
+  }
+
+  bool isMeetingStarted() {
+    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
+    if (meet1 != null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void saveMeetingTimeLocal() {
@@ -167,27 +180,26 @@ class ScheduleController extends BaseController {
     }
   }
 
-  // // Start a 20-minute countdown
-  // void startCountdown({int remaingTime = 20 * 60}) {
-  //   meetingStarted.value = true;
-  //   isButtonEnabled.value = true;
-  //   remainingSeconds.value = remaingTime; // 20 minutes in seconds
-  //   meetingStatus.value = MeetingStatus.STARTED;
-  //   if (_timer != null) {
-  //     _timer?.cancel();
-  //   }
-  //   saveMeetingTimeLocal();
-  //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-  //     if (remainingSeconds.value > 0) {
-  //       remainingSeconds.value--;
-  //     } else {
-  //       _timer?.cancel();
-  //       isButtonEnabled.value = false;
-  //       meetingStatus.value = MeetingStatus.USER_AT_SHOP;
-  //     }
-  //     saveMeetingTimeLocal();
-  //   });
-  // }
+  // Start a 20-minute countdown
+  void startCountdown({int remaingTime = 20 * 60}) {
+    is20minCrossed.value = false;
+    aLog("startCountdown($remaingTime)");
+
+    remainingSeconds.value = remaingTime; // 20 minutes in seconds
+    if (_timer != null) {
+      _timer?.cancel();
+    }
+    saveMeetingTimeLocal();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (remainingSeconds.value > 0) {
+        remainingSeconds.value--;
+      } else {
+        _timer?.cancel();
+        is20minCrossed.value = true;
+      }
+      saveMeetingTimeLocal();
+    });
+  }
 
   // Format seconds to MM:SS
   String get formattedTime {
@@ -205,7 +217,7 @@ class ScheduleController extends BaseController {
   void closeTime() {
     meetingStatus.value = MeetingStatus.IDEAL;
     meetingStarted.value = false;
-    isButtonEnabled.value = false;
+    is20minCrossed.value = false;
     remainingSeconds.value = 0;
     _timer?.cancel();
   }
@@ -252,6 +264,7 @@ class ScheduleController extends BaseController {
     loadUserData();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     timeController.text = TimeOfDay.now().format(Get.context!);
+    checkIfMeetingWasStarted();
   }
 
   void setManualArguments(Map<String, dynamic>? data) async {
@@ -326,6 +339,8 @@ class ScheduleController extends BaseController {
         // scheduleList.value = response.results!.first;
         updaetUiAsPerOldScheduleData(response.results!.first);
         setUiAsPerSchedule(schedule.value, response.results!.first);
+        getImages(schedule.value.id.toString());
+        getQtyList(schedule.value.id.toString());
       } else {
         setUiAsPerSchedule(schedule.value, null);
       }
@@ -465,6 +480,8 @@ class ScheduleController extends BaseController {
             totalPrice: img.totalPrice,
             stockIn: img.stockIn,
             sales: img.sales,
+            wholeSellerId: img.wholeSellerId,
+            shopId: img.shopId,
           ),
         );
       }
@@ -711,8 +728,6 @@ class ScheduleController extends BaseController {
       final dateTimeArray = mSchedule.scheduleDateTime!.split("T");
       dateController.text = dateTimeArray[0];
       timeController.text = dateTimeArray[1];
-      getImages(value.id.toString());
-      getQtyList(value.id.toString());
     }
     if (dateTime != null) {}
     schedule.refresh();

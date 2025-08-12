@@ -43,24 +43,6 @@ class ScheduleListResponse {
     invoiceUrl = json['invoiceUrl'];
     lastPage = json['lastPage'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['action'] = action;
-    data['responseStatus'] = responseStatus;
-    data['responseCode'] = responseCode;
-    data['responseMessage'] = responseMessage;
-    data['totalSize'] = totalSize;
-    data['totalPages'] = totalPages;
-    data['currentPage'] = currentPage;
-    data['currentSize'] = currentSize;
-    if (results != null) {
-      data['results'] = results!.map((v) => v.toJson()).toList();
-    }
-    data['invoiceUrl'] = invoiceUrl;
-    data['lastPage'] = lastPage;
-    return data;
-  }
 }
 
 class ScheduleDateTimeModel {
@@ -77,6 +59,7 @@ class ScheduleDateTimeModel {
   String? day;
   int? isVisitDone;
   String? isAuthorized;
+  String? authorizedRemarks;
 
   ScheduleDateTimeModel({
     this.id,
@@ -92,6 +75,7 @@ class ScheduleDateTimeModel {
     this.day,
     this.isVisitDone,
     this.isAuthorized,
+    this.authorizedRemarks,
   });
 
   ScheduleDateTimeModel.fromJson(Map<String, dynamic> json) {
@@ -108,23 +92,6 @@ class ScheduleDateTimeModel {
     day = json['day'];
     isVisitDone = json['isVisitDone'];
     isAuthorized = json['isAuthorized'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['userName'] = userName;
-    data['scheduleDateTime'] = scheduleDateTime;
-    data['shopId'] = shopId;
-    data['status'] = status;
-    data['createdBy'] = createdBy;
-    data['createdDate'] = createdDate;
-    data['updatedBy'] = updatedBy;
-    data['updatedDate'] = updatedDate;
-    data['shopName'] = shopName;
-    data['day'] = day;
-    data['isVisitDone'] = isVisitDone;
-    data['isAuthorized'] = isAuthorized;
-    return data;
+    authorizedRemarks = json['authorizedRemarks'];
   }
 }

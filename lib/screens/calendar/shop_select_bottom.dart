@@ -3,13 +3,21 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
 
 class SelectShopBottomSheet extends StatelessWidget {
-  const SelectShopBottomSheet({super.key, required this.controller});
+  final Function(ShopMasterModel item)? onItemClick;
+  final bool? wholeSellerMode;
   final ScheduleController controller;
+  const SelectShopBottomSheet({
+    super.key,
+    required this.controller,
+    this.onItemClick,
+    this.wholeSellerMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -78,19 +86,22 @@ class SelectShopBottomSheet extends StatelessWidget {
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 8),
-              child: Obx(
-                () => SizedBox(
-                  width: double.maxFinite,
-                  child: GenericDropdown<String>(
-                    options: controller.dropDownOptions,
-                    selectedOption: controller.selected.value,
-                    hintText: "Select",
-                    onChanged: (value) {
-                      controller.selected.value = value ?? "Retail";
-                      controller.getShopList(controller.searchCtr.text);
-                    },
+            Visibility(
+              visible: !(wholeSellerMode != null && wholeSellerMode == true),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 8),
+                child: Obx(
+                  () => SizedBox(
+                    width: double.maxFinite,
+                    child: GenericDropdown<String>(
+                      options: controller.dropDownOptions,
+                      selectedOption: controller.selected.value,
+                      hintText: "Select",
+                      onChanged: (value) {
+                        controller.selected.value = value ?? "Retail";
+                        controller.getShopList(controller.searchCtr.text);
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -106,7 +117,12 @@ class SelectShopBottomSheet extends StatelessWidget {
                     return InkWell(
                       borderRadius: BorderRadius.circular(8.0),
                       onTap: () {
-                        controller.selectShop(shop);
+                        if (wholeSellerMode != null &&
+                            wholeSellerMode == true) {
+                          onItemClick!(shop);
+                        } else {
+                          controller.selectShop(shop);
+                        }
                         Get.back();
                       },
                       child: Container(

@@ -11,18 +11,19 @@ class ScheduleQtyResponse {
   String? invoiceUrl;
   bool? lastPage;
 
-  ScheduleQtyResponse(
-      {this.action,
-      this.responseStatus,
-      this.responseCode,
-      this.responseMessage,
-      this.totalSize,
-      this.totalPages,
-      this.currentPage,
-      this.currentSize,
-      this.results,
-      this.invoiceUrl,
-      this.lastPage});
+  ScheduleQtyResponse({
+    this.action,
+    this.responseStatus,
+    this.responseCode,
+    this.responseMessage,
+    this.totalSize,
+    this.totalPages,
+    this.currentPage,
+    this.currentSize,
+    this.results,
+    this.invoiceUrl,
+    this.lastPage,
+  });
 
   ScheduleQtyResponse.fromJson(Map<String, dynamic> json) {
     action = json['action'];
@@ -42,9 +43,7 @@ class ScheduleQtyResponse {
     invoiceUrl = json['invoiceUrl'];
     lastPage = json['lastPage'];
   }
-
 }
-
 
 class QtyResults {
   int? id;
@@ -61,23 +60,27 @@ class QtyResults {
   String? createdDate;
   String? updatedDate;
   String? productName;
+  int? shopId;
+  int? wholeSellerId;
 
-  QtyResults(
-      {this.id,
-      this.productId,
-      this.existingQuantity,
-      this.currentQuantity,
-      this.stockIn,
-      this.totalQuantity,
-      this.totalPrice,
-      this.sales,
-      this.scheduleId,
-      this.createdBy,
-      this.updatedBy,
-      this.createdDate,
-      this.updatedDate,
-      this.productName,
-      });
+  QtyResults({
+    this.id,
+    this.productId,
+    this.existingQuantity,
+    this.currentQuantity,
+    this.stockIn,
+    this.totalQuantity,
+    this.totalPrice,
+    this.sales,
+    this.scheduleId,
+    this.createdBy,
+    this.updatedBy,
+    this.createdDate,
+    this.updatedDate,
+    this.productName,
+    this.wholeSellerId,
+    this.shopId,
+  });
 
   QtyResults.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -94,6 +97,7 @@ class QtyResults {
     createdDate = json['createdDate'];
     updatedDate = json['updatedDate'];
     productName = json['productName'];
+    wholeSellerId = json['wholeSellerId'];
+    shopId = json['shopId'];
   }
-
 }

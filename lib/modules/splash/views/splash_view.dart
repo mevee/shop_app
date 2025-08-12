@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
+import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/app_images.dart';
 
@@ -16,6 +18,7 @@ class SplashView extends StatefulWidget {
 class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
+    // permissionHandler();
     completeSplashUser();
     super.initState();
   }
@@ -53,6 +56,28 @@ class _SplashViewState extends State<SplashView> {
           ),
         ],
       ),
+    );
+  }
+
+  void permissionHandler() async {
+    PermissionUtil.checkEssentialPermissions(
+      onResult: (reselt) {
+        if (reselt) {
+          completeSplashUser();
+        } else {
+          PermissionUtil.checkEssentialPermissions(
+            onResult: (mN) {
+              if (mN) {
+                completeSplashUser();
+              } else {
+                AppToast.showToast(
+                  message: "Please allow location permission to use this app.",
+                );
+              }
+            },
+          );
+        }
+      },
     );
   }
 }

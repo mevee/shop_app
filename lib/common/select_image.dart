@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/base_64_convert_util.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/data/network/app_colors.dart';
@@ -13,7 +14,6 @@ import 'package:shop_app/utils/app_images.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 class ImgData {
   String imagePath = "";
@@ -138,7 +138,6 @@ class UploadImageController extends BaseController {
     }
     _isMaxSelected();
     onImagesChangeListner?.call();
-
     return photo?.path;
   }
 
@@ -182,10 +181,13 @@ class UploadImageController extends BaseController {
 class UploadImageWidget extends StatelessWidget {
   final UploadImageController controller;
   final bool enabled;
-  const UploadImageWidget({
+  Function()? onSelect;
+
+  UploadImageWidget({
     super.key,
     required this.controller,
     this.enabled = true,
+    this.onSelect,
   });
 
   @override
@@ -277,8 +279,14 @@ class UploadImageWidget extends StatelessWidget {
                             ],
                           ),
                         ),
-                        onTap: () {
-                          controller.pickFromCamera(onComplete: (value) {});
+                        onTap: () async {
+                          await controller.pickFromCamera(
+                            onComplete: (value) {},
+                          );
+                          // aLog("onComplete");
+                          if (onSelect != null) {
+                            onSelect!();
+                          }
                         },
                       ),
                     ),
@@ -377,6 +385,9 @@ class UploadImageWidget extends StatelessWidget {
             InkWell(
               onTap: () {
                 controller.removeImage(model);
+                if (onSelect != null) {
+                  onSelect!();
+                }
               },
               child: const Image(
                 image: AssetImages.close,

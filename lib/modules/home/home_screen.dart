@@ -7,6 +7,7 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/home_controller.dart';
@@ -57,18 +58,37 @@ class HomeScreen extends GetView<HomeController> {
                           textColor: Colors.white,
                           progressColor: Colors.white,
                           label: "Checkin",
-                          onPressed: () {
-                            showCustomDialog(
-                              context: context,
-                              message: "Do you want to checkin?",
-                              title: "Confirm",
-                              barrierDismissible: true,
-                              primaryButtonText: "Yes",
-                              secondaryButtonText: "No",
-                              onPrimaryPressed: () {
-                                controller.getInLocation();
-                              },
-                            );
+                          onPressed: () async {
+                            final p1 =
+                                await PermissionUtil.notificationPermissionCheck();
+                            if (p1) {
+                              final loc =
+                                  await PermissionUtil.locationPermissionCheck();
+                              if (loc) {
+                                // AppToast.showToast(
+                                //   message: "Locaton notification allowed",
+                                // );
+                                showCustomDialog(
+                                  context: context,
+                                  message: "Do you want to checkin?",
+                                  title: "Confirm",
+                                  barrierDismissible: true,
+                                  primaryButtonText: "Yes",
+                                  secondaryButtonText: "No",
+                                  onPrimaryPressed: () {
+                                    controller.getInLocation();
+                                  },
+                                );
+                              } else {
+                                AppToast.showToast(
+                                  message: "Locaton notification denied",
+                                );
+                              }
+                            } else {
+                              AppToast.showToast(
+                                message: "Notification permission is required.",
+                              );
+                            }
                           },
                         ),
                       ),
@@ -102,10 +122,16 @@ class HomeScreen extends GetView<HomeController> {
                                 aLog(
                                   "isSchedulePending::${controller.isSchedulePending()}",
                                 );
-                                if (controller.isSchedulePending()) {
+                                // if (controller.isSchedulePending()) {
+                                //   AppToast.showToast(
+                                //     message:
+                                //         "Please complete schedule before checkout",
+                                //   );
+                                // }else
+                                if (!controller.is15ScheduleCompleted()) {
                                   AppToast.showToast(
                                     message:
-                                        "Please complete schedule before checkout",
+                                        "Please complete at least 15 schedule before checkout",
                                   );
                                 } else {
                                   controller.getOutLocation();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
@@ -153,16 +154,14 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                             textColor: Colors.white,
                             onPressed: () {
                               print("${controller.profileImage.isEmpty.value}");
-                              if (controller.userManager.getIsWorking() ==
-                                  false) {
-                                AppToast.showToast(
-                                  message:
-                                      "Before starting the meeting please checkin from home screen.",
-                                );
-                              } else if (controller
-                                  .profileImage
-                                  .isEmpty
-                                  .value) {
+                              // if (controller.userManager.getIsWorking() ==
+                              //     false) {
+                              //   AppToast.showToast(
+                              //     message:
+                              //         "Before starting the meeting please checkin from home screen.",
+                              //   );
+                              // } else
+                              if (controller.profileImage.isEmpty.value) {
                                 AppToast.showToast(
                                   message: "Please slect a profile image first",
                                 );
@@ -207,6 +206,13 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                     child: UploadImageWidget(
                       controller: controller.profileImage,
                       enabled: (!controller.detailWasAdded.value),
+                      onSelect: () {
+                        // aLog("Image selected::isIsSelected${controller.profileImage.isEmpty.value}AND${!controller.isMeetingStarted()}");
+                        if (controller.profileImage.isEmpty.value==false&&!controller.isMeetingStarted()) {
+                          controller.startCountdown();
+                        }
+                        
+                      },
                     ),
                   ),
                   Visibility(
@@ -234,6 +240,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   TextFormField(
                     controller: controller.remarksController,
                     maxLines: 4,
+                    readOnly: !_isEditable(),
                     // Allows for multiple lines of input
                     keyboardType: TextInputType.multiline,
                     onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -269,7 +276,8 @@ class ScheduleDetailView extends GetView<ScheduleController> {
 
   Row actionButtonsBottomView(BuildContext context) {
     print("visit Done ${controller.meetingStatus.value}");
-    // print("visit Done ${controller.schedule.value.isVisitDone}");
+    print("20 min crossed ${controller.is20minCrossed.value}");
+    print("detailWasAdded.value ${controller.detailWasAdded.value}");
     return Row(
       children: [
         Obx(
@@ -289,7 +297,13 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   context,
                   'Are you sure you want to cancel meeting?',
                   () {
-                    controller.cancelMeeting();
+                    if (controller.remarksController.text.isEmpty) {
+                      AppToast.showToast(
+                        message: "Please add remark to cancel",
+                      );
+                    } else {
+                      controller.cancelMeeting();
+                    }
                   },
                 ),
                 isLoading:
@@ -318,12 +332,15 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 textColor: Colors.white,
                 progressColor: Colors.white,
                 onPressed: () {
-                  if (controller.userManager.getIsWorking() == false) {
-                    AppToast.showToast(
-                      message:
-                          "Before starting the meeting please checkin from home screen.",
-                    );
-                  } else if (controller.profileImage.isEmpty.value) {
+                  // print("Remain seconds::${controller.remainingSeconds.value}");
+                  // print("Is 20 min croseed${controller.is20minCrossed.value}");
+                  // if (controller.userManager.getIsWorking() == false) {
+                  //   AppToast.showToast(
+                  //     message:
+                  //         "Before starting the meeting please checkin from home screen.",
+                  //   );
+                  // } else 
+                  if (controller.profileImage.isEmpty.value) {
                     AppToast.showToast(
                       message: "Please slect a profile image first",
                     );
@@ -336,10 +353,22 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       context,
                       'Are you sure you want complete metting?',
                       () {
-                        // controller.startCountdown();
-                        controller.submitForm();
-                        // controller.startCountdown();
-                        //
+                        if (controller.is20minCrossed.value) {
+                          showInputDialog(
+                            context: context,
+                            placeholder: "Additional remark required",
+                            errorText: "Remark required",
+                            title:
+                                "You have spend more then 20 minutes in shop \n.Please add remark",
+                            submitLabel: "Submit",
+                            onSubmit: (input) {
+                              controller.remarksController.text = input;
+                              controller.submitForm();
+                            },
+                          );
+                        } else {
+                          controller.submitForm();
+                        }
                       },
                     );
                   }
@@ -428,6 +457,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       prod.eQtyController.text =
           editProduct.existingQuantity?.toString() ?? "0";
       prod.cQtyController.text = editProduct.currentQuantity?.toString() ?? "0";
+      prod.stockQtyController.text = editProduct.stockIn?.toString() ?? "0";
+      prod.sellerCtr.text = editProduct.seller?.unitName ?? "Select Seller";
+      prod.seller = editProduct.seller;
       ctr.product.value = prod;
     } else {
       ctr.product.value = ProductMaster();
@@ -454,6 +486,9 @@ class ScheduleDetailView extends GetView<ScheduleController> {
           editProduct.sales = (eQty + stockQty) - cQty;
           editProduct.category = product.category;
           editProduct.prodName = "${product.productName}(${product.sku})";
+          editProduct.wholeSellerId = product.seller?.id;
+          editProduct.shopId = product.seller?.id;
+          editProduct.seller = product.seller;
         } else {
           controller.skListQtyInput.add(
             QuantityDetailsReq(
@@ -466,10 +501,12 @@ class ScheduleDetailView extends GetView<ScheduleController> {
               sales: (eQty + stockQty) - cQty,
               category: product.category,
               prodName: "${product.productName}(${product.sku})",
+              wholeSellerId: product.seller?.id,
+              shopId: product.seller?.id,
+              seller: product.seller,
             ),
           );
         }
-
         controller.skListQtyInput.refresh();
         controller.calculateTotal();
       }),

@@ -34,7 +34,7 @@ class FlutterBgService {
       'MY FOREGROUND SERVICE', // title
       description:
           'This channel is used for important notifications.', // description
-      importance: Importance.low, // importance must be at low or higher level
+      importance: Importance.high, // importance must be at low or higher level
     );
 
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

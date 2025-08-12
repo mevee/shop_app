@@ -164,7 +164,8 @@ class ManagerScreen extends GetView<ManagerController> {
                                 horizontalSpacing(8),
                                 Expanded(
                                   child: Text(
-                                    "SHOP: ${model.shopName ?? 'Unknown Schedule'}\nScheduled Date: ${model.scheduleDateTime}\nStatus: ${model.status}\nIs Authorize: ${model.isAuthorized}",
+                                    "SHOP: ${model.shopName ?? 'Unknown Schedule'}\nScheduled Date: ${model.scheduleDateTime}\nStatus: ${model.status}\nIs Authorize: ${model.isAuthorized}${model.isVisitDone == 0 && model.isAuthorized == "Request to Cancel" ? '\nRemark:${model.authorizedRemarks}' : ''}",
+                                    maxLines: 8,
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,

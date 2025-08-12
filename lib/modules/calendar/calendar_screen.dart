@@ -5,6 +5,7 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/calendar/controller/calender_controller.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
+import 'package:shop_app/modules/schedule/schedule_item_view.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/screens/calendar/add_shchedule_bottom.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
@@ -90,23 +91,15 @@ class CalendarScreen extends GetView<CallenderController> {
                           vertical: 2.0,
                         ),
                         decoration: BoxDecoration(
-                          color: item.isVisitDone == 2
-                              ? AppColors.yellow
-                              : item.isVisitDone == 1
-                              ? AppColors.green
-                              : AppColors.red,
-
-                          // color: item.isVisitDone == 1
-                          //     ? AppColors.green
-                          //     : AppColors
-                          //           .red, // Light blue background for text items
-                          borderRadius: BorderRadius.circular(4.0),
+                          color: schStausColor(item),
+                          border: BoxBorder.all(color: schTextColor(item)),
+                          borderRadius: BorderRadius.circular(6.0),
                         ),
                         child: Text(
                           item.shopName ?? 'No Data',
                           style: TextStyle(
                             fontSize: 9.0,
-                            color: Colors.white,
+                            color: schTextColor(item),
                             decoration: item.isVisitDone == 2
                                 ? TextDecoration.lineThrough
                                 : null,
@@ -159,7 +152,7 @@ class CalendarScreen extends GetView<CallenderController> {
           ),
         ],
       ),
- 
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0),

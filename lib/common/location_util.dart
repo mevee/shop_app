@@ -7,25 +7,27 @@ class LocationUtil {
   static Future<void> getLocation(
     Function(LocationLatLon location) onLocatiionFound,
   ) async {
-    try {
-      // Check permissions
-      final status = await Permission.location.request();
-      if (!status.isGranted) {
-        throw Exception('Location permission denied');
-      }
+    // Check permissions
+    final status = await Permission.location.request();
+    if (!status.isGranted) {
+      AppToast.showToast(message: 'Location permission denied');
+      return;
+    } else {
       // Get current position
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 1   
-        )
-      );
-      onLocatiionFound(
-        LocationLatLon(lat: position.latitude, long: position.longitude),
-      );
-    } catch (e) {
-      //show bottom sheet error for need of location permission
-      AppToast.showToast(message: 'Failed to get location: ${e.toString()}');
-    } finally {}
+      try {
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 1,
+          ),
+        );
+        onLocatiionFound(
+          LocationLatLon(lat: position.latitude, long: position.longitude),
+        );
+      } catch (e) {
+        //show bottom sheet error for need of location permission
+        AppToast.showToast(message: 'Failed to get location: ${e.toString()}');
+      } finally {}
+    }
   }
 }

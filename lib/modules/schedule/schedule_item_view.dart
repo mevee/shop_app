@@ -13,7 +13,7 @@ Widget scheduleItemView({
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 10.0),
       decoration: BoxDecoration(
-        color: stausColor(model),
+        color: schStausColor(model),
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8.0),
       ),
@@ -30,7 +30,7 @@ Widget scheduleItemView({
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
-                    color: textColor(model),
+                    color: schTextColor(model),
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -42,7 +42,7 @@ Widget scheduleItemView({
                 margin: const EdgeInsets.symmetric(horizontal: 8.0),
                 // padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: BoxDecoration(
-                  color: textColor(model),
+                  color: schTextColor(model),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
@@ -56,7 +56,7 @@ Widget scheduleItemView({
                   ),
                   decoration: BoxDecoration(
                     // color: AppColors.white,
-                    border: Border.all(color: textColor(model)),
+                    border: Border.all(color: schTextColor(model)),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
@@ -65,7 +65,7 @@ Widget scheduleItemView({
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: textColor(model),
+                      color: schTextColor(model),
                     ),
                   ),
                 ),
@@ -99,7 +99,7 @@ String _stausString(ScheduleDateTimeModel model) {
   }
 }
 
-Color stausColor(ScheduleDateTimeModel model) {
+Color schStausColor(ScheduleDateTimeModel model) {
   if (model.isVisitDone == 0 && model.isAuthorized == "Authorized") {
     return AppColors.red;
   } else if (model.isVisitDone == 0 &&
@@ -118,7 +118,7 @@ Color stausColor(ScheduleDateTimeModel model) {
   }
 }
 
-Color textColor(ScheduleDateTimeModel model) {
+Color schTextColor(ScheduleDateTimeModel model) {
   if (model.isVisitDone == 0 && model.isAuthorized == "Cancel Accepted") {
     return AppColors.blackText;
   }if (model.isVisitDone == 0 && model.isAuthorized == "Request to Cancel") {

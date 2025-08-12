@@ -122,6 +122,17 @@ class HomeController extends BaseController {
     // });
   }
 
+  bool is15ScheduleCompleted() {
+    var count = 0;
+    count = scheduleList
+        .filter(
+          (s) => s.isVisitDone == 1 || s.isAuthorized == "Cancel Accepted",
+        )
+        .toList()
+        .length;
+    return count > 14;
+  }
+
   void getOutLocation() {
     isPunchOutProgress.value = true;
     LocationUtil.getLocation((location) async {
@@ -231,9 +242,9 @@ class HomeController extends BaseController {
           e.response?.data['error'] ?? "Failed to update password";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to update Password");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      AppToast.showToast(message: e.message);
     } catch (e) {
       AppToast.showToast();
     } finally {
@@ -266,9 +277,9 @@ class HomeController extends BaseController {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      // AppToast.showToast(message: e.message  );
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      // AppToast.showToast(message: e.message );
     } catch (e) {
       // AppToast.showToast();
     } finally {
@@ -315,9 +326,9 @@ class HomeController extends BaseController {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      // AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      // AppToast.showToast(message: e.message);
     } catch (e) {
       // AppToast.showToast();
     } finally {
@@ -340,9 +351,9 @@ class HomeController extends BaseController {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      // AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      // AppToast.showToast(message: e.message);
     } catch (e) {
       // AppToast.showToast();
     } finally {
@@ -365,9 +376,9 @@ class HomeController extends BaseController {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      // AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      // AppToast.showToast(message: e.message );
     } catch (e) {
       // AppToast.showToast();
     } finally {

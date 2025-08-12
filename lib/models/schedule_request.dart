@@ -1,3 +1,5 @@
+import 'package:shop_app/models/shop_master_response.dart';
+
 class UpdateScheduleRequest {
   MeetingDetails? meetingDetails;
   List<MeetingImagesList>? meetingImagesList;
@@ -99,12 +101,16 @@ class QuantityDetailsReq {
   int? stockIn;
   int? sales;
   double? totalPrice;
+  int? wholeSellerId;
+  int? shopId;
 
   int? productId;
   bool editable = true;
   String? prodName = "";
   String? sku = "";
   String? category = "";
+  ShopMasterModel? seller;
+  
   QuantityDetailsReq({
     this.existingQuantity,
     this.currentQuantity,
@@ -116,6 +122,9 @@ class QuantityDetailsReq {
     this.prodName,
     this.sku,
     this.category,
+    this.wholeSellerId,
+    this.shopId,
+    this.seller,
   });
 
   double getPrice(String? mPrice) {
@@ -135,6 +144,8 @@ class QuantityDetailsReq {
     data['sales'] = sales;
     data['totalPrice'] = totalPrice;
     data['productId'] = productId;
+    data['wholeSellerId'] = wholeSellerId;
+    data['shopId'] = shopId;
     return data;
   }
 }

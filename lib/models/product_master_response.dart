@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/models/shop_master_response.dart';
 
 class ProductMasterListResponse {
   String? action;
@@ -76,7 +77,8 @@ class ProductMaster {
   final TextEditingController eQtyController = TextEditingController();
   final TextEditingController cQtyController = TextEditingController();
   final TextEditingController stockQtyController = TextEditingController();
-
+  final TextEditingController sellerCtr = TextEditingController();
+  ShopMasterModel? seller;
   ProductMaster({
     this.id,
     this.productName,
@@ -95,7 +97,7 @@ class ProductMaster {
     unitPrice = json['unitPrice'];
     price = json['price'];
     existingQuantity = json['existingQuantity'];
-    if(existingQuantity!=null){
+    if (existingQuantity != null) {
       eQtyController.text = existingQuantity.toString();
     }
   }
