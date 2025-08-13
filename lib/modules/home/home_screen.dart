@@ -128,13 +128,17 @@ class HomeScreen extends GetView<HomeController> {
                                 //         "Please complete schedule before checkout",
                                 //   );
                                 // }else
-                                if (!controller.is15ScheduleCompleted()) {
-                                  AppToast.showToast(
-                                    message:
-                                        "Please complete at least 15 schedule before checkout",
-                                  );
-                                } else {
+                                if (!controller.isAgent()) {
                                   controller.getOutLocation();
+                                } else {
+                                  if (!controller.is15ScheduleCompleted()) {
+                                    AppToast.showToast(
+                                      message:
+                                          "Please complete at least 15 schedule before checkout",
+                                    );
+                                  } else {
+                                    controller.getOutLocation();
+                                  }
                                 }
                               },
                             );

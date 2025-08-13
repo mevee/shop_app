@@ -64,9 +64,17 @@ class HomeController extends BaseController {
     startObs();
   }
 
-  List<OptionModel> getMoreOptionList() {
+  bool isAgent() {
     if (userData.value.login?.role?.toLowerCase() == "manager" ||
         userData.value.login?.role?.toLowerCase() == "admin") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  List<OptionModel> getMoreOptionList() {
+    if (!isAgent()) {
       return [
         OptionModel(label: "Manage Schedules", iconData: Icons.manage_accounts),
         OptionModel(label: "Change Password", iconData: Icons.manage_accounts),
