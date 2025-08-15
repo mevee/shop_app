@@ -37,7 +37,7 @@ enum MeetingStatus {
 }
 
 class ScheduleController extends BaseController {
-  final ScheduleServiceProtocol scheduleService = Get.find();
+  final ScheduleServiceProtocol scheduleService = Get.put(ScheduleService());
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
   final ManagerServiceProtocol _manageSchedule = Get.put(ManagerService());
 
@@ -140,9 +140,14 @@ class ScheduleController extends BaseController {
   Timer? _timer;
 
   void checkIfMeetingWasStarted() {
-    aLog("checkIfMeetingWasStarted()");
+    // aLog("checkIfMeetingWasStarted()");
     final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
+    aLog(
+      "checkIfMeetingWasStarted(${meet1 != null}):: ${meet1?.timeRemainingSeconds})",
+    );
+
     if (meet1 != null && meet1.timeRemainingSeconds > 0) {
+      meetingStarted.value = true;
       final status = meet1.getMeetingStatusInSeconds();
       if (status['is20MinCompleted']) {
         is20minCrossed.value = true;
@@ -153,19 +158,19 @@ class ScheduleController extends BaseController {
       }
     } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
       is20minCrossed.value = true;
+      meetingStarted.value = true;
     }
   }
 
   bool isMeetingStarted() {
-    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
-    if (meet1 != null) {
-      return true;
-    } else {
-      return false;
-    }
+    meetingStarted.value =
+        userManager.getMeetingSession(schedule.value.id.toString()) != null;
+    return meetingStarted.value;
   }
 
   void saveMeetingTimeLocal() {
+    aLog("saveMeetingTimeLocal(${remainingSeconds.value})");
+
     final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
     if (meet1 != null) {
       meet1.timeRemainingSeconds = remainingSeconds.value;
@@ -183,8 +188,8 @@ class ScheduleController extends BaseController {
   // Start a 20-minute countdown
   void startCountdown({int remaingTime = 20 * 60}) {
     is20minCrossed.value = false;
+    meetingStarted.value = true;
     aLog("startCountdown($remaingTime)");
-
     remainingSeconds.value = remaingTime; // 20 minutes in seconds
     if (_timer != null) {
       _timer?.cancel();

@@ -7,13 +7,16 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/home/controller/home_controller.dart';
 import 'package:shop_app/modules/home/more_options_bottom.dart';
+import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
+import 'package:shop_app/modules/schedule/schedule_detail_screen.dart';
 import 'package:shop_app/modules/schedule/schedule_item_view.dart';
-import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -214,12 +217,21 @@ class HomeScreen extends GetView<HomeController> {
               model: log,
               onClick: () {
                 final payoad = {"id": log};
-                Get.toNamed(Routes.scheduleDetail, arguments: payoad);
+                // Get.to(
+                //   Routes.scheduleDetail,
+                //   arguments: payoad,
+                //   preventDuplicates: false,
+                // );
+                Get.to(
+                  arguments: payoad,
+                  () => ScheduleDetailView(null, payoad),
+                  binding: BindingsBuilder(() {
+                    Get.create<SessionPref>(() => SPrefSessiomImpl());
+                    Get.put(ScheduleController());
+                  }),
+                  preventDuplicates: false, // Allows new instance
+                );
                 print("scheduleItemView $payoad");
-                // final ctr = Get.put(ScheduleController());
-                // if (ctr.isOnInitRan == false) {
-                // ctr.setManualArguments(payoad);
-                // }
               },
             );
           },

@@ -5,13 +5,11 @@ import 'package:shop_app/modules/auth/password_reset_screen.dart';
 import 'package:shop_app/modules/auth/password_update_screen.dart';
 import 'package:shop_app/modules/bottomNav/binding/botom_nav_binding.dart';
 import 'package:shop_app/modules/bottomNav/bottom_nav_screen.dart';
-import 'package:shop_app/modules/home/home_screen.dart';
 import 'package:shop_app/modules/schedule/bindings/schedule_binding.dart';
 import 'package:shop_app/modules/schedule/schedule_detail_screen.dart';
 import 'package:shop_app/modules/schedule/schedule_list_screen.dart';
 import 'package:shop_app/modules/shop_master/add_shop_screen.dart';
 import 'package:shop_app/modules/shop_master/binding/schedule_binding.dart';
-import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/modules/shop_master/update_shop_location_view.dart';
 
 import '../modules/manager/binding/manager_binding.dart';
@@ -38,7 +36,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.scheduleDetail,
-      page: () => const ScheduleDetailView(),
+      page: () => ScheduleDetailView(null, null),
       binding: ScheduleBinding(),
     ),
     GetPage(

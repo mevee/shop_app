@@ -40,6 +40,9 @@ android {
         versionName = flutter.versionName
         // Add this line inside defaultConfig
         multiDexEnabled = true
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
     }
 
     buildTypes {
@@ -54,6 +57,8 @@ android {
 
 flutter {
     source = "../.."
+    // Add this line to include all ABIs
+    target = "lib/main.dart"
 }
 
 dependencies {

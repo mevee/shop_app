@@ -16,6 +16,6 @@ class ScheduleBinding extends Bindings {
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
     Get.create<ScheduleServiceProtocol>(() => ScheduleService());
     Get.lazyPut<ShopMasterController>(() => ShopMasterController());
-    Get.lazyPut<ScheduleController>(() => ScheduleController());
+    Get.create<ScheduleController>(() => ScheduleController());
   }
 }

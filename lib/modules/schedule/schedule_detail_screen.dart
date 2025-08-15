@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
+import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/models/schedule_request.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/modules/shop_master/add_product_bottom.dart';
@@ -16,7 +16,15 @@ import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class ScheduleDetailView extends GetView<ScheduleController> {
-  const ScheduleDetailView({super.key});
+  ScheduleDetailView(
+    dynamic customKey,
+    Map<String, ScheduleDateTimeModel>? arguments, {
+    super.key,
+  }) {
+    if (arguments != null) {
+      controller.setManualArguments(arguments);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +50,26 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   // timeWidgetAndSubmitButton(context),
+                  Obx(
+                    () => Visibility(
+                      visible: controller.meetingStarted.value,
+                      child: Container(
+                        width: double.maxFinite,
+                        color: AppColors.cherryRed.withOpacity(.5),
+                        padding: EdgeInsets.all(8),
+                        child: Text(
+                          controller.is20minCrossed.value
+                              ? "Just a heads-up, you’ve been here for more than 20 minutes."
+                              : "Meeting has started and time remain ${controller.remainingSeconds.value} sec.",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 15),
                   IgnorePointer(
                     ignoring: true,
@@ -208,10 +236,10 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                       enabled: (!controller.detailWasAdded.value),
                       onSelect: () {
                         // aLog("Image selected::isIsSelected${controller.profileImage.isEmpty.value}AND${!controller.isMeetingStarted()}");
-                        if (controller.profileImage.isEmpty.value==false&&!controller.isMeetingStarted()) {
+                        if (controller.profileImage.isEmpty.value == false &&
+                            !controller.isMeetingStarted()) {
                           controller.startCountdown();
                         }
-                        
                       },
                     ),
                   ),
@@ -339,7 +367,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   //     message:
                   //         "Before starting the meeting please checkin from home screen.",
                   //   );
-                  // } else 
+                  // } else
                   if (controller.profileImage.isEmpty.value) {
                     AppToast.showToast(
                       message: "Please slect a profile image first",

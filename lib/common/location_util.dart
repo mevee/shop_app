@@ -26,7 +26,7 @@ class LocationUtil {
         );
       } catch (e) {
         //show bottom sheet error for need of location permission
-        AppToast.showToast(message: 'Failed to get location: ${e.toString()}');
+        // AppToast.showToast(message: 'Failed to get location: ${e.toString()}');
       } finally {}
     }
   }
