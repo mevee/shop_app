@@ -1,12 +1,10 @@
 // lib/models/meeting_data.dart
 class MeetingData {
   final String sessionId;
-  int timeRemainingSeconds; // Store as seconds for simplicity
   final int
   startTimeMillis; // New: Timestamp when the meeting actually started (milliseconds since epoch)
   MeetingData({
     required this.sessionId,
-    required this.timeRemainingSeconds,
     required this.startTimeMillis, // Make it optional for flexibility, but expected for this feature
   });
 
@@ -14,7 +12,6 @@ class MeetingData {
   Map<String, dynamic> toJson() {
     return {
       'sessionId': sessionId,
-      'timeRemainingSeconds': timeRemainingSeconds,
       'startTimeMillis': startTimeMillis, // Include in JSON
     };
   }
@@ -23,7 +20,6 @@ class MeetingData {
   factory MeetingData.fromJson(Map<String, dynamic> json) {
     return MeetingData(
       sessionId: json['sessionId'] as String,
-      timeRemainingSeconds: json['timeRemainingSeconds'] as int,
       startTimeMillis: json['startTimeMillis'] as int,
     );
   }
@@ -49,5 +45,12 @@ class MeetingData {
       'is20MinCompleted': isDurationCrossed,
       'remainingSeconds': remainingSeconds,
     };
+  }
+
+  int timePassedInSeconds() {
+    final int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    final int elapsedMillis = currentTimeMillis - startTimeMillis;
+    final int durationPassed = (elapsedMillis / 1000).toInt();
+    return durationPassed;
   }
 }

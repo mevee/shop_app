@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/common/time_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/models/product_master_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
@@ -52,21 +53,22 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                   // timeWidgetAndSubmitButton(context),
                   Obx(
                     () => Visibility(
-                      visible: controller.meetingStarted.value,
-                      child: Container(
-                        width: double.maxFinite,
-                        color: AppColors.cherryRed.withOpacity(.5),
-                        padding: EdgeInsets.all(8),
-                        child: Text(
-                          controller.is20minCrossed.value
-                              ? "Just a heads-up, you’ve been here for more than 20 minutes."
-                              : "Meeting has started and time remain ${controller.remainingSeconds.value} sec.",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
+                      visible: _isEditable(),
+                      child: RunningClockWidget(
+                        subTxtColor: controller.is20minCrossed.value
+                            ? AppColors.red
+                            : AppColors.black01,
+                        onTick: (time) {
+                          // print("Ticked at $time");
+                          if (controller.isMeetingStarted()) {
+                            controller.updateSeconds();
+                          }
+                        },
+                        displayText: controller.meetingStarted.value
+                            ? controller.is20minCrossed.value
+                                  ? "Just a heads-up, you’ve been here for more then 20 minutes."
+                                  : "Meeting has started and time spent ${(controller.secondPassed.value / 60).ceil()} minutes."
+                            : "",
                       ),
                     ),
                   ),
@@ -238,7 +240,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                         // aLog("Image selected::isIsSelected${controller.profileImage.isEmpty.value}AND${!controller.isMeetingStarted()}");
                         if (controller.profileImage.isEmpty.value == false &&
                             !controller.isMeetingStarted()) {
-                          controller.startCountdown();
+                          controller.startMeetingTime();
                         }
                       },
                     ),
@@ -391,7 +393,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
                             submitLabel: "Submit",
                             onSubmit: (input) {
                               controller.remarksController.text = input;
-                              controller.submitForm();
+                              controller.submitForm(is20MinCrossed: true);
                             },
                           );
                         } else {

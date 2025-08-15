@@ -46,9 +46,10 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
               padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
               child: Divider(color: AppColors.lightGrey),
             ),
+
             Expanded(
               child: ListView.builder(
-                itemCount:controller.getMoreOptionList().length,
+                itemCount: controller.getMoreOptionList().length,
                 itemBuilder: (context, index) {
                   final model = controller.getMoreOptionList()[index];
                   return InkWell(
@@ -80,10 +81,7 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            model.iconData,
-                            color: Colors.blueAccent,
-                          ),
+                          Icon(model.iconData, color: Colors.blueAccent),
                           horizontalSpacing(8),
                           Text(
                             maxLines: 1,
@@ -101,8 +99,19 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
                 },
               ),
             ),
+            Obx(
+              () => Text(
+                "Version: ${controller.version.value}",
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.neutral400,
+                ),
+              ),
+            ),
             // Expanded(child: ,),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
@@ -51,6 +52,7 @@ class HomeController extends BaseController {
 
   Rx<UserState> userState = UserState.IDEAL.obs;
   RxString distance = "0 m".obs;
+  RxString version = "".obs;
 
   Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
@@ -62,6 +64,7 @@ class HomeController extends BaseController {
     loadUserData();
     getTodaysSchedules();
     startObs();
+    getVersion();
   }
 
   bool isAgent() {
@@ -416,6 +419,33 @@ class HomeController extends BaseController {
     print("_stopForgrundService()");
     if (kProfileMode) {
       locationService.stopTracking();
+    }
+  }
+
+  Future<void> getVersion() async {
+    String version = "1.0.0.t_v_10";
+    // version = Platform.isAndroid
+    //     ? await getAndroidVersion()
+    //     : await getiOSVersion();
+    this.version.value = version;
+  }
+
+  Future<String> getAndroidVersion() async {
+    const channel = MethodChannel('flutter.native/helper');
+    try {
+      return await channel.invokeMethod('getAppVersion');
+    } on PlatformException {
+      return 'Unknown';
+    }
+  }
+
+  Future<String> getiOSVersion() async {
+    const channel = MethodChannel('flutter.native/helper');
+    try {
+      final result = await channel.invokeMethod('getAppVersion');
+      return result;
+    } on PlatformException {
+      return 'Unknown';
     }
   }
 }

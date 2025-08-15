@@ -115,10 +115,9 @@ class ScheduleController extends BaseController {
 
   void resetUi() {
     print("resetUi()");
-    calculateTotal();
     schedule.value = ScheduleDateTimeModel();
     is20minCrossed.value = false;
-    remainingSeconds.value = 0;
+    secondPassed.value = 0;
     meetingStarted.value = false;
     detailWasAdded.value = false;
     remarksController.text = "";
@@ -126,9 +125,8 @@ class ScheduleController extends BaseController {
     skuListInput.value = [];
     profileImage.reset();
     selectedImageCtr.reset();
-    // profileImage.setUploadedImages64([]);
-    // selectedImageCtr.setUploadedImages64([]);
     skuListInput.refresh();
+    calculateTotal();
     closeTime();
   }
 
@@ -136,29 +134,14 @@ class ScheduleController extends BaseController {
   RxBool meetingStarted = false.obs;
   Rx<MeetingStatus> meetingStatus = MeetingStatus.IDEAL.obs;
   RxBool is20minCrossed = false.obs;
-  RxInt remainingSeconds = 0.obs;
-  Timer? _timer;
+  RxInt secondPassed = 0.obs;
 
   void checkIfMeetingWasStarted() {
-    // aLog("checkIfMeetingWasStarted()");
+    aLog("checkIfMeetingWasStarted()");
     final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
-    aLog(
-      "checkIfMeetingWasStarted(${meet1 != null}):: ${meet1?.timeRemainingSeconds})",
-    );
-
-    if (meet1 != null && meet1.timeRemainingSeconds > 0) {
+    if (meet1 != null) {
       meetingStarted.value = true;
-      final status = meet1.getMeetingStatusInSeconds();
-      if (status['is20MinCompleted']) {
-        is20minCrossed.value = true;
-      } else {
-        is20minCrossed.value = false;
-        meet1.timeRemainingSeconds = status['remainingSeconds'];
-        startCountdown(remaingTime: meet1.timeRemainingSeconds);
-      }
-    } else if (meet1 != null && meet1.timeRemainingSeconds <= 0) {
-      is20minCrossed.value = true;
-      meetingStarted.value = true;
+      updateSeconds();
     }
   }
 
@@ -168,49 +151,33 @@ class ScheduleController extends BaseController {
     return meetingStarted.value;
   }
 
-  void saveMeetingTimeLocal() {
-    aLog("saveMeetingTimeLocal(${remainingSeconds.value})");
-
-    final meet1 = userManager.getMeetingSession(schedule.value.id.toString());
-    if (meet1 != null) {
-      meet1.timeRemainingSeconds = remainingSeconds.value;
-      userManager.saveMeetingSession(schedule.value.id.toString(), meet1);
-    } else {
-      final meeting = MeetingData(
-        sessionId: schedule.value.id.toString(),
-        timeRemainingSeconds: remainingSeconds.value,
-        startTimeMillis: DateTime.now().millisecondsSinceEpoch,
-      );
-      userManager.saveMeetingSession(schedule.value.id.toString(), meeting);
-    }
-  }
-
-  // Start a 20-minute countdown
-  void startCountdown({int remaingTime = 20 * 60}) {
-    is20minCrossed.value = false;
+  void startMeetingTime() {
+    aLog("startMeetingTime()");
+    final scheduleId = schedule.value.id.toString();
     meetingStarted.value = true;
-    aLog("startCountdown($remaingTime)");
-    remainingSeconds.value = remaingTime; // 20 minutes in seconds
-    if (_timer != null) {
-      _timer?.cancel();
-    }
-    saveMeetingTimeLocal();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (remainingSeconds.value > 0) {
-        remainingSeconds.value--;
-      } else {
-        _timer?.cancel();
-        is20minCrossed.value = true;
-      }
-      saveMeetingTimeLocal();
-    });
+    is20minCrossed.value = false;
+    secondPassed.value = 0;
+    final meeting = MeetingData(
+      sessionId: scheduleId,
+      startTimeMillis: DateTime.now().millisecondsSinceEpoch,
+    );
+    userManager.saveMeetingSession(scheduleId, meeting);
   }
 
-  // Format seconds to MM:SS
-  String get formattedTime {
-    final minutes = (remainingSeconds.value ~/ 60).toString().padLeft(2, '0');
-    final seconds = (remainingSeconds.value % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
+  void updateSeconds() {
+    aLog("updateSeconds()");
+    final scheduleId = schedule.value.id.toString();
+    final meeting = userManager.getMeetingSession(scheduleId);
+    if (meeting != null) {
+      secondPassed.value = meeting.timePassedInSeconds();
+    } else {
+      secondPassed.value = 0;
+    }
+    if (secondPassed.value >= 20 * 60) {
+      is20minCrossed.value = true;
+    } else {
+      is20minCrossed.value = false;
+    }
   }
 
   @override
@@ -223,8 +190,7 @@ class ScheduleController extends BaseController {
     meetingStatus.value = MeetingStatus.IDEAL;
     meetingStarted.value = false;
     is20minCrossed.value = false;
-    remainingSeconds.value = 0;
-    _timer?.cancel();
+    secondPassed.value = 0;
   }
 
   @override
@@ -572,7 +538,7 @@ class ScheduleController extends BaseController {
     selectedTime = null;
   }
 
-  Future<void> submitForm() async {
+  Future<void> submitForm({bool is20MinCrossed = false}) async {
     if (profileImage.isEmpty.value) {
       AppToast.showToast(message: 'Please select a profile photo.');
       return;
@@ -631,6 +597,9 @@ class ScheduleController extends BaseController {
         AppToast.showToast(
           message: response.responseMessage ?? 'Failed to add schedule.',
         );
+        if (is20MinCrossed = false) {
+          userManager.removeMeetingSession(schedule.value.id.toString());
+        }
       } else {
         closeTime();
         Get.back();
