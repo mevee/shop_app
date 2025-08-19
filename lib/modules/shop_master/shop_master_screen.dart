@@ -177,7 +177,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                                         ),
                                       ),
                                       TextSpan(
-                                       text: "\nType: ${shop.shopType}",
+                                       text: "\nType: ${controller.selected.value == "Retail"? shop.shopType:shop.licenceType}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,
