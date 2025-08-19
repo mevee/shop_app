@@ -19,17 +19,18 @@ class LocationSyncService {
   static const String _prefsKey = 'location_logs';
 
   init() async {
+    print("init()");
     await session.initPreferences();
   }
 
-  Future<void> startRecording(Position position) async {
+  Future<void> startRecording(Position position, String? userId) async {
     aLog("startRecording(${locations.length})");
     lastSyncStatus = 'Tracking started';
     final newLocation = UserDateLatRequest(
-      userName: session.getUserData()?.login?.userName,
+      userName: userId,
       lat: position.latitude,
       lng: position.longitude,
-      createdDate: DateTime.now().toString().replaceAll(" ","T"),
+      createdDate: DateTime.now().toString().replaceAll(" ", "T"),
     );
     aLog("newLocation($newLocation)");
     locations.add(newLocation);

@@ -36,8 +36,8 @@ class HomeController extends BaseController {
   final EmployeeServiceProtocol _employeeService = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   final LoginServiceProtocol _loginService = Get.find();
-  final LocationSyncService syncService = Get.put(LocationSyncService());
-  final FlutterBgService locationService = FlutterBgService();
+  // final LocationSyncService syncService = Get.put(LocationSyncService());
+  // final FlutterBgService locationService = FlutterBgService();
   LocationLatLon inLocation = LocationLatLon();
   LocationLatLon outLocation = LocationLatLon();
 
@@ -99,9 +99,9 @@ class HomeController extends BaseController {
     }
     _timer = Timer.periodic(Duration(seconds: 15), (timer) {
       if (userManager.getIsWorking() == true) {
-        // if (kProfileMode | kReleaseMode) {
-        getEmployeeTravelDistance();
-        // }
+        if (kProfileMode | kReleaseMode) {
+          getEmployeeTravelDistance();
+        }
       }
     });
   }
@@ -216,6 +216,7 @@ class HomeController extends BaseController {
           if (attandanceObj.value.isLoggedIn &&
               attandanceObj.value.isLoggedOut) {
             userState.value = UserState.NOT_WORKING;
+            FlutterBgService.disableLoctionService();
             _stopForgrundService();
           }
         }
@@ -318,6 +319,7 @@ class HomeController extends BaseController {
             if (attandanceObj.value.isLoggedOut == false) {
               userState.value = UserState.WORKING;
               userManager.setIsWorking(true);
+              Future.delayed(Duration(seconds: 1));
               _startForgrundService();
             } else {
               userState.value = UserState.NOT_WORKING;
@@ -383,6 +385,12 @@ class HomeController extends BaseController {
       if (response.responseCode != null && response.responseCode == "fail") {
         AppToast.showToast(message: "Logout failed");
       } else {
+        LocationSyncService syncService = LocationSyncService();
+        await syncService.init();
+        await syncService.loadLocationsFromPrefs();
+        await syncService.clerSyncedLocations(syncService.locations);
+        FlutterBgService.disableLoctionService();
+        FlutterBgService.stopTracking();
         _logout();
       }
     } on DioException catch (e) {
@@ -408,31 +416,33 @@ class HomeController extends BaseController {
     print("_startForgrundService()");
     if (userManager.getIsWorking() == true) {
       // if (kProfileMode) {
-      locationService.startTracking();
+      FlutterBgService.startTracking(userManager);
       // }
       // _locationService.startBackgroundLocation();
     } else {
-      // locationService.stopTracking();
+      FlutterBgService.stopTracking();
       // _locationService.stopBackgroundLocation();
     }
   }
 
   void _stopForgrundService() {
     print("_stopForgrundService()");
-    if (kProfileMode) {
-      locationService.stopTracking();
-    }
+    // if (kProfileMode) {
+    FlutterBgService.stopTracking();
+    // }
   }
 
   Future<void> getVersion() async {
     String version = "";
     if (kDebugMode) {
       version = "1.0.0.t_v_10";
-    }if (kProfileMode) {
+    }
+    if (kProfileMode) {
       version = "1.0.0.p_v_10";
-    } if (kReleaseMode) {
+    }
+    if (kReleaseMode) {
       version = "1.0.0.r_v_0001";
-    }else {
+    } else {
       version = Platform.isAndroid
           ? await getAndroidVersion()
           : await getiOSVersion();

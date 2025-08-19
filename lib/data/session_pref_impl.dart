@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/data/meeting_model.dart';
+import 'package:shop_app/data/pref_util.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/models/login_response.dart';
 
@@ -12,7 +13,9 @@ class SPrefSessiomImpl with SessionPref {
   }
   @override
   Future<void> initPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
+    // _prefs = await SharedPreferences.getInstance();
+    await PreferenceManager.initialize();
+    _prefs = PreferenceManager.getPref();
   }
 
   @override
@@ -116,8 +119,7 @@ class SPrefSessiomImpl with SessionPref {
     try {
       final String jsonString = jsonEncode(data);
       _prefs?.setString(UserManagerKeys.userCred.value, jsonString);
-            // print("saveUserCred()$jsonString");
-
+      // print("saveUserCred()$jsonString");
     } on Exception catch (e) {
       _prefs?.setString(UserManagerKeys.userCred.value, "");
       print("saveUserCredErr:while saving cred$e");
@@ -135,14 +137,24 @@ class SPrefSessiomImpl with SessionPref {
   }
 
   @override
-  void logOut() {
+  String? getTestData() {
+    return _prefs?.getString(UserManagerKeys.testData.value) ?? "";
+  }
+
+  @override
+  void setTestData(String? data) {
+    _prefs?.setString(UserManagerKeys.testData.value, data ?? "");
+  }
+
+  @override
+  void logOut() async {
     setClockedIn(false);
     setUserToken(null);
     setUserId(null);
     setIsUserLoggedIn(false);
     setUserData(null);
     setIsWorking(false);
-    clearAllMeetingSessions();
+    await clearAllMeetingSessions();
   }
 
   Future<void> _clear(String key) async {

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' as ConnectivityResult;
 import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/common_api_response.dart';
@@ -15,6 +16,7 @@ import 'package:shop_app/data/network/api_caller.dart';
 import 'package:shop_app/data/network/network_interceptor.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/exception/exceptions.dart';
+import 'package:shop_app/location_service/bg_service.dart';
 import 'package:shop_app/models/login_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/constants.dart';
@@ -103,7 +105,7 @@ class AuthController extends GetxController {
             _userManager.setIsUserLoggedIn(true);
             _userManager.setUserData(r.response);
             _userManager.setUserToken(r.response.token);
-            _userManager.setUserId(r.response.login?.id.toString());
+            _userManager.setUserId(r.response.login?.userName.toString());
             //---
             _userManager.setRememberOn(remember.value);
             if (remember.value) {
@@ -116,9 +118,18 @@ class AuthController extends GetxController {
             } else {
               _userManager.saveUserCred(null);
             }
-          //  print("${remember.value}::${r.response.token}");
-            // print("${_userManager.getSavedCred()?.toJson()}");
+            //  print("${remember.value}::${r.response.token}");
+            // print("${_userManager.getSavedCred()?.toJson()}");     
+            FlutterBgService.stopTracking();
+            Future.delayed(const Duration(seconds: 1));
             Get.offAllNamed(Routes.bottomNavigation);
+            //  Restart.restartApp(
+            //     /// In Web Platform, Fill webOrigin only when your new origin is different than the app's origin
+            //     // webOrigin: 'http://example.com',
+            //     // Customizing the notification message only on iOS
+            //     notificationTitle: 'Restarting App',
+            //     notificationBody: 'Please tap here to open the app again.',
+            //   );
           } else {
             final message = r.response.message ?? "Failed Login try again.";
             AppToast.showToast(message: message);

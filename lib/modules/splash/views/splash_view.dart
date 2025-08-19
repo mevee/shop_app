@@ -26,7 +26,6 @@ class _SplashViewState extends State<SplashView> {
   }
 
   void completeSplashUser() async {
-    // if (!kDebugMode) {
     final p1 = await PermissionUtil.notificationPermissionCheck();
     final loc = await PermissionUtil.locationPermissionCheck();
     final locService = await PermissionUtil.checkLocationServiceEnabled();

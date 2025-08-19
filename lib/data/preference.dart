@@ -10,6 +10,7 @@ enum UserManagerKeys {
   meetingsData("MEETING_DATA"),
   userCredRememeber("USER_CRED_REMEMBER"),
   userCred("USER_CRED"),
+  testData("TEST_DATA"),
   userData("USER_DATA");
 
   final String value;
@@ -33,6 +34,8 @@ mixin SessionPref {
   void setUserToken(String? token);
   String? getUserId();
   void setUserId(String? value);
+  String? getTestData();
+  void setTestData(String? value);
 
   bool? getIsWorking();
   void setIsWorking(bool? value);

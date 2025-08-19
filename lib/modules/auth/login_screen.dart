@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/session_pref_impl.dart';
+import 'package:shop_app/location_service/bg_service.dart';
 import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -166,13 +169,24 @@ class LoginScreen extends GetView<AuthController> {
   Column topLogoTagLine() {
     return Column(
       children: [
-        AppLogo(
-          subtitle: 'Welcome back.',
-          assetPath: AppImages.premier,
-          iconSize: 200,
-          assetColor: Colors.white,
-          titleSize: 32.0,
-          showBackground: false,
+        GestureDetector(
+          onTap: () async {
+            final userManager = SPrefSessiomImpl();
+            userManager.initPreferences();
+            final userData = userManager.getUserData();
+            AppToast.showToast(
+              message: "User: ${userData?.login?.userName ?? 'Unknown'}",
+            );
+            FlutterBgService().STATUS = 300;
+          },
+          child: AppLogo(
+            subtitle: 'Welcome back.',
+            assetPath: AppImages.premier,
+            iconSize: 200,
+            assetColor: Colors.white,
+            titleSize: 32.0,
+            showBackground: false,
+          ),
         ),
         const SizedBox(height: 40),
       ],

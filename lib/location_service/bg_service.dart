@@ -1,18 +1,20 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/common/app_log_util.dart';
+import 'package:shop_app/data/pref_util.dart';
+import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/location_service/tracking_service.dart';
 
 import '../data/network/api_endpoint.dart';
-import '../data/session_pref_impl.dart';
 import '../utils/constants.dart';
 
 // this will be used as notification channel id
@@ -21,15 +23,16 @@ const notificationChannelId = 'my_foreground';
 const notificationId = 888;
 
 class FlutterBgService {
-  FlutterBgService._internal();
+  // FlutterBgService._internal();
 
-  static final FlutterBgService _instance = FlutterBgService._internal();
+  // static final FlutterBgService _instance = FlutterBgService._internal();
+  int STATUS = 0;
 
-  factory FlutterBgService() {
-    return _instance;
-  }
+  // factory FlutterBgService() {
+  //   return _instance;
+  // }
 
-  void initializeService() async {
+  static void initializeService() async {
     final service = FlutterBackgroundService();
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       notificationChannelId, // id
@@ -67,15 +70,33 @@ class FlutterBgService {
   }
 
   // Start service
-  void startTracking() async {
+  static void startTracking(SessionPref userManager) async {
     print("startTracking()");
+    FlutterBackgroundService().invoke('setData', {
+      'userId': userManager.getUserId(),
+      'token': userManager.getUserToken(),
+      'working': userManager.getIsWorking() ?? false,
+    });
+
     initializeService();
     await FlutterBackgroundService().startService();
   }
 
   // Stop service
-  void stopTracking() async {
+  static void disableLoctionService() async {
+    FlutterBackgroundService().invoke('setData', {
+      'userId': null,
+      'token': null,
+      'working': false,
+    });
+  }
+
+  // Stop service
+  static void stopTracking() async {
+    // FlutterBackgroundService().invoke('setData', {});
     FlutterBackgroundService().invoke('stop');
+    FlutterBackgroundService().invoke('stopBackgroundService');
+    await FlutterLocalNotificationsPlugin().cancelAll();
   }
 }
 
@@ -86,30 +107,51 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  aLog("onStart() service");
+  //  aLog("W:${whileUserIsWorking}U:${pref.getUserData()?.login?.userName}");
   DartPluginRegistrant.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Map<String, dynamic>? initialData;
+  // Listen for data from main app
+  LocationSyncService syncService = LocationSyncService();
+  await syncService.init();
+  await syncService.loadLocationsFromPrefs();
+
+  service.on('setData').listen((event) async {
+    initialData = event;
+    aLog("listen() $initialData");
+    await syncService.init();
+    await syncService.loadLocationsFromPrefs();
+  });
 
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
     });
   }
-  LocationSyncService syncService = LocationSyncService();
-  await syncService.init();
-  await syncService.loadLocationsFromPrefs();
-    // 3. For Android 15, check if we have precise location access
-  // await PermissionUtil.locationPermissionCheck();
   await PermissionUtil.checkLocationServiceEnabled();
   // Main tracking loop
   while (true) {
+    aLog(
+      "while(IsWorking${initialData?['working']}):STATUS:${FlutterBgService().STATUS}",
+    );
     // Check if the service is running in foreground mode
+    String? userId = initialData?['userId'] ?? "";
+    String? token = initialData?['token'] ?? "";
     //if location fetch is enabled
+    String message = !(kDebugMode | kProfileMode)
+        ? (initialData?['working'] == true)
+              ? "Updated ${DateTime.now()}"
+              : "Sync paused"
+        : "W:${initialData?['working']}U:${initialData?['userId']}";
+
     if (service is AndroidServiceInstance) {
       service.setForegroundNotificationInfo(
         title: "Location Tracker",
-        content: "Last update: ${DateTime.now()}",
+        content: message,
       );
     }
-
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: LocationSettings(
@@ -121,40 +163,32 @@ void onStart(ServiceInstance service) async {
       print('Backgournd Lat: ${position.latitude}, Lng: ${position.longitude}');
       // Save to SharedPreferences or send to server
       // if (kProfileMode | kReleaseMode) {
-      await syncService.startRecording(position);
-      await _syncLocationsWithServer(syncService);
+      if (initialData?['working'] == true) {
+        await syncService.startRecording(position, userId);
+        await _syncLocationsWithServer(syncService, userId, token);
+      } else {
+        aLog("User is not working.");
+      }
     } catch (e) {
       print('Error fetching location: $e');
     }
     await Future.delayed(Duration(seconds: 10));
-    // } else {
-    // await Future.delayed(Duration(minutes: 2));
-    // }
   }
 }
 
-Future<void> _syncLocationsWithServer(LocationSyncService sync) async {
+Future<void> _syncLocationsWithServer(
+  LocationSyncService sync,
+  String? userName,
+  String? token,
+) async {
   print("_syncLocationsWithServer()");
   try {
     // Get your token from shared preferences
-    final working = sync.session.getIsWorking();
-    final userName = sync.session.getUserData()?.login?.userName;
-    final token = sync.session.getUserToken();
-    // print("try ::userName$userName");
-    if (userName == null || userName.isEmpty) {
-      // lastError = 'User not authenticated';
-      return;
-    }
-    print("try ::working$working");
-    if (working == null || working == false) {
-      return;
-    }
     aLog("TO be synced::${sync.getLocationsToBeSent().length}");
     // Prepare data to send
     sendLogToServer(token, sync);
   } catch (e) {
-    // lastError = 'Sync error: ${e.toString()}';
-    print("sync ::WORKING$e");
+    print("sync ::Catch$e");
   }
 }
 
