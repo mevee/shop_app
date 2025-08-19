@@ -62,6 +62,7 @@ class SelectShopBottomSheet extends StatelessWidget {
             Obx(
               () => TextField(
                 controller: controller.searchCtr,
+                style: TextStyle(fontSize: 14),
                 onTapOutside: (event) => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
                   hintText: "Search Shop",
@@ -75,7 +76,7 @@ class SelectShopBottomSheet extends StatelessWidget {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.deepPurpleAccent,
+                            color: AppColors.primary,
                           ),
                         )
                       : null,
@@ -83,6 +84,37 @@ class SelectShopBottomSheet extends StatelessWidget {
                 onChanged: (value) {
                   controller.getShopList(value);
                 },
+              ),
+            ),
+            verticalSpacing(8),
+            Obx(
+              () => Visibility(
+                visible: controller.selected.value != "Retail",
+                child: TextField(
+                  controller: controller.placeCtr,
+                style: TextStyle(fontSize: 14),
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                  decoration: InputDecoration(
+                    hintText: "Search distict",
+                    prefixIcon: Icon(Icons.location_on, color: AppColors.neutral400),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: AppColors.lightGrey),
+                    ),
+                    suffix: controller.isSearchLoading.value
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) {
+                    controller.getShopList("");
+                  },
+                ),
               ),
             ),
 

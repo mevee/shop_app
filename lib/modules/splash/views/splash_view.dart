@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
@@ -19,24 +20,37 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     // permissionHandler();
+
     completeSplashUser();
     super.initState();
   }
 
   void completeSplashUser() async {
-    final SessionPref userManager = Get.put(SPrefSessiomImpl());
-    await userManager.initPreferences();
-    final loginData = userManager.getUserData();
-    final savedCred = userManager.getSavedCred();
-    print("completeSplashUser::${loginData?.toJson()}");
-    print("completeSplashUser::${savedCred?.toJson()}");
-    Future.delayed(const Duration(seconds: 2), (() {
-      if (loginData != null) {
-        Get.offAllNamed(Routes.bottomNavigation);
-      } else {
-        Get.offAllNamed(Routes.login);
-      }
-    }));
+    // if (!kDebugMode) {
+    final p1 = await PermissionUtil.notificationPermissionCheck();
+    final loc = await PermissionUtil.locationPermissionCheck();
+    final locService = await PermissionUtil.checkLocationServiceEnabled();
+    if (p1 && loc && locService) {
+      final SessionPref userManager = Get.put(SPrefSessiomImpl());
+      await userManager.initPreferences();
+      final loginData = userManager.getUserData();
+      final savedCred = userManager.getSavedCred();
+      print("completeSplashUser::${loginData?.toJson()}");
+      print("completeSplashUser::${savedCred?.toJson()}");
+      Future.delayed(const Duration(seconds: 2), (() {
+        if (loginData != null) {
+          Get.offAllNamed(Routes.bottomNavigation);
+        } else {
+          Get.offAllNamed(Routes.login);
+        }
+      }));
+    } else {
+      AppToast.showToast(
+        message:
+            "Please allow notification and location permission to use this app.",
+      );
+    }
+    // }
   }
 
   @override

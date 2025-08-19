@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/modules/auth/controllers/auth_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/utils/image_constants.dart';
@@ -121,8 +122,16 @@ class LoginScreen extends GetView<AuthController> {
                               isLoading: controller.isLoginButtonLoading.value,
                               context: context,
                               label: "LOGIN",
-                              onPressed: () {
-                                controller.requestLogin();
+                              onPressed: () async {
+                                final p1 =
+                                    await PermissionUtil.notificationPermissionCheck();
+                                final loc =
+                                    await PermissionUtil.locationPermissionCheck();
+                                final locService =
+                                    await PermissionUtil.checkLocationServiceEnabled();
+                                if (p1 && loc && locService) {
+                                  controller.requestLogin();
+                                }
                               },
                             ),
                           ),

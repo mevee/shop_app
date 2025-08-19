@@ -63,7 +63,7 @@ class AddProductBottomSheet extends GetView<ShopMasterController> {
                   Obx(
                     () => buttonWithLoader(
                       label: "Submit",
-                      color: Colors.deepPurpleAccent,
+                      color: AppColors.primary,
                       textColor: Colors.white,
                       onPressed: () {
                         if (controller

@@ -253,27 +253,31 @@ class UploadImageWidget extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.center,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: 20,
+                            vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.white,
+                            color: AppColors.cherryRed,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(8.0),
                             ),
-                            border: Border.all(color: AppColors.divider),
+                            // border: Border.all(color: AppColors.divider),
                           ),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.max,
                             children: [
+                              Icon(
+                                Icons.camera,
+                                size: 20,
+                                color: AppColors.white,
+                              ),
+                              horizontalSpacing(6),
                               Text(
                                 "Open Camera",
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: enabled
-                                      ? AppColors.black01
-                                      : AppColors.textGrey,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.white,
                                 ),
                               ),
                             ],

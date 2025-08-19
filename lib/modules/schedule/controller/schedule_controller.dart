@@ -44,6 +44,7 @@ class ScheduleController extends BaseController {
   UploadImageController selectedImageCtr = UploadImageController(maxCount: 5);
   UploadImageController profileImage = UploadImageController(maxCount: 1);
 
+  final TextEditingController placeCtr = TextEditingController();
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
@@ -348,15 +349,16 @@ class ScheduleController extends BaseController {
       isSearchLoading.value = false;
     }
 
-    if (query.isEmpty) {
+    if (query.isEmpty && selected.value == "Retail") {
       return;
     }
     completer = Completer();
     isSearchLoading.value = true;
     try {
+      // aLog("selected.value:::-> $query, ${placeCtr.text}");
       final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
-          : masterService.getWholeSellerName(query);
+          : masterService.getWholeSellerName(query, placeCtr.text);
       completer?.complete(future);
       final response = await completer!.future;
       shopDetailsOptions.value = response.results ?? [];

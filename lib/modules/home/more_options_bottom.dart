@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/home/controller/home_controller.dart';
+import 'package:shop_app/modules/test_screen/test_screen_view.dart';
 import 'package:shop_app/navigation/app_pages.dart';
 import 'package:shop_app/widgets/common_extension.dart';
 import 'package:shop_app/widgets/helper.dart';
@@ -59,6 +60,8 @@ class MoreOptionBottomSheet extends GetView<HomeController> {
                         Get.toNamed(Routes.manager);
                       } else if (model.label == "Change Password") {
                         Get.toNamed(Routes.passwordUpdate);
+                      } else if (model.label == "Location Logs") {
+                        Get.to(LocationTestViewWidget());
                       } else {
                         controller.logout();
                       }

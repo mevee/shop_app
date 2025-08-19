@@ -23,6 +23,7 @@ class ShopMasterController extends BaseController {
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
   final TextEditingController searchCtr = TextEditingController(text: "a");
   final TextEditingController remarksController = TextEditingController();
+  final TextEditingController placeCtr = TextEditingController();
 
   final TextEditingController districtCtr = TextEditingController();
   final TextEditingController entityTypeCtr = TextEditingController();
@@ -81,7 +82,7 @@ class ShopMasterController extends BaseController {
     try {
       final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
-          : masterService.getWholeSellerName(query);
+          : masterService.getWholeSellerName(query,placeCtr.text);
       completer?.complete(future);
       final response = await completer!.future;
       shopListApi.value = response?.results ?? [];

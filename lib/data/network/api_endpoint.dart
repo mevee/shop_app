@@ -70,6 +70,6 @@ abstract class EndPoints {
   static const shopListSearchGET =
       'crm/shop/v1/get-shop-list-by-name?shopName={shopName}&pageNumber={pageNumber}&pageSize={pageSize}';
   static const shopWholeSaleListSearchGET =
-      'crm/whole-seller/v1/get-whole-seller-list-by-name?wholeSellerName={shopName}&pageNumber={pageNumber}&pageSize={pageSize}';
+      'crm/whole-seller/v1/get-whole-seller-list-by-name?wholeSellerName={shopName}&districtName={districtName}&pageNumber={pageNumber}&pageSize={pageSize}';
   static const addSShopPOST = '/crm/shop/v1/add-shop';
 }

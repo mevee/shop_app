@@ -22,7 +22,10 @@ abstract class ShopMasterServiceProtocol {
   ); //d
   Future<List<ShopMasterModel>> getShopList(); //d
   Future<ShopMasterListResponse> getShopByName(String query);
-  Future<ShopMasterListResponse> getWholeSellerName(String query);
+  Future<ShopMasterListResponse> getWholeSellerName(
+    String query,
+    String? districtName,
+  );
   Future<CommonModel> updateShopLatlong(UpdateShopLatLongRequestst request);
   Future<CommonModel> updateShopWholeSellerLatlong(
     UpdateShopLatLongRequestst request,
@@ -163,9 +166,13 @@ class ShopMasterService extends BaseNetworkClient
   }
 
   @override
-  Future<ShopMasterListResponse> getWholeSellerName(String query) async {
+  Future<ShopMasterListResponse> getWholeSellerName(
+    String query,
+    String? districtName,
+  ) async {
     var endPoint = EndPoints.shopWholeSaleListSearchGET;
     endPoint = endPoint.replaceAll("{shopName}", query);
+    endPoint = endPoint.replaceAll("{districtName}", districtName ?? "");
     endPoint = endPoint.replaceAll("{pageSize}", "100");
     endPoint = endPoint.replaceAll("{pageNumber}", "0");
     try {

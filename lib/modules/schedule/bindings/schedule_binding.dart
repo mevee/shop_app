@@ -11,11 +11,10 @@ class ScheduleBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<SessionPref>(() => SPrefSessiomImpl());
-    
     Get.lazyPut<ManagerServiceProtocol>(() => ManagerService());
     Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
     Get.create<ScheduleServiceProtocol>(() => ScheduleService());
-    Get.lazyPut<ShopMasterController>(() => ShopMasterController());
     Get.create<ScheduleController>(() => ScheduleController());
+    Get.lazyPut<ShopMasterController>(() => ShopMasterController());
   }
 }

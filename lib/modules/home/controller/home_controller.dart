@@ -87,6 +87,8 @@ class HomeController extends BaseController {
       return [
         OptionModel(label: "Change Password", iconData: Icons.manage_accounts),
         OptionModel(label: "Logout", iconData: Icons.logout_outlined),
+        if (kDebugMode)
+          OptionModel(label: "Location Logs", iconData: Icons.location_on),
       ];
     }
   }
@@ -97,9 +99,9 @@ class HomeController extends BaseController {
     }
     _timer = Timer.periodic(Duration(seconds: 15), (timer) {
       if (userManager.getIsWorking() == true) {
-        if (kProfileMode | kReleaseMode) {
-          getEmployeeTravelDistance();
-        }
+        // if (kProfileMode | kReleaseMode) {
+        getEmployeeTravelDistance();
+        // }
       }
     });
   }
@@ -236,32 +238,32 @@ class HomeController extends BaseController {
     }
   }
 
-  Future<void> updateEmployeeRoute() async {
-    isLoding.value = true;
-    final request = [
-      UserDateLatRequest(
-        userName: userManager.getUserData()?.login?.userName,
-        loginTime: DateFormatter.getCurrentDateTimeString(),
-        lat: inLocation.lat,
-        lng: inLocation.long,
-      ),
-    ];
-    try {
-      final response = await _employeeService.employeeRouteUpdate(request);
-    } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data['error'] ?? "Failed to update password";
-      AppToast.showToast(message: errorMessage);
-    } on SocketException catch (e) {
-      AppToast.showToast(message: e.message);
-    } on ServerException catch (e) {
-      AppToast.showToast(message: e.message);
-    } catch (e) {
-      AppToast.showToast();
-    } finally {
-      isLoding.value = false;
-    }
-  }
+  // Future<void> updateEmployeeRoute() async {
+  //   isLoding.value = true;
+  //   final request = [
+  //     UserDateLatRequest(
+  //       userName: userManager.getUserData()?.login?.userName,
+  //       loginTime: DateFormatter.getCurrentDateTimeString(),
+  //       lat: inLocation.lat,
+  //       lng: inLocation.long,
+  //     ),
+  //   ];
+  //   try {
+  //     final response = await _employeeService.employeeRouteUpdate(request);
+  //   } on DioException catch (e) {
+  //     final errorMessage =
+  //         e.response?.data['error'] ?? "Failed to update password";
+  //     AppToast.showToast(message: errorMessage);
+  //   } on SocketException catch (e) {
+  //     AppToast.showToast(message: e.message);
+  //   } on ServerException catch (e) {
+  //     AppToast.showToast(message: e.message);
+  //   } catch (e) {
+  //     AppToast.showToast();
+  //   } finally {
+  //     isLoding.value = false;
+  //   }
+  // }
 
   Future<void> getEmployeeTravelDistance() async {
     // if (userManager.getIsWorking() == false) {
@@ -405,9 +407,9 @@ class HomeController extends BaseController {
   void _startForgrundService() {
     print("_startForgrundService()");
     if (userManager.getIsWorking() == true) {
-      if (kProfileMode) {
-        locationService.startTracking();
-      }
+      // if (kProfileMode) {
+      locationService.startTracking();
+      // }
       // _locationService.startBackgroundLocation();
     } else {
       // locationService.stopTracking();
@@ -423,10 +425,18 @@ class HomeController extends BaseController {
   }
 
   Future<void> getVersion() async {
-    String version = "1.0.0.t_v_10";
-    // version = Platform.isAndroid
-    //     ? await getAndroidVersion()
-    //     : await getiOSVersion();
+    String version = "";
+    if (kDebugMode) {
+      version = "1.0.0.t_v_10";
+    }if (kProfileMode) {
+      version = "1.0.0.p_v_10";
+    } if (kReleaseMode) {
+      version = "1.0.0.r_v_0001";
+    }else {
+      version = Platform.isAndroid
+          ? await getAndroidVersion()
+          : await getiOSVersion();
+    }
     this.version.value = version;
   }
 

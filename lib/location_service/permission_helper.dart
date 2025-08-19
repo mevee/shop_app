@@ -1,5 +1,8 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'dart:io' show Platform;
 
 import 'package:shop_app/common/app_toast.dart';
@@ -66,6 +69,34 @@ class PermissionUtil {
         return Future.value(false);
       }
     } else {
+      return Future.value(true);
+    }
+  }
+
+  /// Handle platform-specific permissions (e.g., Android 13+ notifications)
+  static Future<bool> checkLocationServiceEnabled() async {
+    if (isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      if (androidInfo.version.sdkInt >= 35) {
+        // Android 15
+        final canAccessPreciseLocation =
+            await Geolocator.isLocationServiceEnabled();
+        if (!canAccessPreciseLocation) {
+          aLog("Location service not enabled");
+          await Geolocator.openLocationSettings();
+          // throw Exception('Precise location access required');
+          return Future.value(false);
+        } else {
+          aLog("Location service Enabled");
+          return Future.value(true);
+        }
+      } else {
+        aLog("Location service not required for Android < 15");
+        return Future.value(true);
+      }
+    } else {
+      aLog("Location service not required for Android < 15");
       return Future.value(true);
     }
   }

@@ -41,7 +41,6 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                   Get.toNamed(Routes.createShop);
                   controller.isExpanded.value = !controller.isExpanded.value;
                 },
-                
               ),
             ),
           ),
@@ -58,6 +57,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
               () => TextField(
                 controller: controller.searchCtr,
                 onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                style: TextStyle(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: "Search shop here",
                   prefixIcon: Icon(Icons.search, color: AppColors.neutral400),
@@ -82,7 +82,40 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                 },
               ),
             ),
-
+            verticalSpacing(8),
+            Obx(
+              () => Visibility(
+                visible: controller.selected.value != "Retail",
+                child: TextField(
+                  controller: controller.placeCtr,
+                  style: TextStyle(fontSize: 14),
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                  decoration: InputDecoration(
+                    hintText: "Search district",
+                    prefixIcon: Icon(
+                      Icons.location_on,
+                      color: AppColors.neutral400,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: AppColors.lightGrey),
+                    ),
+                    suffix: controller.isLoding.value
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) {
+                    controller.getShopList("");
+                  },
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 8),
               child: Obx(
@@ -132,13 +165,55 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                               Icon(Icons.store, color: AppColors.primary),
                               horizontalSpacing(8),
                               Expanded(
-                                child: Text(
-                                  // maxLines: 6,
-                                  "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}\nDistric:${shop.districtName}\nOwner:${shop.ownerName}\nAddress:${shop.premisesAddress}\nMob:${shop.mobileNumber}",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                       text:shop.unitName ?? 'Unknown Shop',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                       text: "\nType: ${shop.shopType}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                       text: "\nDistrict: ${shop.districtName}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                       text: "\nOwner: ${shop.ownerName}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                       text: "\nAddress: ${shop.premisesAddress}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                        // maxLines: 3,
+                                        // overflow: TextOverflow.ellipsis,
+                                      ),
+                                      TextSpan(
+                                       text: "\n${shop.mobileNumber}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

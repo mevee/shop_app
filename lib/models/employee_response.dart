@@ -62,14 +62,14 @@ class ClockRequest {
 
 class UserDateLatRequest {
   String? userName;
-  String? loginTime; // "2025-07-06T10:00:00"
+  String? createdDate; // "2025-07-06T10:00:00"
   double? lat;
   double? lng;
-  UserDateLatRequest({this.userName, this.loginTime, this.lat, this.lng});
+  UserDateLatRequest({this.userName, this.createdDate, this.lat, this.lng});
 
   UserDateLatRequest.fromJson(Map<String, dynamic> json) {
     userName = json['userName'];
-    loginTime = json['loginTime'];
+    createdDate = json['createdDate'];
     lat = json['lat']?.toDouble();
     lng = json['lng']?.toDouble();
   }
@@ -77,10 +77,14 @@ class UserDateLatRequest {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['userName'] = userName;
-    data['loginTime'] = loginTime;
+    data['createdDate'] = createdDate;
     data['lat'] = lat;
     data['lng'] = lng;
     return data;
+  }
+  @override
+  String toString() {
+    return "$createdDate::$lat$lng\n";
   }
 }
 
@@ -101,6 +105,7 @@ class GetDistanceRequest {
     data['date'] = date;
     return data;
   }
+  
 }
 
 class LocationLatLon {

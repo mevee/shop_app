@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 void aLog(message){
-  if(kDebugMode) {
+  if(kDebugMode|kProfileMode) {
     print(message);
   }
 }

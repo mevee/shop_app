@@ -17,8 +17,8 @@ class LocationUtil {
       try {
         final position = await Geolocator.getCurrentPosition(
           locationSettings: LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 1,
+            accuracy: LocationAccuracy.bestForNavigation,
+            distanceFilter: 0,
           ),
         );
         onLocatiionFound(
