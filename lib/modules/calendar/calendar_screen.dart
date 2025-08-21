@@ -252,8 +252,9 @@ class CalendarScreen extends GetView<CallenderController> {
   }
 
   void showAddSheduleBottomSheet(BuildContext context) {
+    final ScheduleController ctr = ScheduleController();
     Get.bottomSheet(
-      AddScheduleBottomSheet(),
+      AddScheduleBottomSheet(controller: ctr),
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(

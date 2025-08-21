@@ -180,7 +180,7 @@ class SelectShopBottomSheet extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 // maxLines: 3,
-                                "${shop.unitName ?? 'Unknown Shop'}\nType:${shop.shopType}",
+                                "${shop.unitName ?? 'Unknown Shop'}\nType:${controller.selected.value == "Retail"? shop.shopType:shop.licenceType}",
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,

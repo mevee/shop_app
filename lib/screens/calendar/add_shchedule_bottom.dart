@@ -11,8 +11,8 @@ import 'package:shop_app/widgets/helper.dart';
 import 'package:shop_app/widgets/tap_anim_button.dart';
 
 class AddScheduleBottomSheet extends StatelessWidget {
-  AddScheduleBottomSheet({super.key});
-  final ScheduleController controller = Get.put(ScheduleController());
+  const AddScheduleBottomSheet({required this.controller, super.key});
+  final ScheduleController controller;
 
   @override
   Widget build(BuildContext context) {
