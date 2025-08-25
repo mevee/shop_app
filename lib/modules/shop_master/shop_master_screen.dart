@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 import 'package:shop_app/modules/shop_master/controller/shop_master_controller.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -128,6 +130,10 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                     onChanged: (String? value) async {
                       controller.selected.value = value ?? "Retail";
                       await controller.getShopList(controller.searchCtr.text);
+                      if (await NetUtil.isNetworkAvailable() == false) {
+                        AppToast.showToast(message: "No internet connection");
+                        return;
+                      }
                     },
                   ),
                 ),
@@ -169,7 +175,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                       text:shop.unitName ?? 'Unknown Shop',
+                                        text: shop.unitName ?? 'Unknown Shop',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -177,28 +183,31 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                                         ),
                                       ),
                                       TextSpan(
-                                       text: "\nType: ${controller.selected.value == "Retail"? shop.shopType:shop.licenceType}",
+                                        text:
+                                            "\nType: ${controller.selected.value == "Retail" ? shop.shopType : shop.licenceType}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,
                                         ),
                                       ),
                                       TextSpan(
-                                       text: "\nDistrict: ${shop.districtName}",
+                                        text:
+                                            "\nDistrict: ${shop.districtName}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,
                                         ),
                                       ),
                                       TextSpan(
-                                       text: "\nOwner: ${shop.ownerName}",
+                                        text: "\nOwner: ${shop.ownerName}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,
                                         ),
                                       ),
                                       TextSpan(
-                                       text: "\nAddress: ${shop.premisesAddress}",
+                                        text:
+                                            "\nAddress: ${shop.premisesAddress}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,
@@ -207,7 +216,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                                         // overflow: TextOverflow.ellipsis,
                                       ),
                                       TextSpan(
-                                       text: "\n${shop.mobileNumber}",
+                                        text: "\n${shop.mobileNumber}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.blue,

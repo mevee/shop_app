@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shop_app/common/app_toast.dart';
+import 'package:shop_app/common/battery_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
@@ -29,6 +30,12 @@ class _SplashViewState extends State<SplashView> {
     final p1 = await PermissionUtil.notificationPermissionCheck();
     final loc = await PermissionUtil.locationPermissionCheck();
     final locService = await PermissionUtil.checkLocationServiceEnabled();
+    // final batterySaveMode =
+    //     await BatteryOptimizationUtil.isBatteryOptimizationEnabled();
+    // if (batterySaveMode) {
+    //   await BatteryOptimizationUtil.requestIgnoreBatteryOptimization();
+    // }
+
     if (p1 && loc && locService) {
       final SessionPref userManager = Get.put(SPrefSessiomImpl());
       await userManager.initPreferences();

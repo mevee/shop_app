@@ -7,9 +7,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/common/app_log_util.dart';
-import 'package:shop_app/data/pref_util.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/location_service/tracking_service.dart';
@@ -23,15 +21,6 @@ const notificationChannelId = 'my_foreground';
 const notificationId = 888;
 
 class FlutterBgService {
-  // FlutterBgService._internal();
-
-  // static final FlutterBgService _instance = FlutterBgService._internal();
-  int STATUS = 0;
-
-  // factory FlutterBgService() {
-  //   return _instance;
-  // }
-
   static void initializeService() async {
     final service = FlutterBackgroundService();
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -72,14 +61,19 @@ class FlutterBgService {
   // Start service
   static void startTracking(SessionPref userManager) async {
     print("startTracking()");
+    updateUserData(userManager);
+    initializeService();
+    await FlutterBackgroundService().startService();
+  }
+
+  // Start service
+  static void updateUserData(SessionPref userManager) async {
+    print("updateUserData()");
     FlutterBackgroundService().invoke('setData', {
       'userId': userManager.getUserId(),
       'token': userManager.getUserToken(),
       'working': userManager.getIsWorking() ?? false,
     });
-
-    initializeService();
-    await FlutterBackgroundService().startService();
   }
 
   // Stop service
@@ -120,7 +114,7 @@ void onStart(ServiceInstance service) async {
 
   service.on('setData').listen((event) async {
     initialData = event;
-    aLog("listen() $initialData");
+    aLog("setData()->listen() $initialData");
     await syncService.init();
     await syncService.loadLocationsFromPrefs();
   });
@@ -130,12 +124,10 @@ void onStart(ServiceInstance service) async {
       service.setAsForegroundService();
     });
   }
-  await PermissionUtil.checkLocationServiceEnabled();
+  final permision = await PermissionUtil.checkLocationServiceEnabled();
   // Main tracking loop
-  while (true) {
-    aLog(
-      "while(IsWorking${initialData?['working']}):STATUS:${FlutterBgService().STATUS}",
-    );
+  while (permision) {
+    aLog("while(IsWorking${initialData?['working']})");
     // Check if the service is running in foreground mode
     String? userId = initialData?['userId'] ?? "";
     String? token = initialData?['token'] ?? "";

@@ -8,6 +8,7 @@ import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/location_util.dart';
 import 'package:shop_app/common/select_image.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/shop_image_list_response.dart';
 import 'package:shop_app/data/shop_master_service.dart';
@@ -82,7 +83,7 @@ class ShopMasterController extends BaseController {
     try {
       final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
-          : masterService.getWholeSellerName(query,placeCtr.text);
+          : masterService.getWholeSellerName(query, placeCtr.text);
       completer?.complete(future);
       final response = await completer!.future;
       shopListApi.value = response?.results ?? [];
@@ -212,6 +213,10 @@ class ShopMasterController extends BaseController {
   }
 
   Future<void> createShop() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (completer != null && !completer!.isCompleted) {
       completer!.complete();
       isAddShopLoding.value = false;
@@ -295,6 +300,10 @@ class ShopMasterController extends BaseController {
   }
 
   Future<void> updateShopImage() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (completer != null && !completer!.isCompleted) {
       completer!.complete();
       isAddShopLoding.value = false;
@@ -368,6 +377,10 @@ class ShopMasterController extends BaseController {
 
   Completer? updateLocationTask;
   Future<void> updateShopLocation() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (updateLocationTask != null && !updateLocationTask!.isCompleted) {
       updateLocationTask!.complete();
       isLoding.value = false;

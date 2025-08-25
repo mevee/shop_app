@@ -12,6 +12,7 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/data/manager_service.dart';
 import 'package:shop_app/data/meeting_model.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/data/shop_master_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
@@ -235,7 +236,7 @@ class ScheduleController extends BaseController {
     }
     loadUserData();
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    timeController.text = TimeOfDay.now().format(Get.context!);
+    timeController.text = TimeOfDay.now().to24hour();
     checkIfMeetingWasStarted();
   }
 
@@ -304,6 +305,10 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> getScheduleDetails(int? scheduleId) async {
+     if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isLoading.value = true;
     try {
       final response = await scheduleService.getScheduleDetails("$scheduleId");
@@ -479,6 +484,11 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> addSchedule() async {
+    aLog("addSchedule()");
+     if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (dateController.text.isEmpty) {
       AppToast.showToast(message: 'Please select a date.');
       return;
@@ -509,6 +519,8 @@ class ScheduleController extends BaseController {
 
     try {
       final response = await scheduleService.addSchedule(request);
+          aLog("${response.responseCode}");
+
       if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
         AppToast.showToast(
           message: response.responseMessage ?? 'Failed to add schedule.',
@@ -518,14 +530,14 @@ class ScheduleController extends BaseController {
         AppToast.showToast(message: 'Schedule added successfully!');
       }
     } on DioException catch (e) {
-      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
-      // AppToast.showToast(message: errorMessage);
+      final errorMessage = e.response?.data['error'] ?? "Failed to add schedule";
+      AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      AppToast.showToast(message: e.message);
     } catch (e) {
-      // AppToast.showToast();
+      AppToast.showToast();
     } finally {
       addScheduleLoading.value = false;
     }
@@ -541,6 +553,10 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> submitForm({bool is20MinCrossed = false}) async {
+     if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (profileImage.isEmpty.value) {
       AppToast.showToast(message: 'Please select a profile photo.');
       return;
@@ -608,20 +624,24 @@ class ScheduleController extends BaseController {
         AppToast.showToast(message: 'Schedule update successfully!');
       }
     } on DioException catch (e) {
-      // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
-      // AppToast.showToast(message: errorMessage);
+      final errorMessage = e.response?.data['error'] ?? "Failed to update Schedule";
+      AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to update Password");
+      AppToast.showToast(message: e.message );
     } on ServerException catch (e) {
-      // AppToast.showToast(message: e.message ?? "Failed to Update Password");
+      AppToast.showToast(message: e.message);
     } catch (e) {
-      // AppToast.showToast();
+      AppToast.showToast();
     } finally {
       updateScheduleLoading.value = false;
     }
   }
 
   Future<void> cancelMeeting() async {
+     if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     updateScheduleLoading.value = true;
     AuthorizeRequest request = AuthorizeRequest(
       id: schedule.value.id,

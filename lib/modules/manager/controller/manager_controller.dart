@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/data/manager_service.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/agent_list_response.dart';
@@ -158,6 +159,10 @@ class ManagerController extends BaseController {
     String approveMessage,
     bool accept,
   ) async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     AuthorizeRequest request = AuthorizeRequest(
       id: schedule.id,
       authorizedRemarks: approveMessage,

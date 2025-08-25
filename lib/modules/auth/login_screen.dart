@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
@@ -132,6 +133,7 @@ class LoginScreen extends GetView<AuthController> {
                                     await PermissionUtil.locationPermissionCheck();
                                 final locService =
                                     await PermissionUtil.checkLocationServiceEnabled();
+                                    aLog("$locService");
                                 if (p1 && loc && locService) {
                                   controller.requestLogin();
                                 }
@@ -177,7 +179,6 @@ class LoginScreen extends GetView<AuthController> {
             AppToast.showToast(
               message: "User: ${userData?.login?.userName ?? 'Unknown'}",
             );
-            FlutterBgService().STATUS = 300;
           },
           child: AppLogo(
             subtitle: 'Welcome back.',

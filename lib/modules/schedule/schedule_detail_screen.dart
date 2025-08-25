@@ -453,6 +453,12 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: controller.selectedTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != controller.selectedTime) {
       controller.selectedTime = picked;
@@ -466,6 +472,7 @@ class ScheduleDetailView extends GetView<ScheduleController> {
       SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
+
 
   void _showSelectProductDialog(
     BuildContext context,
@@ -837,3 +844,4 @@ class ScheduleDetailView extends GetView<ScheduleController> {
     return editAllowed;
   }
 }
+

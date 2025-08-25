@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/modules/schedule/schedule_item_view.dart';
@@ -22,8 +24,13 @@ class ScheduleListView extends GetView<ScheduleController> {
           foregroundColor: Colors.white,
         ),
         body: RefreshIndicator(
-          onRefresh: () =>
-              controller.getTodaysScheduleList(controller.scheduleDate),
+          onRefresh: () async {
+            if (await NetUtil.isNetworkAvailable() == false) {
+              AppToast.showToast(message: "No internet connection");
+              return;
+            }
+            controller.getTodaysScheduleList(controller.scheduleDate);
+          },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: twoState(

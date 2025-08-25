@@ -13,6 +13,7 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/location_util.dart';
 import 'package:shop_app/data/employee_service.dart';
 import 'package:shop_app/data/login_service.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/location_service/bg_service.dart';
@@ -68,11 +69,10 @@ class HomeController extends BaseController {
   }
 
   bool isAgent() {
-    if (userData.value.login?.role?.toLowerCase() == "manager" ||
-        userData.value.login?.role?.toLowerCase() == "admin") {
-      return false;
-    } else {
+    if (userData.value.login?.role?.toLowerCase() == "agent") {
       return true;
+    } else {
+      return false;
     }
   }
 
@@ -156,6 +156,10 @@ class HomeController extends BaseController {
   }
 
   Future<void> _cLockIN() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isPunchInProgress.value = true;
     final ClockInRequest loginData = ClockInRequest(
       username: userManager.getUserData()?.login?.userName,
@@ -195,8 +199,11 @@ class HomeController extends BaseController {
   }
 
   Future<void> _clockOut() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isPunchOutProgress.value = true;
-
     final ClockRequest loginData = ClockRequest(
       id: attandanceObj.value.id,
       username: userManager.getUserData()?.login?.userName,
@@ -287,6 +294,9 @@ class HomeController extends BaseController {
       } else {
         distance.value = "0 m";
       }
+      if (userManager.getIsWorking() == true) {
+        FlutterBgService.updateUserData(userManager);
+      }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
       // AppToast.showToast(message: errorMessage);
@@ -302,6 +312,10 @@ class HomeController extends BaseController {
   }
 
   Future<void> getEmployeeAttandance() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isLoding.value = true;
     final request = GetDistanceRequest(
       userName: userData.value.login?.userName,
@@ -319,7 +333,6 @@ class HomeController extends BaseController {
             if (attandanceObj.value.isLoggedOut == false) {
               userState.value = UserState.WORKING;
               userManager.setIsWorking(true);
-              Future.delayed(Duration(seconds: 1));
               _startForgrundService();
             } else {
               userState.value = UserState.NOT_WORKING;
@@ -352,6 +365,10 @@ class HomeController extends BaseController {
   }
 
   Future<void> getTodaysSchedules() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isTodaysLoding.value = true;
     try {
       final response = await _scheduleService.getScheduleByDate(
@@ -377,6 +394,10 @@ class HomeController extends BaseController {
   }
 
   Future<void> logout() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     isLoding.value = true;
     try {
       final response = await _loginService.logoutFromApp(
@@ -413,10 +434,10 @@ class HomeController extends BaseController {
   }
 
   void _startForgrundService() {
-    print("_startForgrundService()");
-    if (userManager.getIsWorking() == true) {
+     if (userManager.getIsWorking() == true) {
       // if (kProfileMode) {
       FlutterBgService.startTracking(userManager);
+      FlutterBgService.updateUserData(userManager);
       // }
       // _locationService.startBackgroundLocation();
     } else {
@@ -441,7 +462,7 @@ class HomeController extends BaseController {
       version = "1.0.0.p_v_10";
     }
     if (kReleaseMode) {
-      version = "1.0.0.r_v_0001";
+      version = "1.0.0.r_v_0002";
     } else {
       version = Platform.isAndroid
           ? await getAndroidVersion()

@@ -9,7 +9,6 @@ abstract class BaseNetworkClient {
   final _connectionTimout = 20;
   final _receiveTimout = 20;
   final maxLogWidth = 90;
-  // final _baseUrl = URLGenerator.baseURL;
   final _baseUrl = AppConstants.baseUrl;
   late final Dio client;
 

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateFormatter {
@@ -98,7 +99,7 @@ class DateFormatter {
     }
   }
 
-  static String getTimeDifference(String? isoTimeString,String? logouteTime) {
+  static String getTimeDifference(String? isoTimeString, String? logouteTime) {
     if (isoTimeString == null) return "0h 0m";
     if (logouteTime == null) return "0h 0m";
     try {
@@ -118,5 +119,11 @@ class DateFormatter {
     } catch (e) {
       return "0h 0m"; // Fallback if parsing fails
     }
+  }
+}
+
+extension TimeOfDayExtension on TimeOfDay {
+  String to24hour() {
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 }

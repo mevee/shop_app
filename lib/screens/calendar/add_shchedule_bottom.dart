@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 import 'package:shop_app/screens/calendar/shop_select_bottom.dart';
@@ -167,10 +168,18 @@ class AddScheduleBottomSheet extends StatelessWidget {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: controller.selectedTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          alwaysUse24HourFormat: true,
+        ),
+        child: child!,
+      );
+    },
     );
     if (picked != null && picked != controller.selectedTime) {
       controller.selectedTime = picked;
-      controller.timeController.text = picked.format(context);
+      controller.timeController.text = picked.to24hour();
     }
   }
 

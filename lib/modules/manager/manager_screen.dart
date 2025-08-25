@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/drop_down.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/models/agent_list_response.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 import 'package:shop_app/navigation/app_pages.dart';
@@ -45,7 +47,13 @@ class ManagerScreen extends GetView<ManagerController> {
                           options: controller.agentList.value,
                           selectedOption: controller.agent,
                           hintText: "Select User",
-                          onChanged: (value) {
+                          onChanged: (value) async {
+                            if (await NetUtil.isNetworkAvailable() == false) {
+                              AppToast.showToast(
+                                message: "No internet connection",
+                              );
+                              return;
+                            }
                             controller.agent = value;
                             controller.selectedAgent.value =
                                 value?.userName ?? "";
@@ -355,6 +363,10 @@ class ManagerScreen extends GetView<ManagerController> {
       controller.selectedDate = picked;
       controller.dateController.text = DateFormat('yyyy-MM-dd').format(picked);
       controller.getScheduleList();
+      if (await NetUtil.isNetworkAvailable() == false) {
+        AppToast.showToast(message: "No internet connection");
+        return;
+      }
     }
   }
 
@@ -363,11 +375,21 @@ class ManagerScreen extends GetView<ManagerController> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: controller.selectedTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != controller.selectedTime) {
       controller.selectedTime = picked;
       controller.timeController.text = controller.formatTime();
       controller.getScheduleList();
+      if (await NetUtil.isNetworkAvailable() == false) {
+        AppToast.showToast(message: "No internet connection");
+        return;
+      }
     }
   }
 }

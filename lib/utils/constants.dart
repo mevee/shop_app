@@ -40,7 +40,7 @@ class AppConstants {
   static const double cardElevation = 4.0;
 
   // API Endpoints
-  static const String host = '3.110.132.121';
+  static const String host = 'm.hamsterspirits.com';
   static const String baseUrl = 'http://$host/';
 
   static const String productsEndpoint = '/products';

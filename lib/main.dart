@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Shop App',
+      locale: const Locale('en', 'GB'), // Force 24-hour format
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.cherryRed),
         useMaterial3: true,

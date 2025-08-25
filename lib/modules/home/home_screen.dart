@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +7,7 @@ import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/common/dialog_util.dart';
 import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/location_service/bg_service.dart';
@@ -167,12 +166,18 @@ class HomeScreen extends GetView<HomeController> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
                         print(
                           'loadUserData()${controller.userManager.getUserData()?.toJson()}',
                         );
+                        if (await NetUtil.isNetworkAvailable() == false) {
+                          AppToast.showToast(message: "No internet connection");
+                          return;
+                        }
                         controller.getTodaysSchedules();
                         controller.getEmployeeAttandance();
+                        FlutterBgService.updateUserData(controller.userManager);
+                        
                       },
                       child: Icon(Icons.refresh),
                     ),
@@ -263,17 +268,17 @@ class HomeScreen extends GetView<HomeController> {
                 flex: 1,
                 child: GestureDetector(
                   onTap: () {
-                  //   final userData = controller.userManager.getUserData();
-                  //   final id = controller.userManager.getUserId();
-                  //   final working = controller.userManager.getIsWorking();
-                  //   final data = "${Random.secure().nextInt(1000)}";
-                  //   controller.userManager.setTestData(data);
-                  //  final savedData =  controller.userManager.getTestData();
-                  //   AppToast.showToast(
-                  //     message:
-                  //         "w: ${working ?? 'NA'},id:$id $data::$savedData",
-                  //   );
-                  //   FlutterBgService().STATUS = 200;
+                    //   final userData = controller.userManager.getUserData();
+                    //   final id = controller.userManager.getUserId();
+                    //   final working = controller.userManager.getIsWorking();
+                    //   final data = "${Random.secure().nextInt(1000)}";
+                    //   controller.userManager.setTestData(data);
+                    //  final savedData =  controller.userManager.getTestData();
+                    //   AppToast.showToast(
+                    //     message:
+                    //         "w: ${working ?? 'NA'},id:$id $data::$savedData",
+                    //   );
+                    //   FlutterBgService().STATUS = 200;
                   },
                   child: Text(
                     "Hello, ",

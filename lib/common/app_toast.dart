@@ -14,6 +14,7 @@ class AppToast {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color.fromRGBO(28, 27, 31, 1),
       margin: const EdgeInsets.only(bottom: 10),
+      
       titleText: Center(
         child: Text(
           message,

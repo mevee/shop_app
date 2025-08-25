@@ -13,6 +13,7 @@ import 'package:shop_app/data/common_api_response.dart';
 import 'package:shop_app/data/common_response.dart';
 import 'package:shop_app/data/login_service.dart';
 import 'package:shop_app/data/network/api_caller.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/network/network_interceptor.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/exception/exceptions.dart';
@@ -83,6 +84,10 @@ class AuthController extends GetxController {
   }
 
   Future<void> requestLogin() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (isLoginButtonLoading.value == true) {
       return;
     }
@@ -119,7 +124,7 @@ class AuthController extends GetxController {
               _userManager.saveUserCred(null);
             }
             //  print("${remember.value}::${r.response.token}");
-            // print("${_userManager.getSavedCred()?.toJson()}");     
+            // print("${_userManager.getSavedCred()?.toJson()}");
             FlutterBgService.stopTracking();
             Future.delayed(const Duration(seconds: 1));
             Get.offAllNamed(Routes.bottomNavigation);
@@ -149,6 +154,10 @@ class AuthController extends GetxController {
   }
 
   Future<void> sendOtp() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (isSendOtpLoading.value == true) {
       return;
     }
@@ -183,9 +192,9 @@ class AuthController extends GetxController {
       isSendOtpLoading.value = false;
       _handleOtpError(e);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to send OTP");
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
-      AppToast.showToast(message: e.message ?? "Failed to send OTP");
+      AppToast.showToast(message: e.message);
     } catch (e) {
       AppToast.showToast(message: "Failed to send OTP");
     } finally {
@@ -237,6 +246,10 @@ class AuthController extends GetxController {
   }
 
   Future<void> verifyOtpAndPassword() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (isUpdatePasswordLoading.value == true) {
       return;
     }
@@ -296,6 +309,10 @@ class AuthController extends GetxController {
   }
 
   Future<void> updatePassword() async {
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     if (isUpdatePasswordLoading.value == true) {
       return;
     }

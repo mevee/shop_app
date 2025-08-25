@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
-import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/schedule_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
 import 'package:shop_app/models/schedule_list_response.dart';
 
 class CallenderController extends BaseController {
-  final SessionPref _userManager = Get.find();
   final ScheduleServiceProtocol _scheduleService = Get.find();
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
   RxBool isLoding = false.obs;
@@ -79,12 +79,19 @@ class CallenderController extends BaseController {
   }
 
   // Helper function to navigate to the previous month
-  void goToPreviousMonth() {
+  void goToPreviousMonth() async{
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     focusedMonth.value = DateTime(
       focusedMonth.value.year,
       focusedMonth.value.month - 1,
       1,
     );
+    final mDate =
+        "${focusedMonth.value.year}-${focusedMonth.value.month.toString().padLeft(2, '0')}-${focusedMonth.value.day.toString().padLeft(2, '0')}";
+    getTodaysScheduleList(mDate);
     refreshUiElemnst();
   }
 
@@ -94,12 +101,19 @@ class CallenderController extends BaseController {
   }
 
   // Helper function to navigate to the next month
-  void goToNextMonth() {
+  void goToNextMonth() async{
+    if (await NetUtil.isNetworkAvailable() == false) {
+      AppToast.showToast(message: "No internet connection");
+      return;
+    }
     focusedMonth.value = DateTime(
       focusedMonth.value.year,
       focusedMonth.value.month + 1,
       1,
     );
+    final mDate =
+        "${focusedMonth.value.year}-${focusedMonth.value.month.toString().padLeft(2, '0')}-${focusedMonth.value.day.toString().padLeft(2, '0')}";
+    getTodaysScheduleList(mDate);
     refreshUiElemnst();
   }
 
@@ -112,6 +126,7 @@ class CallenderController extends BaseController {
         setUiData(response.results!);
       } else {
         scheduleList.value = [];
+        setUiData(scheduleList);
       }
     } on DioException catch (e) {
       // final errorMessage = e.response?.data['error'] ?? "Failed to update password";
