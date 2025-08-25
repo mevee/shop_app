@@ -8,27 +8,35 @@ class CommonWidgets {
     String? labelText,
     Color filledColor = Colors.white,
     Color errorColor = AppConstants.errorColor,
-
+    Color textColor = Colors.white,
     Widget? prefixIcon,
+    Widget? tailfixIcon,
     bool isPassword = false,
     bool isError = false,
-
+    bool readOnly = false,
     double fontSize = 12.0,
     double border = 12.0,
     String? errorMessage,
+    TextInputType? inpputType,
+    Function(String value)? onChange,
   }) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
+      keyboardType: inpputType,
+
       style: TextStyle(
-        color: isError ? errorColor : Colors.white,
+        color: isError ? errorColor : textColor,
         fontSize: fontSize,
       ),
       decoration: InputDecoration(
         labelText: labelText,
         fillColor: filledColor,
         prefixIcon: prefixIcon,
-        hintStyle: TextStyle(color: Colors.white, fontSize: fontSize),
-        floatingLabelStyle: TextStyle(color: Colors.white, fontSize: 14.0),
+        suffixIcon: tailfixIcon,
+        labelStyle: TextStyle(color: textColor.withOpacity(.9), fontSize: fontSize),
+        hintStyle: TextStyle(color: textColor, fontSize: fontSize),
+        floatingLabelStyle: TextStyle(color: textColor, fontSize: 14.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(border)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(border),
@@ -42,15 +50,16 @@ class CommonWidgets {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(border),
-          borderSide: BorderSide(color: errorColor ?? Colors.redAccent),
+          borderSide: BorderSide(color: errorColor),
         ),
         errorStyle: TextStyle(
-          color: Colors.white,
+          color: textColor,
           fontSize: 12.0,
           fontWeight: FontWeight.normal,
         ),
       ),
       obscureText: isPassword,
+      onChanged: onChange,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return errorMessage ?? 'Field is required';
@@ -83,7 +92,7 @@ class CommonWidgets {
 
   Function()? onPressed}) {
     return SizedBox(
-      width: double.infinity,
+      width: double.maxFinite,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(

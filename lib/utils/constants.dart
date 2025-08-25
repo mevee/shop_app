@@ -8,7 +8,7 @@ class AppConstants {
   static const Color backgroundColor = Colors.white;
   static const Color textColor = Colors.black87;
   static const Color errorColor = Colors.red;
-  static const Color errorColor2 =  Color.fromARGB(255, 246, 165, 247);
+  static const Color errorColor2 = Color.fromARGB(255, 246, 165, 247);
 
   // App Text Styles with Google Fonts
   static TextStyle get headingStyle => GoogleFonts.poppins(
@@ -23,20 +23,14 @@ class AppConstants {
     color: textColor,
   );
 
-  static TextStyle get bodyStyle => GoogleFonts.poppins(
-    fontSize: 16,
-    color: textColor,
-  );
+  static TextStyle get bodyStyle =>
+      GoogleFonts.poppins(fontSize: 16, color: textColor);
 
-  static TextStyle get captionStyle => GoogleFonts.poppins(
-    fontSize: 14,
-    color: Colors.grey,
-  );
+  static TextStyle get captionStyle =>
+      GoogleFonts.poppins(fontSize: 14, color: Colors.grey);
 
-  static TextStyle get buttonStyle => GoogleFonts.poppins(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-  );
+  static TextStyle get buttonStyle =>
+      GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold);
 
   // App Dimensions
   static const double padding = 16.0;
@@ -46,7 +40,9 @@ class AppConstants {
   static const double cardElevation = 4.0;
 
   // API Endpoints
-  static const String baseUrl = 'https://api.example.com';
+  static const String host = 'm.hamsterspirits.com';
+  static const String baseUrl = 'http://$host/';
+
   static const String productsEndpoint = '/products';
   static const String ordersEndpoint = '/orders';
   static const String authEndpoint = '/auth';
@@ -65,5 +61,7 @@ class AppConstants {
   static const String emailRequired = 'Email is required';
   static const String passwordRequired = 'Password is required';
   static const String invalidEmail = 'Please enter a valid email';
-  static const String passwordTooShort = 'Password must be at least 6 characters';
-} 
+  static const String loginError = 'Bad Request';
+  static const String passwordTooShort =
+      'Password must be at least 6 characters';
+}

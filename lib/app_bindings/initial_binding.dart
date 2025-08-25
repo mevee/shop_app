@@ -1,10 +1,18 @@
 import 'package:get/get.dart';
-import 'package:shop_app/data/user_manager.dart';
-
+import 'package:shop_app/data/preference.dart';
+import 'package:shop_app/data/schedule_service.dart';
+import 'package:shop_app/data/session_pref_impl.dart';
+import 'package:shop_app/data/shop_master_service.dart';
+import 'package:shop_app/location_service/tracking_service.dart';
+import 'package:shop_app/modules/schedule/controller/schedule_controller.dart';
 
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<UserManager>(() => UserManager(), fenix: true);
+    Get.lazyPut<SessionPref>(() => SPrefSessiomImpl(), fenix: true);
+    Get.lazyPut<ScheduleController>(() => ScheduleController(), fenix: true);
+    Get.lazyPut<ScheduleServiceProtocol>(() => ScheduleService(), fenix: true);
+    Get.lazyPut<ShopMasterServiceProtocol>(() => ShopMasterService());
+    Get.lazyPut<LocationSyncService>(() => LocationSyncService());
   }
 }

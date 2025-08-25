@@ -1,21 +1,15 @@
-class LoginResponse { 
+class LoginResponse {
   String? token;
   String? message;
   String? status;
   UserData? login;
-  LoginResponse({
-    token,
-    message,
-    status, 
-    login,
-  });
+  LoginResponse({token, message, status, login});
 
   LoginResponse.fromJson(Map<String, dynamic> json) {
     token = json['token'];
     message = json['message'];
     status = json['status'];
-    login =
-        json['login'] != null ? UserData.fromJson(json['login']) : null;
+    login = json['login'] != null ? UserData.fromJson(json['login']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -23,17 +17,16 @@ class LoginResponse {
     data['token'] = token;
     data['message'] = message;
     data['status'] = status;
-  
+
     if (login != null) {
       data['login'] = login!.toJson();
     }
     return data;
   }
 }
- 
+
 class UserData {
- 
- int? id;
+  int? id;
   String? userName;
   String? password;
   String? organizationName;
@@ -51,6 +44,7 @@ class UserData {
   String? updatedBy;
   String? updatedDate;
   String? managerName;
+  String? employeeId;
   UserData({
     id,
     userName,
@@ -70,6 +64,7 @@ class UserData {
     updatedBy,
     updatedDate,
     managerName,
+    employeeId,
   });
 
   UserData.fromJson(Map<String, dynamic> json) {
@@ -91,6 +86,7 @@ class UserData {
     updatedBy = json['updatedBy'];
     updatedDate = json['updatedDate'];
     managerName = json['managerName'];
+    employeeId = json['employeeId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -112,7 +108,8 @@ class UserData {
     data['createdBy'] = createdBy;
     data['updatedBy'] = updatedBy;
     data['updatedDate'] = updatedDate;
-    data['managerName'] = managerName; 
+    data['managerName'] = managerName;
+    data['employeeId'] = employeeId;
     return data;
   }
 }
@@ -121,7 +118,7 @@ class LoginRequest {
   String? userName;
   String? password;
 
-  LoginRequest({userName, password});
+  LoginRequest({this.userName, this.password});
 
   LoginRequest.fromJson(Map<String, dynamic> json) {
     userName = json['userName'];
@@ -136,21 +133,63 @@ class LoginRequest {
   }
 }
 
-class VerifyEmailRequest {
+class ForgotPasswordRequest {
+  String? userName;
+  String? purpose;
+
+  ForgotPasswordRequest({this.userName, this.purpose});
+
+  ForgotPasswordRequest.fromJson(Map<String, dynamic> json) {
+    userName = json['userName'];
+    purpose = json['purpose'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['purpose'] = purpose;
+    return data;
+  }
+}
+
+class VerifyOtpAndNewPassowrdRequest {
   String? otp;
-  String? email;
+  String? newPassword;
+  String? uniqueId;
 
-  VerifyEmailRequest({otp, email});
+  VerifyOtpAndNewPassowrdRequest({this.otp, this.newPassword, this.uniqueId});
 
-  VerifyEmailRequest.fromJson(Map<String, dynamic> json) {
+  VerifyOtpAndNewPassowrdRequest.fromJson(Map<String, dynamic> json) {
     otp = json['otp'];
-    email = json['email'];
+    newPassword = json['newPassword'];
+    uniqueId = json['uniqueId'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['otp'] = otp;
-    data['email'] = email;
+    data['newPassword'] = newPassword;
+    data['uniqueId'] = uniqueId;
+    return data;
+  }
+}
+
+class ChangePasswordRequest {
+  String? userName;
+  String? newPassword;
+  String? oldPassword;
+  ChangePasswordRequest({this.userName, this.newPassword, this.oldPassword});
+  ChangePasswordRequest.fromJson(Map<String, dynamic> json) {
+    userName = json['userName'];
+    newPassword = json['newPassword'];
+    oldPassword = json['oldPassword'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['newPassword'] = newPassword;
+    data['oldPassword'] = oldPassword;
     return data;
   }
 }
