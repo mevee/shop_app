@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' as ConnectivityResult;
 import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
-import 'package:restart_app/restart_app.dart';
 import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/data/common_api_response.dart';

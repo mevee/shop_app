@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/data/meeting_model.dart';
-import 'package:shop_app/data/pref_util.dart';
+import 'package:shop_app/data/pref/pref_util.dart';
 import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/models/login_response.dart';
 
