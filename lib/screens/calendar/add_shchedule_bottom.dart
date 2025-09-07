@@ -139,8 +139,13 @@ class AddScheduleBottomSheet extends StatelessWidget {
               textColor: Colors.white,
               progressColor: Colors.white,
               label: "SUBMIT",
-              onPressed: () {
-                controller.addSchedule();
+              onPressed: () async {
+                if (controller.isClicked.value) {
+                  return;
+                } else {
+                  await controller.click();
+                  controller.addSchedule();
+                }
               },
             ),
           ),
@@ -169,13 +174,11 @@ class AddScheduleBottomSheet extends StatelessWidget {
       context: context,
       initialTime: controller.selectedTime ?? TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
-      return MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          alwaysUse24HourFormat: true,
-        ),
-        child: child!,
-      );
-    },
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != controller.selectedTime) {
       controller.selectedTime = picked;

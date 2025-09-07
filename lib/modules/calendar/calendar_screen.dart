@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/date_util.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/modules/calendar/controller/calender_controller.dart';
@@ -18,15 +19,17 @@ class CalendarScreen extends GetView<CallenderController> {
     // Determine if the cell should have a special background color (like red/green in the image)
     Color? backgroundColor;
     final bool hasData = controller.dailyData.containsKey(date);
-    // if (hasData && isCurrentMonth) {
-    //   backgroundColor = Colors.green.shade100; // Light green for days with data
-    // }
+    // aLog("Date: $date, Has Data: $hasData");
     return InkWell(
       onTap: () {
-        print(date);
-        // final scheduleList = controller.checkIfSchedulAvailable(date);
+        aLog(date);
+        aLog(controller.dailyData);
+        try{
+        aLog(controller.dailyData[date]);
+        }catch(e){
+          aLog(e);
+        }
         final ctr = Get.put(ScheduleController());
-
         if (hasData) {
           Get.toNamed(
             Routes.scheduleList,
@@ -185,7 +188,6 @@ class CalendarScreen extends GetView<CallenderController> {
                       final date = controller.daysInGrid[index];
                       final bool isCurrentMonth =
                           date.month == controller.focusedMonth.value.month;
-                      // return Container(color: Colors.amber,);
                       return buildDayCell(date, isCurrentMonth: isCurrentMonth);
                     },
                   ),

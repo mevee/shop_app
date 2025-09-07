@@ -305,7 +305,7 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> getScheduleDetails(int? scheduleId) async {
-     if (await NetUtil.isNetworkAvailable() == false) {
+    if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
     }
@@ -485,7 +485,7 @@ class ScheduleController extends BaseController {
 
   Future<void> addSchedule() async {
     aLog("addSchedule()");
-     if (await NetUtil.isNetworkAvailable() == false) {
+    if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
     }
@@ -519,7 +519,7 @@ class ScheduleController extends BaseController {
 
     try {
       final response = await scheduleService.addSchedule(request);
-          aLog("${response.responseCode}");
+      aLog("${response.responseCode}");
 
       if (response.responseCode?.toLowerCase() == "fail".toLowerCase()) {
         AppToast.showToast(
@@ -530,7 +530,8 @@ class ScheduleController extends BaseController {
         AppToast.showToast(message: 'Schedule added successfully!');
       }
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ?? "Failed to add schedule";
+      final errorMessage =
+          e.response?.data['error'] ?? "Failed to add schedule";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
       AppToast.showToast(message: e.message);
@@ -553,7 +554,7 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> submitForm({bool is20MinCrossed = false}) async {
-     if (await NetUtil.isNetworkAvailable() == false) {
+    if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
     }
@@ -624,10 +625,11 @@ class ScheduleController extends BaseController {
         AppToast.showToast(message: 'Schedule update successfully!');
       }
     } on DioException catch (e) {
-      final errorMessage = e.response?.data['error'] ?? "Failed to update Schedule";
+      final errorMessage =
+          e.response?.data['error'] ?? "Failed to update Schedule";
       AppToast.showToast(message: errorMessage);
     } on SocketException catch (e) {
-      AppToast.showToast(message: e.message );
+      AppToast.showToast(message: e.message);
     } on ServerException catch (e) {
       AppToast.showToast(message: e.message);
     } catch (e) {
@@ -638,7 +640,7 @@ class ScheduleController extends BaseController {
   }
 
   Future<void> cancelMeeting() async {
-     if (await NetUtil.isNetworkAvailable() == false) {
+    if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
     }

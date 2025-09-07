@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:shop_app/common/app_log_util.dart';
 import 'package:shop_app/common/app_toast.dart';
 import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/date_util.dart';
@@ -41,6 +42,8 @@ class CallenderController extends BaseController {
   }
 
   void prepareCellForDisplay() {
+    aLog("prepareCellForDisplay()");
+    daysInGrid.clear();
     // Get the first day of the focused month
     final DateTime firstDayOfMonth = DateTime(
       focusedMonth.value.year,
@@ -79,7 +82,9 @@ class CallenderController extends BaseController {
   }
 
   // Helper function to navigate to the previous month
-  void goToPreviousMonth() async{
+  void goToPreviousMonth() async {
+    aLog("goToPreviousMonth()");
+
     if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
@@ -92,16 +97,19 @@ class CallenderController extends BaseController {
     final mDate =
         "${focusedMonth.value.year}-${focusedMonth.value.month.toString().padLeft(2, '0')}-${focusedMonth.value.day.toString().padLeft(2, '0')}";
     getTodaysScheduleList(mDate);
+    prepareCellForDisplay();
     refreshUiElemnst();
   }
 
   void refreshUiElemnst() {
+    dailyData.refresh();
     focusedMonth.refresh();
     daysInGrid.refresh();
   }
 
   // Helper function to navigate to the next month
-  void goToNextMonth() async{
+  void goToNextMonth() async {
+    aLog("goToPreviousMonth()");
     if (await NetUtil.isNetworkAvailable() == false) {
       AppToast.showToast(message: "No internet connection");
       return;
@@ -114,6 +122,7 @@ class CallenderController extends BaseController {
     final mDate =
         "${focusedMonth.value.year}-${focusedMonth.value.month.toString().padLeft(2, '0')}-${focusedMonth.value.day.toString().padLeft(2, '0')}";
     getTodaysScheduleList(mDate);
+    prepareCellForDisplay();
     refreshUiElemnst();
   }
 

@@ -58,7 +58,6 @@ class HomeController extends BaseController {
   Rx<AttandanceModel> attandanceObj = AttandanceModel().obs;
   RxList<ScheduleDateTimeModel> scheduleList = <ScheduleDateTimeModel>[].obs;
   Timer? _timer;
-
   @override
   void onInit() {
     super.onInit();
@@ -167,23 +166,31 @@ class HomeController extends BaseController {
       loginLong: inLocation.long.toString(),
     );
     try {
-      final response = await _employeeService.clockIn(loginData);
-      if (response.responseCode?.toLowerCase() == "Fail".toLowerCase()) {
-        AppToast.showToast(message: response.responseCode ?? "Punch In Failed");
-      } else {
-        AppToast.showToast(
-          message: response.responseCode ?? "Punch In Sucessful",
-        );
-        if (response.results != null && response.results!.isNotEmpty) {
-          attandanceObj.value = response.results!.first;
-          if (attandanceObj.value.isLoggedIn &&
-              !attandanceObj.value.isLoggedOut) {
-            userState.value = UserState.WORKING;
-            userManager.setIsWorking(true);
-            _startForgrundService();
-          }
-        }
-      }
+      await Future.delayed(Duration(seconds: 2), () {
+        // isPunchInProgress.value = false;
+      });
+
+      userState.value = UserState.WORKING;
+      AppToast.showToast(message: "Punch In Sucessful");
+      //
+      // final response = await _employeeService.clockIn(loginData);
+      // isPunchInProgress.value = false;
+      // if (response.responseCode?.toLowerCase() == "Fail".toLowerCase()) {
+      //   AppToast.showToast(message: response.responseCode ?? "Punch In Failed");
+      // } else {
+      //   AppToast.showToast(
+      //     message: response.responseCode ?? "Punch In Sucessful",
+      //   );
+      //   if (response.results != null && response.results!.isNotEmpty) {
+      //     attandanceObj.value = response.results!.first;
+      //     if (attandanceObj.value.isLoggedIn &&
+      //         !attandanceObj.value.isLoggedOut) {
+      //       userState.value = UserState.WORKING;
+      //       userManager.setIsWorking(true);
+      //       _startForgrundService();
+      //     }
+      //   }
+      // }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to Punch In";
       AppToast.showToast(message: errorMessage);
@@ -434,7 +441,7 @@ class HomeController extends BaseController {
   }
 
   void _startForgrundService() {
-     if (userManager.getIsWorking() == true) {
+    if (userManager.getIsWorking() == true) {
       // if (kProfileMode) {
       FlutterBgService.startTracking(userManager);
       FlutterBgService.updateUserData(userManager);
@@ -462,11 +469,11 @@ class HomeController extends BaseController {
       version = "1.0.0.p_v_10";
     }
     if (kReleaseMode) {
-      version = "1.0.0.r_v_0002";
+      version = "1.0.0.r_v_0003";
     } else {
-      version = Platform.isAndroid
-          ? await getAndroidVersion()
-          : await getiOSVersion();
+      // version = Platform.isAndroid
+      //     ? await getAndroidVersion()
+      //     : await getiOSVersion();
     }
     this.version.value = version;
   }

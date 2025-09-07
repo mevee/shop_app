@@ -38,6 +38,7 @@ class AppConstants {
   static const double largePadding = 24.0;
   static const double borderRadius = 8.0;
   static const double cardElevation = 4.0;
+  static const int debounceTImeMiliSeconds = 700;
 
   // API Endpoints
   static const String host = 'm.hamsterspirits.com';

@@ -55,8 +55,8 @@ class HomeScreen extends GetView<HomeController> {
                                   controller.userState.value ==
                                       UserState.NOT_WORKING ||
                                   controller.isPunchInProgress.value)
-                              ? true
-                              : false,
+                              ? true:
+                              false,
                           isLoading: controller.isPunchInProgress.value,
                           context: context,
                           color: Colors.green,
@@ -70,20 +70,24 @@ class HomeScreen extends GetView<HomeController> {
                               final loc =
                                   await PermissionUtil.locationPermissionCheck();
                               if (loc) {
-                                // AppToast.showToast(
-                                //   message: "Locaton notification allowed",
-                                // );
-                                showCustomDialog(
-                                  context: context,
-                                  message: "Do you want to checkin?",
-                                  title: "Confirm",
-                                  barrierDismissible: true,
-                                  primaryButtonText: "Yes",
-                                  secondaryButtonText: "No",
-                                  onPrimaryPressed: () {
-                                    controller.getInLocation();
-                                  },
-                                );
+                                if (controller.isClicked.value) {
+                                  return;
+                                } else {
+                                  await controller.click();
+                                  await showCustomDialog(
+                                    context: context,
+                                    message: "Do you want to checkin?",
+                                    title: "Confirm",
+                                    barrierDismissible: true,
+                                    primaryButtonText: "Yes",
+                                    secondaryButtonText: "No",
+                                    onPrimaryPressed: () {
+                                      // if (!controller.isPunchInProgress.value) {
+                                      controller.getInLocation();
+                                      // }
+                                    },
+                                  );
+                                }
                               } else {
                                 AppToast.showToast(
                                   message: "Locaton notification denied",
@@ -115,38 +119,43 @@ class HomeScreen extends GetView<HomeController> {
                           textColor: Colors.white,
                           progressColor: Colors.white,
                           label: "Checkout",
-                          onPressed: () {
-                            showCustomDialog(
-                              context: context,
-                              message: "Do you want to Checkout?",
-                              title: "Confirm",
-                              barrierDismissible: true,
-                              primaryButtonText: "Yes",
-                              secondaryButtonText: "No",
-                              onPrimaryPressed: () {
-                                aLog(
-                                  "isSchedulePending::${controller.isSchedulePending()}",
-                                );
-                                // if (controller.isSchedulePending()) {
-                                //   AppToast.showToast(
-                                //     message:
-                                //         "Please complete schedule before checkout",
-                                //   );
-                                // }else
-                                if (!controller.isAgent()) {
-                                  controller.getOutLocation();
-                                } else {
-                                  if (!controller.is15ScheduleCompleted()) {
-                                    AppToast.showToast(
-                                      message:
-                                          "Please complete at least 15 schedule before checkout",
-                                    );
-                                  } else {
+                          onPressed: () async {
+                            if (controller.isClicked.value) {
+                              return;
+                            } else {
+                              await controller.click();
+                              showCustomDialog(
+                                context: context,
+                                message: "Do you want to Checkout?",
+                                title: "Confirm",
+                                barrierDismissible: true,
+                                primaryButtonText: "Yes",
+                                secondaryButtonText: "No",
+                                onPrimaryPressed: () {
+                                  aLog(
+                                    "isSchedulePending::${controller.isSchedulePending()}",
+                                  );
+                                  // if (controller.isSchedulePending()) {
+                                  //   AppToast.showToast(
+                                  //     message:
+                                  //         "Please complete schedule before checkout",
+                                  //   );
+                                  // }else
+                                  if (!controller.isAgent()) {
                                     controller.getOutLocation();
+                                  } else {
+                                    if (!controller.is15ScheduleCompleted()) {
+                                      AppToast.showToast(
+                                        message:
+                                            "Please complete at least 15 schedule before checkout",
+                                      );
+                                    } else {
+                                      controller.getOutLocation();
+                                    }
                                   }
-                                }
-                              },
-                            );
+                                },
+                              );
+                            }
                           },
                         ),
                       ),
@@ -177,7 +186,6 @@ class HomeScreen extends GetView<HomeController> {
                         controller.getTodaysSchedules();
                         controller.getEmployeeAttandance();
                         FlutterBgService.updateUserData(controller.userManager);
-                        
                       },
                       child: Icon(Icons.refresh),
                     ),
