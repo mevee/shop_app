@@ -78,9 +78,9 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                       : null,
                 ),
                 onChanged: (value) {
-                  if (value.isNotEmpty) {
+                  // if (value.isNotEmpty) {
                     controller.getShopList(controller.searchCtr.text);
-                  }
+                  // }
                 },
               ),
             ),
@@ -184,7 +184,7 @@ class ShopMasterScreen extends GetView<ShopMasterController> {
                                       ),
                                       TextSpan(
                                         text:
-                                            "\nType: ${controller.selected.value == "Retail" ? shop.shopType : shop.licenceType}",
+                                            "\nType: ${controller.getType(shop)}",
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           color: Colors.black54,

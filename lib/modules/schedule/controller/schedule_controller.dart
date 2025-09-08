@@ -86,6 +86,11 @@ class ScheduleController extends BaseController {
     selected.value = dropDownOptions[1];
   }
 
+  String getType(ShopMasterModel shop) {
+    return (selected.value == "Retail" ? shop.shopType : shop.licenceType) ??
+        "N/A";
+  }
+
   void calculateTotal() {
     totalExtQty.value = 0;
     currentQty.value = 0;
@@ -353,17 +358,20 @@ class ScheduleController extends BaseController {
       completer!.complete();
       isSearchLoading.value = false;
     }
-
-    if (query.isEmpty && selected.value == "Retail") {
-      return;
+    var distric = placeCtr.text;
+    if (distric.isEmpty) {
+      distric = "NA";
+    }
+    if (query.isEmpty /*&& selected.value == "Retail"*/ ) {
+      query = "NA";
+      // return;
     }
     completer = Completer();
     isSearchLoading.value = true;
     try {
-      // aLog("selected.value:::-> $query, ${placeCtr.text}");
       final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
-          : masterService.getWholeSellerName(query, placeCtr.text);
+          : masterService.getWholeSellerName(query, distric);
       completer?.complete(future);
       final response = await completer!.future;
       shopDetailsOptions.value = response.results ?? [];

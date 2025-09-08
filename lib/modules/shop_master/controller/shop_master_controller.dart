@@ -22,7 +22,7 @@ import 'package:shop_app/models/shop_master_response.dart';
 class ShopMasterController extends BaseController {
   final SessionPref _userManager = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
-  final TextEditingController searchCtr = TextEditingController(text: "a");
+  final TextEditingController searchCtr = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
   final TextEditingController placeCtr = TextEditingController();
 
@@ -67,6 +67,12 @@ class ShopMasterController extends BaseController {
     // getShopList("");
   }
 
+
+  String getType(ShopMasterModel shop) {
+    return (selected.value == "Retail" ? shop.shopType : shop.licenceType) ??
+        "N/A";
+  }
+  
   void onProducSelected(ProductMaster prod) {
     product.value = prod;
     getScheduleSku();
@@ -80,10 +86,17 @@ class ShopMasterController extends BaseController {
     }
     completer = Completer();
     isLoding.value = true;
+    var place = placeCtr.text;
+    if (place.isEmpty) {
+      place = "NA";
+    }
+    if (query.isEmpty){
+      query = "NA";
+    }
     try {
       final future = selected.value == "Retail"
           ? masterService.getShopByName(query)
-          : masterService.getWholeSellerName(query, placeCtr.text);
+          : masterService.getWholeSellerName(query, place);
       completer?.complete(future);
       final response = await completer!.future;
       shopListApi.value = response?.results ?? [];
@@ -193,6 +206,11 @@ class ShopMasterController extends BaseController {
 
     searchSopListTask = Completer();
     isLoding.value = true;
+    
+    if (query.isEmpty) {} {
+      query = "NA";
+    }
+     
     try {
       final future = masterService.getShopByName(query);
       searchSopListTask?.complete(future);
