@@ -9,7 +9,6 @@ import 'package:shop_app/common/base_controller.dart';
 import 'package:shop_app/common/location_util.dart';
 import 'package:shop_app/common/select_image.dart';
 import 'package:shop_app/data/network/net_util.dart';
-import 'package:shop_app/data/preference.dart';
 import 'package:shop_app/data/shop_image_list_response.dart';
 import 'package:shop_app/data/shop_master_service.dart';
 import 'package:shop_app/exception/exceptions.dart';
@@ -20,7 +19,6 @@ import 'package:shop_app/models/schedule_request.dart';
 import 'package:shop_app/models/shop_master_response.dart';
 
 class ShopMasterController extends BaseController {
-  final SessionPref _userManager = Get.find();
   final ShopMasterServiceProtocol masterService = Get.put(ShopMasterService());
   final TextEditingController searchCtr = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
@@ -67,12 +65,11 @@ class ShopMasterController extends BaseController {
     // getShopList("");
   }
 
-
   String getType(ShopMasterModel shop) {
     return (selected.value == "Retail" ? shop.shopType : shop.licenceType) ??
         "N/A";
   }
-  
+
   void onProducSelected(ProductMaster prod) {
     product.value = prod;
     getScheduleSku();
@@ -88,14 +85,14 @@ class ShopMasterController extends BaseController {
     isLoding.value = true;
     var place = placeCtr.text;
     if (place.isEmpty) {
-      place = "NA";
+      place = "N/A";
     }
-    if (query.isEmpty){
-      query = "NA";
+    if (query.isEmpty) {
+      query = "N/A";
     }
     try {
       final future = selected.value == "Retail"
-          ? masterService.getShopByName(query)
+          ? masterService.getShopByName(query, place)
           : masterService.getWholeSellerName(query, place);
       completer?.complete(future);
       final response = await completer!.future;
@@ -206,13 +203,14 @@ class ShopMasterController extends BaseController {
 
     searchSopListTask = Completer();
     isLoding.value = true;
-    
-    if (query.isEmpty) {} {
-      query = "NA";
+
+    if (query.isEmpty) {}
+    {
+      query = "N/A";
     }
-     
+
     try {
-      final future = masterService.getShopByName(query);
+      final future = masterService.getShopByName(query,"N/A");
       searchSopListTask?.complete(future);
       final response = await searchSopListTask!.future;
       shopListApi.value = response.results ?? [];

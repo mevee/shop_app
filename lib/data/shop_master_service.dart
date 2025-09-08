@@ -21,7 +21,10 @@ abstract class ShopMasterServiceProtocol {
     String? scheduleId,
   ); //d
   Future<List<ShopMasterModel>> getShopList(); //d
-  Future<ShopMasterListResponse> getShopByName(String query);
+  Future<ShopMasterListResponse> getShopByName(
+    String query,
+    String? districtName,
+  );
   Future<ShopMasterListResponse> getWholeSellerName(
     String query,
     String? districtName,
@@ -139,10 +142,15 @@ class ShopMasterService extends BaseNetworkClient
   }
 
   @override
-  Future<ShopMasterListResponse> getShopByName(String query) async {
+  Future<ShopMasterListResponse> getShopByName(
+    String query,
+    String? districtName,
+  ) async {
     var endPoint = EndPoints.shopListSearchGET;
     endPoint = endPoint.replaceAll("{shopName}", query);
-    endPoint = endPoint.replaceAll("{pageSize}", "100");
+    endPoint = endPoint.replaceAll("{pageSize}", "9999");
+    endPoint = endPoint.replaceAll("{districtName}", districtName ?? "");
+
     endPoint = endPoint.replaceAll("{pageNumber}", "0");
 
     try {
@@ -173,7 +181,7 @@ class ShopMasterService extends BaseNetworkClient
     var endPoint = EndPoints.shopWholeSaleListSearchGET;
     endPoint = endPoint.replaceAll("{shopName}", query);
     endPoint = endPoint.replaceAll("{districtName}", districtName ?? "");
-    endPoint = endPoint.replaceAll("{pageSize}", "100");
+    endPoint = endPoint.replaceAll("{pageSize}", "99999");
     endPoint = endPoint.replaceAll("{pageNumber}", "0");
     try {
       final response = await client.get(endPoint);

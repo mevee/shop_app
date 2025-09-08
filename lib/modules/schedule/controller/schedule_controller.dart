@@ -360,17 +360,17 @@ class ScheduleController extends BaseController {
     }
     var distric = placeCtr.text;
     if (distric.isEmpty) {
-      distric = "NA";
+      distric = "N/A";
     }
     if (query.isEmpty /*&& selected.value == "Retail"*/ ) {
-      query = "NA";
+      query = "N/A";
       // return;
     }
     completer = Completer();
     isSearchLoading.value = true;
     try {
       final future = selected.value == "Retail"
-          ? masterService.getShopByName(query)
+          ? masterService.getShopByName(query,distric)
           : masterService.getWholeSellerName(query, distric);
       completer?.complete(future);
       final response = await completer!.future;
