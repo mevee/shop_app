@@ -166,31 +166,24 @@ class HomeController extends BaseController {
       loginLong: inLocation.long.toString(),
     );
     try {
-      await Future.delayed(Duration(seconds: 2), () {
-        // isPunchInProgress.value = false;
-      });
-
-      userState.value = UserState.WORKING;
-      AppToast.showToast(message: "Punch In Sucessful");
-      //
-      // final response = await _employeeService.clockIn(loginData);
-      // isPunchInProgress.value = false;
-      // if (response.responseCode?.toLowerCase() == "Fail".toLowerCase()) {
-      //   AppToast.showToast(message: response.responseCode ?? "Punch In Failed");
-      // } else {
-      //   AppToast.showToast(
-      //     message: response.responseCode ?? "Punch In Sucessful",
-      //   );
-      //   if (response.results != null && response.results!.isNotEmpty) {
-      //     attandanceObj.value = response.results!.first;
-      //     if (attandanceObj.value.isLoggedIn &&
-      //         !attandanceObj.value.isLoggedOut) {
-      //       userState.value = UserState.WORKING;
-      //       userManager.setIsWorking(true);
-      //       _startForgrundService();
-      //     }
-      //   }
-      // }
+      final response = await _employeeService.clockIn(loginData);
+      isPunchInProgress.value = false;
+      if (response.responseCode?.toLowerCase() == "Fail".toLowerCase()) {
+        AppToast.showToast(message: response.responseCode ?? "Punch In Failed");
+      } else {
+        AppToast.showToast(
+          message: response.responseCode ?? "Punch In Sucessful",
+        );
+        if (response.results != null && response.results!.isNotEmpty) {
+          attandanceObj.value = response.results!.first;
+          if (attandanceObj.value.isLoggedIn &&
+              !attandanceObj.value.isLoggedOut) {
+            userState.value = UserState.WORKING;
+            userManager.setIsWorking(true);
+            _startForgrundService();
+          }
+        }
+      }
     } on DioException catch (e) {
       final errorMessage = e.response?.data['error'] ?? "Failed to Punch In";
       AppToast.showToast(message: errorMessage);
