@@ -5,8 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/common/app_log_util.dart';
+import 'package:shop_app/data/pref/session_pref_impl.dart';
 import 'package:shop_app/data/preference.dart';
-import 'package:shop_app/data/session_pref_impl.dart';
 import 'package:shop_app/models/employee_response.dart';
 
 class LocationSyncService {

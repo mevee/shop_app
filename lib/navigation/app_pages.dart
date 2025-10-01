@@ -44,11 +44,11 @@ class AppPages {
       page: () => const SplashView(),
       // binding: SplashBinding(),
     ),
-    GetPage(
-      name: _Paths.login,
-      page: () => const LoginScreen(),
-      binding: AuthBinding(),
-    ),
+    // GetPage(
+    //   name: _Paths.login,
+    //   page: () => const LoginScreen(),
+    //   binding: AuthBinding(),
+    // ),
     GetPage(
       name: _Paths.passwordReset,
       page: () => const PasswordResetScreen(),

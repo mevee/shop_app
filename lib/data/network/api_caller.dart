@@ -107,7 +107,7 @@ extension BaseController on GetxController {
   } catch (error, stackTrace) {
     debugPrint('Unexpected error: $error\n$stackTrace');
     onError?.call(
-      AppException(
+      Failure(
         message: 'An unexpected error occurred',
         // originalError: error,
         // stackTrace: stackTrace,

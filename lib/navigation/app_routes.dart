@@ -22,7 +22,7 @@ abstract class _Paths {
   _Paths._();
   static const home = '/home';
   static const scheduleList = '/schedule-list';
-  static const splash = '/splash';
+  static const splash = '/';
   static const login = '/login';
   static const passwordReset = '/password-reset';
   static const passwordUpdate = '/password-update';

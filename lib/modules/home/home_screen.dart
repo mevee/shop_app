@@ -9,7 +9,7 @@ import 'package:shop_app/common/two_state_widget.dart';
 import 'package:shop_app/data/network/app_colors.dart';
 import 'package:shop_app/data/network/net_util.dart';
 import 'package:shop_app/data/preference.dart';
-import 'package:shop_app/data/session_pref_impl.dart';
+import 'package:shop_app/data/pref/session_pref_impl.dart';
 import 'package:shop_app/location_service/bg_service.dart';
 import 'package:shop_app/location_service/permission_helper.dart';
 import 'package:shop_app/models/login_response.dart';
